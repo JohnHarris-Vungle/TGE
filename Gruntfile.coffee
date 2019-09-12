@@ -4,12 +4,6 @@ module.exports = (grunt) ->
 
 	# Parse game config into gameConfigContext
 	vm = require("vm")
-	try
-		adapterDefsText = grunt.file.read("TGS/AdapterDefinitions.js")
-		adapterDefsContext = {}
-		vm.runInNewContext adapterDefsText, adapterDefsContext
-	catch e
-		grunt.fail.fatal "Failed to load TGS/AdapterDefinitions.js:\n" + e
 
 	# Load up users personal build config
 	try
@@ -59,11 +53,8 @@ module.exports = (grunt) ->
 	grunt.initConfig
 		personalConfig: personalConfig
 
-		tgs: grunt.file.readJSON("TGS/buildConfig.json")
-		tge: grunt.file.readJSON("TGE/buildConfig.json")
-		tgl: grunt.file.readJSON("TGL/buildConfig.json")
+		tge: grunt.file.readJSON("src/buildConfig.json")
 
-		adapters: adapterDefsContext.TGS.AdapterDefinitions
 		adapterFiles: []
 
 		legalNotice: "/* Copyright (c) 2014 TreSensa, Inc. All Rights Reserved. */\n"
@@ -72,7 +63,7 @@ module.exports = (grunt) ->
 
 		copy:
 			thirdPartyTGEProd:
-				src: ["TGE/3rdparty/*.min.js"]
+				src: ["src/3rdparty/*.min.js"]
 				dest: "dist/tge/3rdparty"
 				flatten: true
 				expand: true
@@ -87,7 +78,7 @@ module.exports = (grunt) ->
 				flatten: true
 				expand: true
 			thirdPartyTGEQA:
-				src: ["TGE/3rdparty/*.js"]
+				src: ["src/3rdparty/*.js"]
 				dest: "dist/tge/3rdparty"
 				flatten: true
 				expand: true
@@ -102,7 +93,7 @@ module.exports = (grunt) ->
 				flatten: true
 				expand: true
 			readmeTGE:
-				src: ["TGE/README.md"]
+				src: ["src/README.md"]
 				dest: "dist/tge"
 				flatten: true
 				expand: true
@@ -229,8 +220,8 @@ module.exports = (grunt) ->
 					"dist/tgs/css/tgs-<%= tgs.majorVersion %>.css": "TGS/style/*.less"
 			tge:
 				files:
-					"dist/tge/css/tge-<%= tge.version %>.css": "TGE/style/*.less"
-					"dist/tge/css/tge-<%= tge.majorVersion %>.css": "TGE/style/*.less"
+					"dist/tge/css/tge-<%= tge.version %>.css": "src/style/*.less"
+					"dist/tge/css/tge-<%= tge.majorVersion %>.css": "src/style/*.less"
 
 		watch:
 			options:
@@ -251,7 +242,7 @@ module.exports = (grunt) ->
 				files: ["TGS/style/*.less"]
 				tasks: ["less:tgs", "readCss", "compile:qa:tgs"]
 			less_tge:
-				files: ["TGE/style/*.less"]
+				files: ["src/style/*.less"]
 				tasks: ["less:tge"]
 			adapters:
 				files: ["<%= adapterFiles %>", "AdapterDefinitions.js"]
@@ -289,7 +280,7 @@ module.exports = (grunt) ->
 				command: 'svn copy "^/trunk/TGS/" "^/tags/TGS_<%= tgs.version %>" -m "TGS <%= tgs.version %> Release"'
 			tag_tge:
 				options: {stdout: true, stderr: true}
-				command: 'svn copy "^/trunk/TGE/" "^/tags/TGE_<%= tge.version %>" -m "TGE <%= tge.version %> Release"'
+				command: 'svn copy "^/trunk/src/" "^/tags/TGE_<%= tge.version %>" -m "TGE <%= tge.version %> Release"'
 			tag_tgl:
 				options: {stdout: true, stderr: true}
 				command: 'svn copy "^/trunk/TGL/" "^/tags/TGL_<%= tgl.version %>" -m "TGL <%= tgl.version %> Release"'
@@ -309,7 +300,7 @@ module.exports = (grunt) ->
 				options: {stdout: true, execOptions: {cwd: "TGS/"}}
 				command: 'sh document.sh'
 			docs_tge:
-				options: {stdout: true, execOptions: {cwd: "TGE/"}}
+				options: {stdout: true, execOptions: {cwd: "src/"}}
 				command: 'sh document.sh'
 
 		# Used for both PROD and QA
@@ -387,7 +378,7 @@ module.exports = (grunt) ->
 				}
 				files: [{
 					expand: true
-					cwd: 'TGE/apidocs/'
+					cwd: 'src/apidocs/'
 					src: ['**']
 					dest: 'tge/'
 				}]
@@ -701,10 +692,12 @@ module.exports = (grunt) ->
 		downloadQueue.drain = @async()
 
 	# Extra config for each lib
-	for lib in ['tge', 'tgs', 'tgl']
+	for lib in ['tge']
 		# Treat all paths as relative to root of lib
 		files = grunt.config("#{lib}.files")
+		console.log(files)
 		files = files.map (file) -> "#{lib.toUpperCase()}/#{file}"
+		console.log("Second: " + files)
 		grunt.config("#{lib}.files", files)
 
 		# Pull out major version from full version
@@ -716,21 +709,6 @@ module.exports = (grunt) ->
 
 		grunt.registerTask "compile:prod:#{lib}", ["uglify:#{lib}"]
 		grunt.registerTask "compile:qa:#{lib}", ["concat:#{lib}"]
-
-	files = grunt.config("tgs.litefiles")
-	files = files.map (file) -> "TGS/#{file}"
-	grunt.config("tgs.litefiles", files)
-	grunt.registerTask "compile:prod:tgslite", ["uglify:tgslite"]
-	grunt.registerTask "compile:qa:tgslite", ["concat:tgslite"]
-
-	files = grunt.config("tgl.litefiles")
-	files = files.map (file) -> "TGL/#{file}"
-	grunt.config("tgl.litefiles", files)
-	grunt.registerTask "compile:prod:tgllite", ["uglify:tgllite"]
-	grunt.registerTask "compile:qa:tgllite", ["concat:tgllite"]
-
-	grunt.registerTask "compile:prod:tgl_boot", ["uglify:tgl_boot"]
-	grunt.registerTask "compile:qa:tgl_boot", ["concat:tgl_boot"]
 
 	# Generate adapters task based on AdapterDefinitions.json
 	concatFiles = grunt.config("concat.adapters.files")
@@ -856,7 +834,7 @@ module.exports = (grunt) ->
 
 	# Create post to jira task
 	grunt.registerTask 'slackpost', ->
-		buildConfig = grunt.file.readJSON("TGE/BuildConfig.json")
+		buildConfig = grunt.file.readJSON("src/BuildConfig.json")
 		grunt.config.set "buildConfig.version", buildConfig.version
 		grunt.config.set "slackToken", grunt.config.get('authresult')
 		grunt.config.set "channelName", grunt.config.get('chan')
@@ -870,7 +848,7 @@ module.exports = (grunt) ->
 	# Opener task for testing games
 	grunt.registerTask 'testgames', (num) ->
 		open = require('open')
-		buildConfig = grunt.file.readJSON("TGE/BuildConfig.json")
+		buildConfig = grunt.file.readJSON("src/BuildConfig.json")
 		ver = buildConfig.version
 		url = "https://play.tresensa.com/launch?placement=170&tgeVersion=" + ver + "&creative="
 		finGames = []
