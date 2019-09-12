@@ -214,10 +214,6 @@ module.exports = (grunt) ->
 		less:
 			options:
 				cleancss: true
-			tgs:
-				files:
-					"dist/tgs/css/tgs-<%= tgs.version %>.css": "TGS/style/*.less"
-					"dist/tgs/css/tgs-<%= tgs.majorVersion %>.css": "TGS/style/*.less"
 			tge:
 				files:
 					"dist/tge/css/tge-<%= tge.version %>.css": "src/style/*.less"
@@ -460,19 +456,10 @@ module.exports = (grunt) ->
 			]
 			concurrency: 1
 		buildBowerJson:
-			tgs:
-				sdk: "tgs"
-				version: "<%= tgs.version %>"
-				description: "Tresensa Game Services"
-				ignore: '"A*/**", "Q0001/**", "C*/**", "!A0001/**", "!A0002/**"'
 			tge:
 				sdk: "tge"
 				version: "<%= tge.version %>"
 				description: "Tresensa Game Engine"
-			tgl:
-				sdk: "tgl"
-				version: "<%= tgl.version %>"
-				description: "Tresensa Game Loader"
 		git_deploy:
 			tgs_master:
 				options:
@@ -695,8 +682,7 @@ module.exports = (grunt) ->
 	for lib in ['tge']
 		# Treat all paths as relative to root of lib
 		files = grunt.config("#{lib}.files")
-		console.log(files)
-		files = files.map (file) -> "#{lib.toUpperCase()}/#{file}"
+		files = files.map (file) -> "src/#{file}"
 		console.log("Second: " + files)
 		grunt.config("#{lib}.files", files)
 
@@ -728,8 +714,8 @@ module.exports = (grunt) ->
 	grunt.registerTask "compile:qa:embed", ["concat:embed"]
 	grunt.registerTask "compile:prod:embed", ["uglify:embed"]
 
-	grunt.registerTask "build:prod", ["clean", "copy:thirdPartyTGEProd", "copy:thirdPartyTGSProd", "copy:thirdPartyTGLProd", "copy:readmeTGE", "copy:readmeTGS", "copy:readmeTGL", "less", "readCss", "compile:prod:tge", "compile:prod:tgs", "compile:prod:tgslite", "compile:prod:tgl", "compile:prod:tgllite", "compile:prod:tgl_boot", "compile:prod:adapters", "compile:prod:embed", "buildBowerJson"]
-	grunt.registerTask "build:qa", ["clean", "copy:thirdPartyTGEQA","copy:thirdPartyTGSQA","copy:thirdPartyTGLQA", "less", "readCss", "compile:qa:tge", "compile:qa:tgs", "compile:qa:tgslite", "compile:qa:tgl", "compile:qa:tgllite", "compile:qa:tgl_boot", "compile:qa:adapters", "compile:qa:embed"]
+	grunt.registerTask "build:prod", ["clean", "copy:thirdPartyTGEProd", "copy:readmeTGE", "less", "compile:prod:tge", "buildBowerJson"]
+	grunt.registerTask "build:qa", ["clean", "copy:thirdPartyTGEQA", "less", "compile:qa:tge", "compile:qa:adapters", "compile:qa:embed"]
 	#grunt.registerTask "build:docs", ["clean", "jsdoc:all"]
 
 	grunt.registerTask "readCss", ->
