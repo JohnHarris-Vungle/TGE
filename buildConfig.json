@@ -1,0 +1,55 @@
+{
+	"name": "TGE-SDK",
+	"version": "1.1.120",
+	"files": [
+        "Core.js",
+        "Loader.js",
+		"Utilities.js",
+		"math/Vector2.js",
+		"math/Matrix.js",
+		"math/Rectangle.js",
+		"math/MathPolyfill.js",
+		"math/Math.js",
+		"math/Random.js",
+
+		"renderer/Renderer.js",
+		"renderer/CanvasRenderer.js",
+
+		"scenegraph/DisplayObject.js",
+		"scenegraph/DisplayObjectContainer.js",
+		"scenegraph/Stage.js",
+		"scenegraph/Sprite.js",
+		"scenegraph/RectMask.js",
+		"scenegraph/SpriteSheetAnimation.js",
+		"scenegraph/TFXAnimationSet.js",
+		"scenegraph/Window.js",
+		"scenegraph/Button.js",
+		"scenegraph/Text.js",
+		"scenegraph/CachedContainer.js",
+		"scenegraph/AdHeader.js",
+		"scenegraph/AdFooter.js",
+		"scenegraph/PromoScreen.js",
+		"scenegraph/CrossfadeSprite.js",
+		"scenegraph/ProgressiveLoadingSprite.js",
+
+		"audio/NoAudio.js",
+		"audio/WebAudioAPIPlugin.js",
+		"audio/AudioManager.js",
+		"audio/AudioLoader.js",
+
+		"analytics/Events.js",
+		"Game.js",
+        "GlobalEvents.js",
+        "network/serverRequest.js",
+		"AssetLoader.js",
+		"AssetManager.js",
+		"Tracking.js",
+		"Tween.js",
+		"CameraShake.js",
+		"GenericLoadingWindow.js",
+		"RemoteSettings.js",
+		"TGSProxy.js",
+
+		"fontfaceobserver.standalone.js"
+	]
+}
