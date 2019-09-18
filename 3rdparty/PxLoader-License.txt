@@ -1,7 +1,0 @@
-/**
-Details and examples:
-http://thinkpixellab.com/pxloader/
-The MIT License
-Copyright (c) 2012 Pixel Lab
-**/
-
