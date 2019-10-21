@@ -298,12 +298,12 @@ TGE.DisplayObject.prototype =
 			}
 
 			this._mLayout = layout;
-			this._mLayoutResizeListener = this.addEventListener("resize", this._resize);
+			this._mLayoutResizeListener = this.addEventListener("resize", this._resize.bind(this, null));
 
 			// If the object is already in the scenegraph, update with the new layout
 			if(this.parent)
 			{
-				this._resize(TGE._ResizeEvent);
+				this._resize(null, TGE._ResizeEvent);
 			}
 		}
 	},
@@ -376,8 +376,14 @@ TGE.DisplayObject.prototype =
 	},
 
 	/** @ignore */
-	_resize: function(event, layout)
+	_resize: function(layout, event)
 	{
+		if (!this.parent)
+		{
+			// resize is not valid, until the object is part of the scene hierarchy
+			return;
+		}
+
 		if (!layout)
 		{
 			layout = this._mLayout;
@@ -436,7 +442,7 @@ TGE.DisplayObject.prototype =
 				var subStrategy = layout.pickLayout.call(this,event.height/event.width);
 				if (layout[subStrategy])
 				{
-					this._resize(event, layout[subStrategy]);
+					this._resize(layout[subStrategy], event);
 					return;
 				}
 				else
@@ -448,12 +454,12 @@ TGE.DisplayObject.prototype =
 			{
 				if(layout.portrait && event.height >= event.width)
 				{
-					this._resize(event, layout.portrait);
+					this._resize(layout.portrait, event);
 					return;
 				}
 				if(layout.landscape && event.height < event.width)
 				{
-					this._resize(event, layout.landscape);
+					this._resize(layout.landscape, event);
 					return;
 				}
 			}
