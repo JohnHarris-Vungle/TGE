@@ -1102,12 +1102,12 @@ TGE.AssetManager.prototype =
 							// push each array entry
 							for (var i = entry.subsheetURL.length; --i >= 0; )
 							{
-								layoutsAssetList.list.push({url:entry.subsheetURL[i]});
+                                pushSubsheetURL(layoutsAssetList, entry.subsheetURL[i]);
 							}
 						}
 						else
 						{
-							layoutsAssetList.list.push({url:entry.subsheetURL});
+                            pushSubsheetURL(layoutsAssetList, entry.subsheetURL);
 						}
 					}
 					if (entry.layoutURL)
@@ -1126,6 +1126,14 @@ TGE.AssetManager.prototype =
 				assetLoader.loadAssetList(this,assetList,this._mRootLocation,this.languagesFolder,this.currentLanguage,updateCallback,completeCallback);
 			}
 		}
+
+        function pushSubsheetURL(layoutsAssetList, subsheetURL)
+        {
+            if (!TGE.AssetManager.SpriteSheets[trimmedFilename(subsheetURL)])
+            {
+                layoutsAssetList.list.push({url:subsheetURL});
+            }
+        }
 	},
 
 	/** @ignore */
