@@ -53,7 +53,7 @@ module.exports = (grunt) ->
 	grunt.initConfig
 		personalConfig: personalConfig
 
-		tge: grunt.file.readJSON("src/buildConfig.json")
+		tge: grunt.file.readJSON("./buildConfig.json")
 
 		adapterFiles: []
 
@@ -820,7 +820,7 @@ module.exports = (grunt) ->
 
 	# Create post to jira task
 	grunt.registerTask 'slackpost', ->
-		buildConfig = grunt.file.readJSON("src/BuildConfig.json")
+		buildConfig = grunt.file.readJSON("./BuildConfig.json")
 		grunt.config.set "buildConfig.version", buildConfig.version
 		grunt.config.set "slackToken", grunt.config.get('authresult')
 		grunt.config.set "channelName", grunt.config.get('chan')
@@ -834,7 +834,7 @@ module.exports = (grunt) ->
 	# Opener task for testing games
 	grunt.registerTask 'testgames', (num) ->
 		open = require('open')
-		buildConfig = grunt.file.readJSON("src/BuildConfig.json")
+		buildConfig = grunt.file.readJSON("./BuildConfig.json")
 		ver = buildConfig.version
 		url = "https://play.tresensa.com/launch?placement=170&tgeVersion=" + ver + "&creative="
 		finGames = []
