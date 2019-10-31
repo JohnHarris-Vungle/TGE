@@ -1615,6 +1615,9 @@ TGE.Game.prototype =
 	{
 		TGE.Debug.Log(TGE.Debug.LOG_INFO, "game has been put to foreground, restoring audio and sending activate event...");
 
+		// Clear the single-touch tracking (PAN-1426)
+        this._mCurrentPointer = -1;
+
 		// Update the internal active state and send a corresponding event to the scene
 		this._active(true);
 
@@ -2164,11 +2167,8 @@ TGE.Game.prototype =
 		this._interaction();
 
 		// PAN-424
-		if(!navigator.isCocoonJS)
-		{
-			window.focus();
-		}
-
+		window.focus();
+		
 		this._mPointerDown = true;
         this._handleMouseEvent("down", e);
     },
