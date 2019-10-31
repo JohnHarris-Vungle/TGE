@@ -1599,6 +1599,9 @@ TGE.Game.prototype =
     {
 	    TGE.Debug.Log(TGE.Debug.LOG_INFO, "game has been put in the background, killing audio and sending deactivate event...");
 
+        // Clear the single-touch tracking (PAN-1426)
+        this._mCurrentPointer = -1;
+
         // Update the internal active state and send a corresponding event to the scene
         this._active(false);
 
