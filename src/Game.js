@@ -1602,8 +1602,10 @@ TGE.Game.prototype =
         // Update the internal active state and send a corresponding event to the scene
         this._active(false);
 
-        // Force an audio mute in case the game didn't handle it themselves
-        if(this.audioManager && !this.audioManager.isMuted())
+        // Force an audio mute in case the game didn't handle it themselves. Since iOS 12+13 we've been having problems
+        // with muting on deactivation that result in audio not un-muting and in some cases actually breaking input
+        // (PAN-1426, PAN-1427). We'll disable this since the OS automatically mutes when the webview is hidden.
+        if(!TGE.BrowserDetect.oniOS && this.audioManager && !this.audioManager.isMuted())
         {
 	        this.audioManager.Mute();
 	        this._mUnmuteOnActivate = true;
@@ -1628,7 +1630,7 @@ TGE.Game.prototype =
         }
 
 		// Un-mute the audio if we forced it off
-		if(this.audioManager && this._mUnmuteOnActivate)
+		if(!TGE.BrowserDetect.oniOS && this.audioManager && this._mUnmuteOnActivate)
 		{
 			this.audioManager.Unmute();
 			this._mUnmuteOnActivate = false;
