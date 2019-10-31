@@ -173,17 +173,32 @@ TGE.Events =
     {
         // Pixel tracking
         TGE.Game.GetInstance().tracking.trackEvent("clickthru", label);
+
+        // PAN-1428 Our default/primary click-through label is now "default", however it used to be "attribution".
+        // We will fire a tracking event for the attribution label just in case there is a legacy campaign where
+        // the label was specified as "attribution".
+        if (label==="default")
+        {
+            TGE.Game.GetInstance().tracking.trackEvent("clickthru", "attribution");
+        }
         
         if (window.TreSensa)
         {
-            if (label==="attribution")
+            if (label==="default" && !url)
             {
+                // This is very inappropriately titled now, really this just means that the click-through url
+                // is determined server side instead of being specified by the game code. Eventually we're going
+                // to want to rename this onClickthrough(label), and mark onLaunchAppstore deprecated. Though first
+                // we should deprecate TGL_DIRECT_MODE
                 TGL_DIRECT_MODE.onLaunchAppstore();
             }
             else
             {
                 TGL_DIRECT_MODE.onCustomClickThrough(url, label);
             }
+
+            // We can ultimately replace the whole if statement above with a single simple call:
+            // window.TreSensa.Playable.onClickthrough(label, url);
         }
         else
         {
@@ -201,7 +216,7 @@ TGE.Events =
 
     doAppstoreClickthrough: function()
     {
-        this.doClickthrough("attribution");
+        this.doClickthrough("default");
     },
 
     _sendAdContainerEvent: function(name, params) 

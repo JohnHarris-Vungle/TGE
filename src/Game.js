@@ -2628,7 +2628,7 @@ TGE._ReadyForNextClick = {};
 TGE.Game.Clickthrough = function (name, url, timeBeforeNextClick)
 {
 	// Validate the required parameters
-	if (!name || (!url && name!=="attribution"))
+	if (!name || (!url && name!=="default"))
 	{
 		TGE.Debug.Log(TGE.Debug.LOG_ERROR, "TGE.Game.Clickthrough requires name and URL parameters");
 		return;
@@ -2678,7 +2678,7 @@ TGE.Game.Clickthrough = function (name, url, timeBeforeNextClick)
  */
 TGE.Game.AppstoreClickthrough = function()
 {
-    TGE.Game.Clickthrough("attribution");
+    TGE.Game.Clickthrough("default");
 }
 
 /**
