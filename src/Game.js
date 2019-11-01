@@ -1405,12 +1405,21 @@ TGE.Game.prototype =
 			    }
 		    }
 
+            var dst = getDistributionPartner();
+
+            // PAN-1410 hack - it's unclear why ironSource MRAID behaves this way, it could be a bug in their container,
+            // or perhaps a timing issue with the resize events. But sometimes the width and height return the same value.
+            // It looks like it's only when the resize event is coming from MRAID resize, as opposed to the document based event.
+            if(dst==="B0099" && gameWidth===gameHeight)
+            {
+                return;
+            }
             // Ultimately I think I'd like to try removing this check, but that's a heavier change that would require
             // thorough QA on multiple platforms/devices. For now we know it doesn't behave well with ironSource so
             // we'll do it conditionally. I'm not sure exactly why it's causing the intermittent orientation change issues
             // on ironSource, but I assume it's related to the fact that the viewport size is retrieved via their own API
             // (either MRAID or DAPI), and this does not always update in time for this _resizeViewport call.
-		    if((getDistributionPartner()==="B0099" || getDistributionPartner()==="B0159") ||
+		    else if((dst==="B0099" || dst==="B0159") ||
                 (gameWidth!==oldGameWidth || gameHeight!==oldGameHeight))
 		    {
 			    TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "resizing canvas to: " + gameWidth + "x" + gameHeight + "...");
@@ -1599,11 +1608,16 @@ TGE.Game.prototype =
     {
 	    TGE.Debug.Log(TGE.Debug.LOG_INFO, "game has been put in the background, killing audio and sending deactivate event...");
 
+        // Clear the single-touch tracking (PAN-1426)
+        this._mCurrentPointer = -1;
+
         // Update the internal active state and send a corresponding event to the scene
         this._active(false);
 
-        // Force an audio mute in case the game didn't handle it themselves
-        if(this.audioManager && !this.audioManager.isMuted())
+        // Force an audio mute in case the game didn't handle it themselves. Since iOS 12+13 we've been having problems
+        // with muting on deactivation that result in audio not un-muting and in some cases actually breaking input
+        // (PAN-1426, PAN-1427). We'll disable this since the OS automatically mutes when the webview is hidden.
+        if(!TGE.BrowserDetect.oniOS && this.audioManager && !this.audioManager.isMuted())
         {
 	        this.audioManager.Mute();
 	        this._mUnmuteOnActivate = true;
@@ -1615,6 +1629,9 @@ TGE.Game.prototype =
 	{
 		TGE.Debug.Log(TGE.Debug.LOG_INFO, "game has been put to foreground, restoring audio and sending activate event...");
 
+		// Clear the single-touch tracking (PAN-1426)
+        this._mCurrentPointer = -1;
+
 		// Update the internal active state and send a corresponding event to the scene
 		this._active(true);
 
@@ -1625,7 +1642,7 @@ TGE.Game.prototype =
         }
 
 		// Un-mute the audio if we forced it off
-		if(this.audioManager && this._mUnmuteOnActivate)
+		if(!TGE.BrowserDetect.oniOS && this.audioManager && this._mUnmuteOnActivate)
 		{
 			this.audioManager.Unmute();
 			this._mUnmuteOnActivate = false;
@@ -2164,11 +2181,8 @@ TGE.Game.prototype =
 		this._interaction();
 
 		// PAN-424
-		if(!navigator.isCocoonJS)
-		{
-			window.focus();
-		}
-
+		window.focus();
+		
 		this._mPointerDown = true;
         this._handleMouseEvent("down", e);
     },
