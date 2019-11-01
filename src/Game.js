@@ -1405,12 +1405,21 @@ TGE.Game.prototype =
 			    }
 		    }
 
+            var dst = getDistributionPartner();
+
+            // PAN-1410 hack - it's unclear why ironSource MRAID behaves this way, it could be a bug in their container,
+            // or perhaps a timing issue with the resize events. But sometimes the width and height return the same value.
+            // It looks like it's only when the resize event is coming from MRAID resize, as opposed to the document based event.
+            if(dst==="B0099" && gameWidth===gameHeight)
+            {
+                return;
+            }
             // Ultimately I think I'd like to try removing this check, but that's a heavier change that would require
             // thorough QA on multiple platforms/devices. For now we know it doesn't behave well with ironSource so
             // we'll do it conditionally. I'm not sure exactly why it's causing the intermittent orientation change issues
             // on ironSource, but I assume it's related to the fact that the viewport size is retrieved via their own API
             // (either MRAID or DAPI), and this does not always update in time for this _resizeViewport call.
-		    if((getDistributionPartner()==="B0099" || getDistributionPartner()==="B0159") ||
+		    else if((dst==="B0099" || dst==="B0159") ||
                 (gameWidth!==oldGameWidth || gameHeight!==oldGameHeight))
 		    {
 			    TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "resizing canvas to: " + gameWidth + "x" + gameHeight + "...");
