@@ -1123,7 +1123,7 @@ TGE.Game.prototype =
         // PAN-1321 - the ironSource ad tester can often return undefined for width/height values here on iOS
         if(dst==="B0099" && window.mraid && mraid.getMaxSize && mraid.getMaxSize().width)
         {
-            return mraid.getMaxSize().width;
+            return Math.min(mraid.getMaxSize().width, document.documentElement.clientWidth);
         }
 
         // ironSource DAPI
@@ -1158,7 +1158,7 @@ TGE.Game.prototype =
         // ironSource MRAID
         if(dst==="B0099" && window.mraid && mraid.getMaxSize && mraid.getMaxSize().height)
         {
-            return mraid.getMaxSize().height;
+            return Math.min(mraid.getMaxSize().height, document.documentElement.clientHeight);
         }
 
         // ironSource DAPI
