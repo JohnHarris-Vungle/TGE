@@ -774,35 +774,8 @@ TGE.Game.prototype =
         // Add the resize event for orientation and screen size changes
         window.addEventListener('resize', this._onResize.bind(this), false);
 
-        // Catch messages from our iframe parent helper
-        var self = this;
-        window.addEventListener("message", function(e) {
-            try
-            {
-                var data = JSON.parse(e.data);
-            }
-            catch (er)
-            {
-                return; // ignore messages that we can't parse as they are certainly not meant for us
-            }
-
-            if(data == "iframe:pause")
-            {
-                self._onDeactivate()
-            }
-            else if(data == "iframe:resize")
-            {
-                self._onResize();
-            }
-	        else if(data == "iframe:visible")
-            {
-
-	        }
-        }, false);
-
 	    // Add events to auto-pause the game when deactivated on mobile
-        var notIOSIframe = !(this._isiFramed && TGE.BrowserDetect.oniOS);
-        if(!TGE.DisableLostFocusPause && notIOSIframe)
+        if(!TGE.DisableLostFocusPause)
         {
 			// Lots of different ways to handle changes in focus...
 			var visEvent;
@@ -844,12 +817,6 @@ TGE.Game.prototype =
 		        window.addEventListener("pagehide", this._onDeactivate.bind(this), false);
 		        window.addEventListener("pageshow", this._onActivate.bind(this), false);
 	        }
-
-            // Special handling for Cordova native builds
-            if(TGE.BrowserDetect.usingPhoneGap)
-            {
-                document.addEventListener("pause", this._onDeactivate.bind(this), false);
-            }
         }
 
         // Input handlers
@@ -872,8 +839,7 @@ TGE.Game.prototype =
         document.addEventListener("keyup", this._keyUp.bind(this), false);
 
 	    // Setup a debug widget if requested
-	    if(getQueryString()["tgedebug"] ||
-		    (typeof(window.CordovaConfig)!=="undefined" && CordovaConfig.SHOW_FPS==true))
+	    if(getQueryString()["tgedebug"])
 	    {
 		    var debugWidget = document.createElement("div");
 		    debugWidget.id = "debug_widget";
@@ -1407,19 +1373,12 @@ TGE.Game.prototype =
 
             var dst = getDistributionPartner();
 
-            // PAN-1410 hack - it's unclear why ironSource MRAID behaves this way, it could be a bug in their container,
-            // or perhaps a timing issue with the resize events. But sometimes the width and height return the same value.
-            // It looks like it's only when the resize event is coming from MRAID resize, as opposed to the document based event.
-            if(dst==="B0099" && gameWidth===gameHeight)
-            {
-                return;
-            }
             // Ultimately I think I'd like to try removing this check, but that's a heavier change that would require
             // thorough QA on multiple platforms/devices. For now we know it doesn't behave well with ironSource so
             // we'll do it conditionally. I'm not sure exactly why it's causing the intermittent orientation change issues
             // on ironSource, but I assume it's related to the fact that the viewport size is retrieved via their own API
             // (either MRAID or DAPI), and this does not always update in time for this _resizeViewport call.
-		    else if((dst==="B0099" || dst==="B0159") ||
+		    if((dst==="B0099" || dst==="B0159") ||
                 (gameWidth!==oldGameWidth || gameHeight!==oldGameHeight))
 		    {
 			    TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "resizing canvas to: " + gameWidth + "x" + gameHeight + "...");

@@ -308,7 +308,6 @@ TGE.BrowserDetect =
             this.onAndroid = this.platform==="Android";
             this.onWindowsMobile = this.platform==="Windows Phone" || this.platform==="Windows Tablet";
             this.isMobileDevice = !(this.platform==="Windows" || this.platform==="Mac" || this.platform==="Linux");
-            this.usingPhoneGap = (window.PhoneGap || window.cordova || window.Cordova);
             this.clickEvent = !this.isMobileDevice || this.onWindowsMobile ? "click" : "touchstart";
 
             // PAN-545: iOS 8 Simulator reports wrong OS version
