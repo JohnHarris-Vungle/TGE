@@ -25,7 +25,6 @@ TGE.RemoteSettings._getDefaultAudioSetting = function ()
         case "B0149": // Web links
         case "B0154": // Creative Builder
         case "B0003": // Facebook
-        case "B0159": // ironSource DAPI
             audioEnabled = true;
             break;
         case "B0094": // Beeswax RTB
