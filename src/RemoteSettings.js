@@ -60,7 +60,6 @@ TGE.RemoteSettings._initPersistentSettings = function()
  *     <li> value: current value of the remote setting, that is applied to the game </li>
  *     <li> default: whatever remote setting defaults to if no querystring is passed in </li>
  *     <li> options: optional, an array of the allowed values this setting can be set to </li>
- *     <li> debug: defaults to false, a flag that is only checked true if the remote setting should not be visible/settable publicly
  *     <li> persistent: default false, a flag that is only checked true if this remote setting is a Persistent TGE Remote Setting </li>
  *     * </ul>
  */
@@ -105,7 +104,6 @@ TGE.RemoteSettings.HasSetting = function (settingName)
  *     <li> value: current value of the remote setting, that is applied to the game </li>
  *     <li> default: whatever remote setting defaults to if no querystring is passed in </li>
  *     <li> options: optional, an array of the allowed values this setting can be set to </li>
- *     <li> debug: defaults to false, a flag that is only checked true if the remote setting should not be visible/settable publicly
  *     <li> persistent: default false, a flag that is only checked true if this remote setting is a Persistent TGE Remote Setting </li>
  *     * </ul>
  */
@@ -182,11 +180,6 @@ TGE.Game.prototype._initializeRemoteSettings = function ()
         }
     }
 
-    // PAN-1189 check to see if debug settings are allowed
-    // Debug settings should be disabled in prod unless debugSettings=true is set
-    // debugSettings itself cannot be a remote setting because it needs to be checked inside this function
-    var debugSettingsAllowed = (!GameConfig.PROD_ENV || getQueryString()["env"] === "qa" || getQueryString()["debugSettings"] === "true");
-
     // Initialize the settings:  add the name property and value property, check for dashboard overrides, check for querystring overrides
     for (var settingName in configInfo)
     {
@@ -203,17 +196,12 @@ TGE.Game.prototype._initializeRemoteSettings = function ()
 
 TGE.Game.prototype._initRemoteSetting = function (settingName, settingObject)
 {
-    // PAN-1189 check to see if debug settings are allowed
-    // Debug settings should be disabled in prod unless debugSettings=true is set
-    // debugSettings itself cannot be a remote setting because it needs to be checked inside this function
-    var debugSettingsAllowed = (!GameConfig.PROD_ENV || getQueryString()["env"] === "qa" || getQueryString()["debugSettings"] === "true");
-	var logLevel = (getQueryString()["env"] === "qa") ? TGE.Debug.LOG_WARNING : TGE.Debug.LOG_ERROR;
+    var logLevel = (getQueryString()["env"] === "qa") ? TGE.Debug.LOG_WARNING : TGE.Debug.LOG_ERROR;
 
     // Initialize the setting:  add the name property and value property, check for dashboard overrides, check for querystring overrides
     settingObject.name = settingName;
 
-    // PAN-1189, set default values for debug and description
-    settingObject.debug = (settingObject.debug === true);
+    // Set default values
     settingObject.description = settingObject.description || "";
 
     // For some use cases (like languages) it is important to know whether the current setting was specified or the default was used
@@ -234,16 +222,8 @@ TGE.Game.prototype._initRemoteSetting = function (settingName, settingObject)
             var variantOverwrite = this._checkForVariantOverwrite(settingObject);
             if (variantOverwrite !== null)
             {
-                // PAN-1189
-                if (!debugSettingsAllowed && settingObject.debug)
-                {
-                    TGE.Debug.Log(logLevel, "dashboard value disabled in production for debug setting " + settingObject.name);
-                }
-                else
-                {
-                    settingObject.value = variantOverwrite;
-                    settingObject.wasSet = true;
-                }
+                settingObject.value = variantOverwrite;
+                settingObject.wasSet = true;
             }
         }
         else
@@ -252,16 +232,8 @@ TGE.Game.prototype._initRemoteSetting = function (settingName, settingObject)
             var queryStringOverwrite = this._checkForQueryStringOverwrite(settingObject);
             if (queryStringOverwrite !== null)
             {
-                // PAN-1189
-                if (!debugSettingsAllowed && settingObject.debug)
-                {
-                    TGE.Debug.Log(logLevel, "query string value disabled in production for debug setting " + settingObject.name);
-                }
-                else
-                {
-                    settingObject.value = queryStringOverwrite;
-                    settingObject.wasSet = true;
-                }
+                settingObject.value = queryStringOverwrite;
+                settingObject.wasSet = true;
             }
         }
     }
@@ -462,8 +434,6 @@ TGE.Game.prototype._printRemoteSettings = function ()
             }
         }
 
-        // PAN-1189
-        printedString += "\nDebug: " + (settingInfo.debug === true);
         printedString += "\nDescription: " + settingInfo.description;
 
         printedString += "\n";
