@@ -11,13 +11,6 @@ TGE.CanvasRenderer = function(canvas,alpha)
 	if(canvas)
 	{
 		this._mCanvasContext = canvas.getContext('2d', {alpha:alpha});
-
-		// CocoonJS optimization
-		if(navigator.isCocoonJS && TGE.CanvasRenderer._sNumInstances===1)
-		{
-			canvas.screencanvas = true;
-		}
-
 		this._mFunctional = true;
 	}
 

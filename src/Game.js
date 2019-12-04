@@ -1252,7 +1252,7 @@ TGE.Game.prototype =
     },
 
     /** @ignore */
-    _resizeViewport: function(maximize)
+    _resizeViewport: function()
     {
         TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "_resizeViewport");
 
@@ -1448,12 +1448,6 @@ TGE.Game.prototype =
 
         // Now that we've resized the screen, recalculate the canvas position
         this._determineCanvasPosition();
-
-        // Always throw this in for good measure
-	    if(maximize)
-	    {
-		    maximizeViewport();
-	    }
     },
 
     /** @ignore */
@@ -2012,10 +2006,10 @@ TGE.Game.prototype =
             this.onLoad.call(this);
         }
 
-        // If we are using TGL, notify it that the game is loaded
-        if(window.TGL_DIRECT_MODE)
+        // Tell the ad container that the initial load is complete and the game is starting
+        if(window.TreSensa)
         {
-            TGL_DIRECT_MODE.onGameLaunched();
+            TreSensa.Playable.initialGameLoadComplete();
         }
         else if(window.TGL)
         {

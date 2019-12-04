@@ -204,8 +204,9 @@ function getElementPosition(element)
 // Source: http://stackoverflow.com/questions/647259/javascript-query-string
 function getQueryString()
 {
-    if(window.GameConfig && GameConfig.DIRECT_AD) {
-        return GameConfig.DIRECT_AD
+    if(window.TreSensa)
+    {
+        return TreSensa.Playable.getParameters();
     }
 
     var result = {}, queryString = location.search.substring(1),
@@ -579,60 +580,10 @@ TGE.BrowserDetect =
 TGE.BrowserDetect.init();
 
 // Force the viewport parameters to disable touch zooming
-if(!navigator.isCocoonJS) // PAN-424
+var _vp = document.querySelector("meta[name=viewport]");
+if(_vp)
 {
-    var _vp = document.querySelector("meta[name=viewport]");
-    if(_vp)
-    {
-        _vp.setAttribute("content", " initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui");
-    }
-}
-
-/**
- * Scroll away browser address bars where we can
- * @ignore
- */
-function maximizeViewport()
-{
-    // Don't bother if...
-    if( (window.GameConfig && GameConfig.DIRECT_AD) || // Loading in direct ad mode
-        !TGE.BrowserDetect.isMobileDevice || // Desktop (browser bars are fixed)
-        navigator.standalone || navigator.isCocoonJS || (window.GameConfig && (GameConfig.NATIVE_APP || GameConfig.TIZEN_APP)) || // Native apps (no browser bars)
-        (/ipad/i).test(navigator.userAgent) || // iPads (browser bars are fixed)
-        ((/Firefox/i).test(navigator.userAgent) && (/Android/i).test(navigator.userAgent))) // Firefox on Android (PAN-286)
-    {
-        return;
-    }
-
-    TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "attempting to maximize viewport...");
-
-    // Maximize the document element's height to be able to scroll away the address bar
-    document.documentElement.style.minHeight = '5000px';
-
-    // Try scrolling immediately
-    var oldAndroid = /Android/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-    window.scrollTo(0,oldAndroid ? 1 : 0); // Old stock Android browser needs to scroll by at least 1px
-
-    // Try a bunch of times to scroll the bar away
-    var startHeight = window.innerHeight;
-    var iterations = 10;
-    var scrollInterval = window.setInterval(function()
-    {
-        iterations--;
-
-        // Retry scrolling
-        window.scrollTo(0,oldAndroid ? 1 : 0);
-
-        // check iterations first to make sure we never get stuck
-        if(window.innerHeight>startHeight || iterations<0)
-        {
-            TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "viewport maximized");
-
-            // Set minimum height of content to new window height
-            document.documentElement.style.minHeight = window.innerHeight + 'px';
-            clearInterval(scrollInterval);
-        }
-    }, 10);
+    _vp.setAttribute("content", " initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui");
 }
 
 // PAN-898 We need a little legacy TGL support since some games call the getPreviewMode() function
@@ -656,16 +607,6 @@ if(!TGL.PREVIEW)
             return TGL.PREVIEW.NONE;
         }
     };
-}
-
-// Maximize the viewport right away
-if(document.readyState==='loading')
-{
-    document.addEventListener('DOMContentLoaded',maximizeViewport,false);
-}
-else
-{
-    maximizeViewport();
 }
 
 
