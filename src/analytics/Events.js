@@ -184,21 +184,8 @@ TGE.Events =
         
         if (window.TreSensa)
         {
-            if (label==="default" && !url)
-            {
-                // This is very inappropriately titled now, really this just means that the click-through url
-                // is determined server side instead of being specified by the game code. Eventually we're going
-                // to want to rename this onClickthrough(label), and mark onLaunchAppstore deprecated. Though first
-                // we should deprecate TGL_DIRECT_MODE
-                TGL_DIRECT_MODE.onLaunchAppstore();
-            }
-            else
-            {
-                TGL_DIRECT_MODE.onCustomClickThrough(url, label);
-            }
-
-            // We can ultimately replace the whole if statement above with a single simple call:
-            // window.TreSensa.Playable.onClickthrough(label, url);
+            // Send the click to the ad container
+            TreSensa.Playable.clickthrough(label, url);
         }
         else
         {

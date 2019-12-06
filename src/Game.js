@@ -1252,7 +1252,7 @@ TGE.Game.prototype =
     },
 
     /** @ignore */
-    _resizeViewport: function(maximize)
+    _resizeViewport: function()
     {
         TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "_resizeViewport");
 
@@ -1448,12 +1448,6 @@ TGE.Game.prototype =
 
         // Now that we've resized the screen, recalculate the canvas position
         this._determineCanvasPosition();
-
-        // Always throw this in for good measure
-	    if(maximize)
-	    {
-		    maximizeViewport();
-	    }
     },
 
     /** @ignore */
@@ -1573,10 +1567,8 @@ TGE.Game.prototype =
         // Update the internal active state and send a corresponding event to the scene
         this._active(false);
 
-        // Force an audio mute in case the game didn't handle it themselves. Since iOS 12+13 we've been having problems
-        // with muting on deactivation that result in audio not un-muting and in some cases actually breaking input
-        // (PAN-1426, PAN-1427). We'll disable this since the OS automatically mutes when the webview is hidden.
-        if(!TGE.BrowserDetect.oniOS && this.audioManager && !this.audioManager.isMuted())
+        // Force an audio mute
+        if(this.audioManager && !this.audioManager.isMuted())
         {
 	        this.audioManager.Mute();
 	        this._mUnmuteOnActivate = true;
@@ -1601,7 +1593,7 @@ TGE.Game.prototype =
         }
 
 		// Un-mute the audio if we forced it off
-		if(!TGE.BrowserDetect.oniOS && this.audioManager && this._mUnmuteOnActivate)
+		if(this.audioManager && this._mUnmuteOnActivate)
 		{
 			this.audioManager.Unmute();
 			this._mUnmuteOnActivate = false;
@@ -2014,10 +2006,10 @@ TGE.Game.prototype =
             this.onLoad.call(this);
         }
 
-        // If we are using TGL, notify it that the game is loaded
-        if(window.TGL_DIRECT_MODE)
+        // Tell the ad container that the initial load is complete and the game is starting
+        if(window.TreSensa)
         {
-            TGL_DIRECT_MODE.onGameLaunched();
+            TreSensa.Playable.initialGameLoadComplete();
         }
         else if(window.TGL)
         {
