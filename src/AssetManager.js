@@ -209,7 +209,7 @@ TGE.AssetManager.LoadFontData = function(family, url, weight, loadCallback)
 TGE.AssetManager.prototype =
 {
     /**
-     * PART OF NEW ASSET MANAGER - queues a list of asset groups for loading, in the order they appear in the array. should only be called one per game
+     * Part of the deprecated asset manager: queues a list of asset groups for loading, in the order they appear in the array. should only be called one per game
      * @param {String[]} assetGroupArray the list of asset groups to be queued for loading
          If an element in the array is a sub-array, all groups inside the subarray will be included in the same array
          Ex. assetGroupArray=[[initial, background], engagement, promo]
@@ -262,7 +262,7 @@ TGE.AssetManager.prototype =
     },
 
     /**
-     * PART OF NEW ASSET MANAGER - adds extra properties to an asset object defined in GameConfig.ASSETS
+     * Part of the deprecated asset manager: adds extra properties to an asset object defined in GameConfig.ASSETS
      * must be called BEFORE loadAssets() to have any affect!!
      * doesn't allow you to *modify* properties already defined in GameConfig.ASSETS, just add new ones
      * @param {String} assetName name of asset you want to add properties to
@@ -324,7 +324,7 @@ TGE.AssetManager.prototype =
 
     /**
      * @ignore
-     * PART OF NEW ASSET MANAGER - reads the GameConfig.ASSET object
+     * Part of the deprecated asset manager: reads the GameConfig.ASSET object
      */
     _parseAssets: function ()
     {
@@ -403,7 +403,7 @@ TGE.AssetManager.prototype =
 
     /**
      * @ignore
-     * PART OF NEW ASSET MANAGER - returns the file type of an asset url based on common known file extensions
+     * Part of the deprecated asset manager: returns the file type of an asset url based on common known file extensions
      */
     _getFileTypeFromAssetConfig: function (assetConfig)
     {
@@ -441,7 +441,7 @@ TGE.AssetManager.prototype =
 
     /**
      * @ignore
-     * PART OF NEW ASSET MANAGER - print debug for new asset manager.  To turn on, use querystring assetLoaderDebug=true
+     * Part of the deprecated asset manager: print debug for new asset manager.  To turn on, use querystring assetLoaderDebug=true
      */
     _printAssetManagerDebug: function ()
     {
@@ -480,7 +480,7 @@ TGE.AssetManager.prototype =
 
     /**
      * @ignore
-     * PART OF NEW ASSET MANAGER - finds the remote settings in an asset url and replaces them with the remote setting values
+     * Part of the deprecated asset manager: finds the remote settings in an asset url and replaces them with the remote setting values
      */
     _doRemoteSettingStringReplace: function (url)
     {
@@ -515,7 +515,7 @@ TGE.AssetManager.prototype =
 
     /**
      * @ignore
-     * PART OF NEW ASSET MANAGER - finds the first remote setting in a url and returns its name
+     * Part of the deprecated asset manager: finds the first remote setting in a url and returns its name
      * remote settings are contained within the '[' and ']' characters
      */
     _getNextRemoteSettingToStringReplace: function (url)
@@ -534,7 +534,7 @@ TGE.AssetManager.prototype =
 
     /**
      * @ignore
-     * PART OF NEW ASSET MANAGER - reformats data passed into loadAssets.  Removes all asset groups that aren't utilized by any assets in GameConfig.ASSETS
+     * Part of the deprecated asset manager: reformats data passed into loadAssets.  Removes all asset groups that aren't utilized by any assets in GameConfig.ASSETS
      */
     _cleanAssetGroupArray: function (assetGroupArray)
     {
@@ -584,7 +584,7 @@ TGE.AssetManager.prototype =
 
     /**
      * @ignore
-     * PART OF NEW ASSET MANAGER - hook up all asset groups to be associated with an asset list and vice versa, so that they know about each other and can be accessed later
+     * Part of the deprecated asset manager: hook up all asset groups to be associated with an asset list and vice versa, so that they know about each other and can be accessed later
      */
     _buildAssetGroupListAssociations: function (assetGroupArray)
     {
@@ -610,7 +610,7 @@ TGE.AssetManager.prototype =
 
     /**
      * @ignore
-     * PART OF NEW ASSET MANAGER - make an asset group associated with an asset list and vice versa, so that they know about each other and can be accessed later
+     * Part of the deprecated asset manager: make an asset group associated with an asset list and vice versa, so that they know about each other and can be accessed later
      */
     _buildAssetGroupListAssociation: function (groupName, listName)
     {
