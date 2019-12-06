@@ -334,6 +334,9 @@ TGE.AssetManager.prototype =
 
         if (window.GameConfig && GameConfig.ASSETS)
         {
+            // PAN-1436 ASSETS loading is now deprecated
+            TGE.Debug.Log(TGE.Debug.LOG_WARNING,"GameConfig.ASSETS is no longer supported, switch to code-based asset loading");
+
             // BUILD ASSET CONFIG OBJECT
             for (var i = 0; i < GameConfig.ASSETS.length; i++)
             {
@@ -391,12 +394,9 @@ TGE.AssetManager.prototype =
                 // QUEUE ASSET FOR LOADING
                 this._assetConfigs.push(assetConfig);
             }
-        }
 
-        // Invalidate the original settings defined in GameConfig so a bad dev doesn't try to access them from there,
-        // they should only ever access settings via this class
-        if (window.GameConfig)
-        {
+            // Invalidate the original settings defined in GameConfig so a bad dev doesn't try to access them from there,
+            // they should only ever access settings via this class
             GameConfig.ASSETS = null;
         }
     },
