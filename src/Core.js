@@ -158,48 +158,6 @@ if (!Function.prototype.bind) {
 }());
 
 
-// This function returns an object with x,y properties for the left and top absolute coordinates of the element whose ID is passed as an argument.
-// Source: http://js-tut.aardon.de/js-tut/tutorial/position.html
-function getElementPosition(element)
-{
-    var elem = element;
-    var tagname = "";
-    var x = 0;
-    var y = 0;
-
-    if(elem==null)
-    {
-        return null;
-    }
-
-    while((typeof(elem) == "object") && (typeof(elem.tagName) != "undefined"))
-    {
-        y += elem.offsetTop;
-        x += elem.offsetLeft;
-        tagname = elem.tagName.toUpperCase();
-
-        if(tagname == "BODY")
-        {
-            elem=0;
-        }
-
-        if(typeof(elem) == "object")
-        {
-            if(typeof(elem.offsetParent) == "object")
-            {
-                elem = elem.offsetParent;
-            }
-        }
-
-        if(elem==null)
-        {
-            return null;
-        }
-    }
-
-    return {x: x, y: y};
-}
-
 // Put the querystring variables into an associate array
 // Source: http://stackoverflow.com/questions/647259/javascript-query-string
 function getQueryString()
