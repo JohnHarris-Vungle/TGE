@@ -32,9 +32,6 @@ TGE.Game = function()
 	this.mCanvasDiv = null;
     this.mReorientationDiv = null;
 
-	// Scene graph and rendering
-	this.mCanvasPosition = null;
-
     // Loading & Assets
     this.mLoadingScreen = null;
     this._mAssetListLoaded = {};
@@ -291,7 +288,7 @@ TGE.Game.prototype =
 {
 	halt: false,
 
-    _mViewportScale: 0,
+    _mViewportScale: 1,
 
 	/**
 	 * Sets the desired language to be used by the asset manager and TGE.Text class for localized content.
@@ -768,9 +765,6 @@ TGE.Game.prototype =
         // Get the div to show when the orientation is wrong
         this.mReorientationDiv = document.getElementById(reorientDiv);
 
-        // Determine the position of the canvas for mouse events
-        this._determineCanvasPosition();
-
         // Add the resize event for orientation and screen size changes
         window.addEventListener('resize', this._onResize.bind(this), false);
 
@@ -1056,16 +1050,6 @@ TGE.Game.prototype =
         {
             this._mCurrentFPS = Math.floor(1000 / this._mFrameTime).toFixed(0);
         }
-    },
-
-    /**
-     * Call this function if the position of the game canvas is ever moved. It is called automatically for browser resize events, but may be necessary to call manually if the canvas position is changed by other means.
-     * @ignore
-     */
-    _determineCanvasPosition: function()
-    {
-        TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "_determineCanvasPosition");
-        this.mCanvasPosition = getElementPosition(this.mCanvasDiv);
     },
 
     /** @ignore */
@@ -1445,9 +1429,6 @@ TGE.Game.prototype =
 
         // Handle device orientation
         this._handleOrientation(correctOrientation);
-
-        // Now that we've resized the screen, recalculate the canvas position
-        this._determineCanvasPosition();
     },
 
     /** @ignore */
@@ -2053,13 +2034,8 @@ TGE.Game.prototype =
 
     _processMousePosition: function(x,y)
     {
-        if(this.mCanvasPosition===null)
-        {
-            this._determineCanvasPosition();
-        }
-
-        this._mPointerX = x - this.mCanvasPosition.x;
-        this._mPointerY = y - this.mCanvasPosition.y;
+        this._mPointerX = x;
+        this._mPointerY = y;
 
         this._mPointerX /= this._mViewportScale;
         this._mPointerY /= this._mViewportScale;
@@ -2082,6 +2058,7 @@ TGE.Game.prototype =
         var num = e.changedTouches ? e.changedTouches.length : 0;
         for( ; ; )
         {
+            var rect = e.target.getBoundingClientRect();
             if(--num >= 0)
             {
                 // Touch
@@ -2091,9 +2068,12 @@ TGE.Game.prototype =
             else
             {
                 // Mouse
-                x = e.pageX;
-                y = e.pageY;
+                x = e.clientX;
+                y = e.clientY;
             }
+
+            x -= rect.left;
+            y -= rect.top;
 
             var identifier = (e.changedTouches && num>=0) ? e.changedTouches[num].identifier : e.button;
 
