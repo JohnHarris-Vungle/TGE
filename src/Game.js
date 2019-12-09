@@ -1338,17 +1338,20 @@ TGE.Game.prototype =
 		    }
 		    // Clamp webview dimensions. Problems first seen with the iPhone 6 Plus (PAN-562) and later with Samsung Galaxy line (PAN-1322) Fillrate performance on devices like
             // this drops exponentially if the canvas dimesions are too large. It is also a waste since we would never include image assets to support canvas sizes in the thousands by thousands.
-            else if(TGE.BrowserDetect.isMobileDevice && (screenWidth>=736 || screenHeight>=736))
+            // We used to check for 736 here (a common iPhone height), but found that on MoPub/iPhone X it was reduced to 734 which caused a massive canvas and problems when it was scaled
+            // down to fit. So lowering this to 700 to be safe.
+            else if(TGE.BrowserDetect.isMobileDevice && (screenWidth>=700 || screenHeight>=700))
 		    {
                 TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "clamping large screen game size...");
 
-			    // In portrait, capping to 640px width seems to net out as the best visually while still being able to maintain 60fps
+			    // These magic sizes (640 and 1024) are not science, they were eyeballed on iPhone 6 Plus when it first came out,
+                // and seemed to be optimal to maintain performance and not degrade quality more than necessary.
 			    if(gameWidth<gameHeight)
 			    {
 				    gameHeight = Math.round(gameHeight * 640/gameWidth);
 				    gameWidth = 640;
 			    }
-			    else // Landscape looks a little grungy, but going higher quickly drops the fps from 60 to 30. Needs more experimentation with a proper landscape game.
+			    else
 			    {
 				    gameHeight = Math.round(gameHeight * 1024/gameWidth);
 				    gameWidth = 1024;
