@@ -708,14 +708,12 @@ module.exports = (grunt) ->
 	grunt.config("concat.adapters.files", concatFiles)
 	grunt.config("uglify.adapters.files", minFiles)
 
-	grunt.registerTask "compile:qa:adapters", ["concat:adapters"]
-	grunt.registerTask "compile:prod:adapters", ["uglify:adapters"]
 
 	grunt.registerTask "compile:qa:embed", ["concat:embed"]
 	grunt.registerTask "compile:prod:embed", ["uglify:embed"]
 
 	grunt.registerTask "build:prod", ["clean", "copy:thirdPartyTGEProd", "copy:readmeTGE", "less", "compile:prod:tge", "buildBowerJson"]
-	grunt.registerTask "build:qa", ["clean", "copy:thirdPartyTGEQA", "less", "compile:qa:tge", "compile:qa:adapters", "compile:qa:embed"]
+	grunt.registerTask "build:qa", ["clean", "copy:thirdPartyTGEQA", "less", "compile:qa:tge", "compile:qa:embed"]
 	#grunt.registerTask "build:docs", ["clean", "jsdoc:all"]
 
 	grunt.registerTask "readCss", ->
