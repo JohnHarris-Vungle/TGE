@@ -195,6 +195,17 @@ TGE.GameViewableParameter = null;
  */
 TGE.OnUnsupportedPlatform = null;
 
+/**
+ * Time window for detecting a down/up mouse event sequence on the same object as a "click"
+ * @constant {number}
+ */
+TGE.CLICK_TIME = 1;
+
+/**
+ * Distance threshold for detecting a "click" event, the up/down events must be within this distance
+ * @constant {number} percentage of the stage major axis
+ */
+TGE.CLICK_DISTANCE_FRACTION = 0.025;
 
 /** @ignore */
 TGE._ResizeEvent = {
@@ -1942,8 +1953,11 @@ TGE.Game.prototype =
 
 	    if(!freezeSceneGraph)
 	    {
-            // UI objects need to be notified of mouse activity even when paused
-		    this.stage._updateObjectMouseOverStates(this._mPointerX, this._mPointerY);
+            // UI objects need to be notified of mouse activity even when paused, but not while buffering
+		    if (!this._mBufferingScreen)
+		    {
+			    this.stage._updateObjectMouseOverStates(this._mPointerX, this._mPointerY);
+		    }
 
 		    var updateEvent = { type:"update",elapsedTime:elapsedTime };
 

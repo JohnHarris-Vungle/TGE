@@ -27,17 +27,18 @@ TGE.Button = function()
 
     // Private members
     this._mState = "idle";
-    this._mMouseDown = false;
-	this._mArmed = false;
     this._mNumStates = 1;
     this._mTextObject = null;
 
     // Mouse event listeners needed for state handling and clicks
-    this.addEventListener("mousedown",this._buttonMouseDown);
-    this.addEventListener("mouseup",this._buttonMouseUp);
+    this.addEventListener("mousedown",this._setButtonState.bind(this, "down"));
+    this.addEventListener("mouseup",this._setButtonState.bind(this, "hover"));
+    this.addEventListener("mouseupoutside",this._setButtonState.bind(this, "idle"));
+    this.addEventListener("mouseout",this._setButtonState.bind(this, "idle"));
+    this.addEventListener("mouseover",this._buttonMouseOver);
     this.addEventListener("click",this._onClick);
 
-    // Update handler for mouse hover state handling
+    // Update handler for mouse state handling
     this.addEventListener("update",this._update);
 
     this.pressFunction = null;
@@ -151,7 +152,7 @@ TGE.Button.prototype =
     },
 
     /**
-     * Ideally this should be handled by mouse over/exit events...
+     * This now only handles the disabled state
      * @ignore
      */
     _update: function(event)
@@ -161,43 +162,20 @@ TGE.Button.prototype =
             this._setButtonState("disable");
             return;
         }
-
-        // Check for the hover state
-        if(this._mMouseOver)
-        {
-            // $hack - we have no 'mouse up outside' event, so we need to ask the game if the mouse/touch was released outside of the button
-            this._mMouseDown = TGE.Game.GetInstance()._mPointerDown;
-            this._setButtonState(this._mMouseDown ? "down" : "hover");
-        }
-        else
-        {
-            this._setButtonState("idle");
-        }
     },
 
     /** @ignore */
-    _buttonMouseDown: function(event)
+    _buttonMouseOver: function(event)
     {
-        this._mMouseDown = true;
-		this._mArmed = true;
-    },
-
-    /** @ignore */
-    _buttonMouseUp: function(event)
-    {
-        this._mMouseDown = false;
+        this._setButtonState(this._mMouseDown ? "down" : "hover");
     },
 
     /** @ignore */
     _onClick: function(event)
     {
-        // PAN-547 - Arming is necessary to prevent buttons from mis-firing on desktop when an object is above it that
-	    // removes itself with a click or mousedown event. The up event that triggers a button on desktop must now be
-	    // preceded by a down event on the same button.
-        if(this.enabled && this.pressFunction!==null && this._mArmed)
+        if(this.enabled && this.pressFunction!==null)
         {
             this.pressFunction.call(this,event.currentTarget);
-	        this._mArmed = false;
         }
     },
 

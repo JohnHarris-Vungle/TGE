@@ -108,6 +108,7 @@ TGE.DisplayObject = function()
     this._mBoundingInfoDirty = true;
     this._mWorldAlpha = 1;
     this._mIgnoreProperties = false;
+    this._mMouseDown = false;
     this._mMouseOver = null; // Undefined state until we test
     this._mVisibilityChanged = false;
     this._mMarkedForRemoval = false;
@@ -890,7 +891,16 @@ TGE.DisplayObject.prototype =
         }
     },
 
-    /**
+	/**
+	 * Indicates whether or not the mouse (or other user input device) is currently down.
+	 * @return {Boolean} Whether or not the mouse (or other user input device) is currently down.
+	 */
+	isMouseDown: function()
+	{
+		return this._mMouseDown;
+	},
+
+	/**
      * Returns whether or not the mouse is currently over the object. This method will always return false unless this.mouseEnabled is set to true.
      * @return {Boolean}
      */
@@ -923,6 +933,11 @@ TGE.DisplayObject.prototype =
 	    if(type.substring(0,5)==="mouse" || type==="click")
         {
             this.mouseEnabled = true;
+
+            if (this instanceof TGE.Stage && TGE.Game.GetUpdateRoot() !== this && !TGE.Game.GetInstance()._mBufferingScreen)
+            {
+	            TGE.Debug.Log(TGE.Debug.LOG_WARNING,"Adding mouse event listener to stage when SetUpdateRoot is pointing elsewhere. See PAN-1239.");
+            }
         }
 	    else if(type==="drawbegin" || type==="drawend")
         {
@@ -1038,6 +1053,34 @@ TGE.DisplayObject.prototype =
 				if (!this._mEventListeners[event.type] || this._mMarkedForRemoval)
 				{
 					break;
+				}
+			}
+		}
+	},
+
+	/**
+	 * Takes care of sending the "click" event on mouseup, if conditions are met for it
+	 * @param event
+	 * @ignore
+	 */
+	_handleMouseupEvent: function(event)
+	{
+		var wasDown = this._mMouseDown;
+		this._mMouseDown = false;
+		this.handleEvent(event);
+
+		if (event.type === "mouseup")
+		{
+			var majorAxis = Math.max(this.stage.width, this.stage.height);
+			if (majorAxis)
+			{
+				var dx = (event.x - this.stage._mMouseDownX) / majorAxis;
+				var dy = (event.y - this.stage._mMouseDownY) / majorAxis;
+				if (wasDown && new Date() - this.stage._mMouseDownTime < TGE.CLICK_TIME * 1000 && dx < TGE.CLICK_DISTANCE_FRACTION && dy < TGE.CLICK_DISTANCE_FRACTION)
+				{
+					event.type = "click";
+					this.handleEvent(event);
+					event.type = "mouseup";
 				}
 			}
 		}

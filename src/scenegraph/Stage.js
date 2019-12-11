@@ -22,7 +22,9 @@ TGE.Stage = function(canvasDiv,initialWidth,initialHeight)
     this._mObjectTrash = [];
 	this._mUpdateGroup = [];
 	this._mUpdateCycle = 0;
-    this._mMouseDown = false;
+	this._mMouseDownX = 0;
+	this._mMouseDownY = 0;
+	this._mMouseDownTime = 0;
 	this._mNumVisibleObjects = 0;
 	this._mNumDrawnObjects = 0;
 	this._mMaxDrawnObjects = 0;
@@ -242,15 +244,6 @@ TGE.Stage.prototype =
 		this._mRenderer.resizedGameDiv();
 	},
 
-    /**
-     * Indicates whether or not the mouse (or other user input device) is currently down.
-     * @return {Boolean} Whether or not the mouse (or other user input device) is currently down.
-     */
-    isMouseDown: function()
-    {
-        return this._mMouseDown;
-    },
-
 	/**
 	 * Indicates whether the game view is currently in landscape orientation
 	 * @returns {Boolean} Returns true if the game is in landscape
@@ -384,6 +377,9 @@ TGE.Stage.prototype =
         if(event==="down")
         {
             this._mMouseDown = true;
+            this._mMouseDownX = mouseX;
+            this._mMouseDownY = mouseY;
+            this._mMouseDownTime = new Date();
         }
         else if(event==="up")
         {
@@ -393,32 +389,33 @@ TGE.Stage.prototype =
 	    // Setup the event
 	    var eventName = "mouse"+event;
 	    var mouseEvent = {type:eventName, x:mouseX, y:mouseY, stageX:mouseX, stageY:mouseY, identifier:identifier};
+	    var updateRoot = TGE.Game.GetUpdateRoot();
 
-	    // Always send events to the stage (children cannot block input to stage)
-	    if(this.mouseEnabled && this.visible)
+	    // Always send events to the update root (children cannot block input to stage)
+	    if(updateRoot.mouseEnabled && updateRoot.visible)
 	    {
-		    this.handleEvent(mouseEvent);
-
-		    // Have to build click event manually
-		    if((event==="down" && TGE.BrowserDetect.isMobileDevice && !TGE.BrowserDetect.oniOS) ||
-			    (event==="up" && (!TGE.BrowserDetect.isMobileDevice || TGE.BrowserDetect.oniOS)))
-		    {
-			    mouseEvent.type = "click";
-			    this.handleEvent(mouseEvent);
-			    mouseEvent.type = eventName;
-		    }
+		    updateRoot._handleMouseupEvent(mouseEvent);
 	    }
 
         // Loop through the mouse targets from front to back (reverse order of the array)
-	    var stop = this._mMouseTargets[0]===this ? 1 : 0; // PAN-490 Don't send a double mouse events to stage
-        for(var i=this._mMouseTargets.length-1; i>=stop; i--)
+        for(var i=this._mMouseTargets.length; --i >= 0; )
         {
             var dispObj = this._mMouseTargets[i];
-			
-			// Set the public pointer location properties
-            this._setPointerPositionsForObject(dispObj,mouseX,mouseY);
 
-            // First do a quick axis-aligned bounding box test
+	        // Set the public pointer location properties
+	        if (dispObj !== this)
+	        {
+		        this._setPointerPositionsForObject(dispObj,mouseX,mouseY);
+	        }
+
+	        // PAN-490 Don't send double mouse events to update root, and don't send events to stage when it's not the root
+	        // (If stage _is_ the root, then it was sent the events in the 'Always send' section above the loop).
+            if (dispObj === updateRoot || dispObj === this)
+            {
+            	continue;
+            }
+			
+           // First do a quick axis-aligned bounding box test
             if(dispObj.hitTestPoint(mouseX,mouseY))
             {
                 // Now do a more precise oriented bounding box check
@@ -426,29 +423,34 @@ TGE.Stage.prototype =
                 {
                     switch(event)
                     {
-                        case "up":
-                        {
-                            dispObj.handleEvent(mouseEvent);
-
-                            // Always treat mouse up as "click" as well now
-                            mouseEvent.type = "click";
-                            dispObj.handleEvent(mouseEvent);
-                        } break;
+	                    case "up":
+                        	// _mMouseDown handled within _handleMouseupEvent, since that function wants to know the existing state
+	                        dispObj._handleMouseupEvent(mouseEvent);
+                            break;
 
                         case "down":
-                        {
+	                        dispObj._mMouseDown = true;
                             dispObj.handleEvent(mouseEvent);
-                        } break;
+                            break;
 
                         case "move":
-                        {
                             dispObj.handleEvent(mouseEvent);
-                        } break;
+                            break;
                     }
 
                     // This object will block the event from continuing to any object beneath it
                     return;
                 }
+            }
+            else if (event === "up" && dispObj._mMouseDown)
+            {
+            	// for an "up" event that occurs outside of an object that received the mousedown, send a mouseupoutside event
+	            mouseEvent.type = "mouseupoutside";
+	            dispObj._mMouseDown = false;
+	            dispObj.handleEvent(mouseEvent);
+
+	            // restore the "up" event type
+	            mouseEvent.type = "up";
             }
         }
     },
@@ -458,36 +460,18 @@ TGE.Stage.prototype =
      */
     _updateObjectMouseOverStates: function(mouseX,mouseY)
     {
-        // PAN-681 Don't allow input over/out events to fire while a buffering screen is up
-        var sendEvents = TGE.Game.GetInstance()._mBufferingScreen===null;
-
         // Loop through the mouse targets from front to back (reverse order of the array)
         for(var i=this._mMouseTargets.length; --i>=0;)
         {
             var dispObj = this._mMouseTargets[i];
             var mouseEvent = {x:mouseX, y:mouseY, stageX:mouseX, stageY:mouseY};
 	        var mouseOver = (!TGE.BrowserDetect.isMobileDevice || this._mMouseDown) && dispObj.hitTestPoint(mouseX,mouseY);
-            if(mouseOver)
-            {
-                if(dispObj._mMouseOver!==true)
-                {
-                    dispObj._mMouseOver = true;
-                    if(sendEvents)
-                    {
-                        mouseEvent.type = "mouseover";
-                        dispObj.handleEvent(mouseEvent);
-                    }
-                }
-            }
-            else
-            {
-                if(dispObj._mMouseOver===true && sendEvents)
-                {
-                    mouseEvent.type = "mouseout";
-                    dispObj.handleEvent(mouseEvent);
-                }
-                dispObj._mMouseOver = false;
-            }
+	        if (mouseOver !== dispObj._mMouseOver)
+	        {
+		        dispObj._mMouseOver = mouseOver;
+		        mouseEvent.type = mouseOver ? "mouseover" : "mouseout";
+		        dispObj.handleEvent(mouseEvent);
+	        }
 
             // Set the public pointer location properties
             this._setPointerPositionsForObject(dispObj,mouseX,mouseY);
