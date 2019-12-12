@@ -298,7 +298,8 @@ TGE.DisplayObject.prototype =
 				}
 			}
 
-			this._mLayout = layout;
+			this._mLayout = TGE.DeepClone(layout);  // PAN-1434 clone layout object so the original isn't affected by tweens, etc.
+
 			this._mLayoutResizeListener = this.addEventListener("resize", this._resize.bind(this, null));
 
 			// If the object is already in the scenegraph, update with the new layout
