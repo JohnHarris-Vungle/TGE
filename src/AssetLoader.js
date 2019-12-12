@@ -389,52 +389,47 @@ TGE.FontLoader = function(id, url, tags, priority)
 			{
 				// We can't fire success until all entries have been loaded
 				var nop = function() {};
-				
+
 				for (var i=0; i<this.id.length; i++)
 				{
+					var error = false;
+					var errorMsg = "could not parse Google Font entry";
 					var parts = this.id[i].split(":");
-					if (parts.length===1)
+					var family = parts[0];
+					if (parts.length<=2)
 					{
-						var family = parts[0];
+						errorMsg = "no inlined font found for '" + family + "'";
 						if (_TREFONTS[family])
 						{
-							TGE.AssetManager.LoadFontData(family, _TREFONTS[family].data, null, nop);
-						}
-						else
-						{
-							TGE.Debug.Log(TGE.Debug.LOG_ERROR, "no inlined font found for '" + family + "'");
-							this.loader.onError(this);							
-						}						
-					}
-					if (parts.length===2)
-					{
-						var family = parts[0];
-						if (_TREFONTS[family])
-						{
-							var weights = parts[1].split(",");
-							for (var w=0; w<weights.length; w++)
+							if (parts.length===1)
 							{
-								if (_TREFONTS[family].data[weights[w]])
+								TGE.AssetManager.LoadFontData(family, _TREFONTS[family].data, null, nop);
+							}
+							else
+							{
+								var weights = parts[1].split(",");
+								for (var w=0; w<weights.length; w++)
 								{
-									TGE.AssetManager.LoadFontData(family, _TREFONTS[family].data[weights[w]], parseInt(weights[w]), nop);
-								}
-								else
-								{
-									TGE.Debug.Log(TGE.Debug.LOG_ERROR, "no inlined font found for '" + family + "' weight " + weights[w]);
-									this.loader.onError(this);
+									if (_TREFONTS[family].data[weights[w]])
+									{
+										TGE.AssetManager.LoadFontData(family, _TREFONTS[family].data[weights[w]], parseInt(weights[w]), nop);
+									}
+									else
+									{
+										error = true;
+										errorMsg += " weight " + weights[w];
+									}
 								}
 							}
 						}
 						else
 						{
-							TGE.Debug.Log(TGE.Debug.LOG_ERROR, "no inlined fonts found for '" + family + "'");
-							this.loader.onError(this);							
+							error = true;
 						}
 					}
 					else
 					{
-						TGE.Debug.Log(TGE.Debug.LOG_ERROR, "could not parse Google Font entry");
-						this.loader.onError(this);
+						error = true;
 					}
 				}
 				
@@ -466,7 +461,7 @@ TGE.FontLoader = function(id, url, tags, priority)
 				// For packaged builds that require inlined assets (ie: Facebook), we will check for 
 				// the existence of a global dictionary of asset names to base64 strings
 				var url = this.url;
-				if (window._TREFONTS)
+	            if (window._TREFONTS && _TREFONTS[filename])
 				{
 					var parts = this.url.split("/");
 					var filename = parts[parts.length-1];
