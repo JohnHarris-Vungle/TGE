@@ -114,14 +114,8 @@ TGE.Tween.prototype =
 		}
 
 		// Handle any custom easing parameters
-		if(this.easing===TGE.Tween.Back.In || this.easing===TGE.Tween.Back.Out || this.easing===TGE.Tween.Back.InOut)
-		{
-			this._mEaseParam = params.easingParam ? params.easingParam : 1.70158;
-		}
-		else if(this.easing===TGE.Tween.Elastic.In || this.easing===TGE.Tween.Elastic.Out || this.easing===TGE.Tween.Elastic.InOut)
-		{
-			this._mEaseParam = params.easingParam ? params.easingParam : 1;
-		}
+		var defaultParam = (this.easing===TGE.Tween.Back.In || this.easing===TGE.Tween.Back.Out || this.easing===TGE.Tween.Back.InOut) ? 1.70158 : 1;
+		this._mEaseParam = params.easingParam !== undefined ? params.easingParam : defaultParam;
 
 		// Limited looping
 		if(typeof(params.loop)==="number")
