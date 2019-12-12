@@ -283,16 +283,20 @@ TGE.Tween.prototype =
 	{
 		if (typeof start[prop] === "object")
 		{
-			// recursively iterate object properties, for setting things like 'layout' values
-			for (var key in start[prop])
+			// PAN-1424 make sure the sub-object still exists in the target
+			if (target[prop])
 			{
-				this._setProp(target[prop], start[prop], end[prop], key, frac);
-			}
+				// recursively iterate object properties, for setting things like 'layout' values
+				for (var key in start[prop])
+				{
+					this._setProp(target[prop], start[prop], end[prop], key, frac);
+				}
 
-			// if this was a 'layout' object, call setLayout
-			if (prop === "_mLayout")
-			{
-				target._setLayout(target._mLayout);
+				// if this was a 'layout' object, call setLayout
+				if (prop === "_mLayout")
+				{
+					target._setLayout(target._mLayout);
+				}
 			}
 		}
 		else
