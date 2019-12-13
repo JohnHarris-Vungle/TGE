@@ -431,6 +431,12 @@ TGE.FontLoader = function(id, url, tags, priority)
 					{
 						error = true;
 					}
+
+					if (error)
+					{
+						TGE.Debug.Log(TGE.Debug.LOG_ERROR, errorMsg);
+						this.loader.onError(this);
+					}
 				}
 				
 				that.loader.onLoad(that);
