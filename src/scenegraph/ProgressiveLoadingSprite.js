@@ -43,10 +43,6 @@ TGE.ProgressiveLoadingSprite.prototype =
                 {
                     this.image = highResImage;
                 }
-                else if (assetList)
-                {
-                    TGE.Game.GetInstance().waitForRequiredAssets(assetList, this.crossfade.bind(this, highResImage, duration), false);
-                }
                 else
                 {
                     TGE.Game.GetInstance().waitForAsset(highResImage, this.crossfade.bind(this, highResImage, duration), false);
