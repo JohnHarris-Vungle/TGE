@@ -22,9 +22,6 @@ TGE.Stage = function(canvasDiv,initialWidth,initialHeight)
     this._mObjectTrash = [];
 	this._mUpdateGroup = [];
 	this._mUpdateCycle = 0;
-	this._mMouseDownX = 0;
-	this._mMouseDownY = 0;
-	this._mMouseDownTime = 0;
 	this._mNumVisibleObjects = 0;
 	this._mNumDrawnObjects = 0;
 	this._mMaxDrawnObjects = 0;
@@ -372,88 +369,75 @@ TGE.Stage.prototype =
     /**
      * @ignore
      */
-    _notifyObjectsOfMouseEvent: function(event,mouseX,mouseY,identifier)
-    {
-        if(event==="down")
-        {
-            this._mMouseDown = true;
-            this._mMouseDownX = mouseX;
-            this._mMouseDownY = mouseY;
-            this._mMouseDownTime = new Date();
-        }
-        else if(event==="up")
-        {
-            this._mMouseDown = false;
-        }
+	_notifyObjectsOfMouseEvent: function(event,mouseX,mouseY,identifier)
+	{
+		// Setup the event
+		var eventName = "mouse"+event;
+		var mouseEvent = {type:eventName, x:mouseX, y:mouseY, stageX:mouseX, stageY:mouseY, identifier:identifier};
+		var updateRoot = TGE.Game.GetUpdateRoot();
 
-	    // Setup the event
-	    var eventName = "mouse"+event;
-	    var mouseEvent = {type:eventName, x:mouseX, y:mouseY, stageX:mouseX, stageY:mouseY, identifier:identifier};
-	    var updateRoot = TGE.Game.GetUpdateRoot();
+		// Always send events to the update root first (children cannot block input)
+		if(updateRoot.mouseEnabled && updateRoot.visible)
+		{
+			this._processMouseTarget(updateRoot, mouseEvent);
+		}
 
-	    // Always send events to the update root (children cannot block input to stage)
-	    if(updateRoot.mouseEnabled && updateRoot.visible)
-	    {
-		    updateRoot._handleMouseupEvent(mouseEvent);
-	    }
+		// Loop through the mouse targets from front to back (reverse order of the array)
+		for(var i=this._mMouseTargets.length; --i >= 0; )
+		{
+			var dispObj = this._mMouseTargets[i];
 
-        // Loop through the mouse targets from front to back (reverse order of the array)
-        for(var i=this._mMouseTargets.length; --i >= 0; )
-        {
-            var dispObj = this._mMouseTargets[i];
+			// PAN-490 Don't send double mouse events to update root, and don't send events to stage when it's not the root
+			// (If stage _is_ the root, then events were sent in the 'Always send' section above the loop).
+			if (dispObj !== updateRoot && dispObj !== this)
+			{
+				if (this._processMouseTarget(dispObj, mouseEvent))
+				{
+					// This object will block the event from continuing to any object beneath it
+					return;
+				}
+			}
+		}
+	},
 
-	        // Set the public pointer location properties
-	        if (dispObj !== this)
-	        {
-		        this._setPointerPositionsForObject(dispObj,mouseX,mouseY);
-	        }
+	/**
+	 * @ignore
+	 */
+	_processMouseTarget: function(dispObj, mouseEvent)
+	{
+		if (dispObj === this)
+		{
+			dispObj._handleMouseEvent(mouseEvent);
+		}
+		else
+		{
+			// Set the public pointer location properties
+			this._setPointerPositionsForObject(dispObj, mouseEvent.x, mouseEvent.y);
 
-	        // PAN-490 Don't send double mouse events to update root, and don't send events to stage when it's not the root
-	        // (If stage _is_ the root, then it was sent the events in the 'Always send' section above the loop).
-            if (dispObj === updateRoot || dispObj === this)
-            {
-            	continue;
-            }
-			
-           // First do a quick axis-aligned bounding box test
-            if(dispObj.hitTestPoint(mouseX,mouseY))
-            {
-                // Now do a more precise oriented bounding box check
-                if(true)
-                {
-                    switch(event)
-                    {
-	                    case "up":
-                        	// _mMouseDown handled within _handleMouseupEvent, since that function wants to know the existing state
-	                        dispObj._handleMouseupEvent(mouseEvent);
-                            break;
+			// First do a quick axis-aligned bounding box test
+			if(dispObj.hitTestPoint(mouseEvent.x, mouseEvent.y))
+			{
+				// Now do a more precise oriented bounding box check
+				if(true)
+				{
+					dispObj._handleMouseEvent(mouseEvent);
 
-                        case "down":
-	                        dispObj._mMouseDown = true;
-                            dispObj.handleEvent(mouseEvent);
-                            break;
+					// This object will block the event from continuing to any object beneath it
+					return true;
+				}
+			}
+			else if (event === "up" && dispObj._mMouseDown)
+			{
+				// for an "up" event that occurs outside of an object that received the mousedown, send a mouseupoutside event
+				mouseEvent.type = "mouseupoutside";
+				dispObj._handleMouseEvent(mouseEvent);
 
-                        case "move":
-                            dispObj.handleEvent(mouseEvent);
-                            break;
-                    }
-
-                    // This object will block the event from continuing to any object beneath it
-                    return;
-                }
-            }
-            else if (event === "up" && dispObj._mMouseDown)
-            {
-            	// for an "up" event that occurs outside of an object that received the mousedown, send a mouseupoutside event
-	            mouseEvent.type = "mouseupoutside";
-	            dispObj._mMouseDown = false;
-	            dispObj.handleEvent(mouseEvent);
-
-	            // restore the "up" event type
-	            mouseEvent.type = "up";
-            }
-        }
-    },
+				// restore the "up" event type
+				mouseEvent.type = "up";
+			}
+		}
+		return false;
+	},
 
     /**
      * @ignore

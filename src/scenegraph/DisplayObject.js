@@ -109,7 +109,10 @@ TGE.DisplayObject = function()
     this._mWorldAlpha = 1;
     this._mIgnoreProperties = false;
     this._mMouseDown = false;
-    this._mMouseOver = null; // Undefined state until we test
+	this._mMouseDownX = 0;
+	this._mMouseDownY = 0;
+	this._mMouseDownTime = 0;
+	this._mMouseOver = null; // Undefined state until we test
     this._mVisibilityChanged = false;
     this._mMarkedForRemoval = false;
     this._mEventListeners = {};
@@ -1060,14 +1063,27 @@ TGE.DisplayObject.prototype =
 	},
 
 	/**
-	 * Takes care of sending the "click" event on mouseup, if conditions are met for it
+	 * Takes care of mouse state flags, and sending the "click" event on mouseup, if conditions are met for it
 	 * @param event
 	 * @ignore
 	 */
-	_handleMouseupEvent: function(event)
+	_handleMouseEvent: function(event)
 	{
-		var wasDown = this._mMouseDown;
-		this._mMouseDown = false;
+		var wasDown = this._mMouseDown;     // save original state for "click: test
+		switch (event.type)
+		{
+			case "mousedown":
+				this._mMouseDown = true;
+				this._mMouseDownX = event.x;
+				this._mMouseDownY = event.y;
+				this._mMouseDownTime = new Date();
+				break;
+			case "mouseup":
+			case "mouseupoutside":
+				this._mMouseDown = false;
+				break;
+		}
+
 		this.handleEvent(event);
 
 		if (event.type === "mouseup")
@@ -1075,9 +1091,9 @@ TGE.DisplayObject.prototype =
 			var majorAxis = Math.max(this.stage.width, this.stage.height);
 			if (majorAxis)
 			{
-				var dx = Math.abs(event.x - this.stage._mMouseDownX) / majorAxis;
-				var dy = Math.abs(event.y - this.stage._mMouseDownY) / majorAxis;
-				if (wasDown && new Date() - this.stage._mMouseDownTime < TGE.CLICK_TIME * 1000 && dx < TGE.CLICK_DISTANCE_FRACTION && dy < TGE.CLICK_DISTANCE_FRACTION)
+				var dx = Math.abs(event.x - this._mMouseDownX) / majorAxis;
+				var dy = Math.abs(event.y - this._mMouseDownY) / majorAxis;
+				if (wasDown && new Date() - this._mMouseDownTime < TGE.CLICK_TIME * 1000 && dx < TGE.CLICK_DISTANCE_FRACTION && dy < TGE.CLICK_DISTANCE_FRACTION)
 				{
 					event.type = "click";
 					this.handleEvent(event);
