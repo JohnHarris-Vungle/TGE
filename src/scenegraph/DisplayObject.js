@@ -1075,8 +1075,8 @@ TGE.DisplayObject.prototype =
 			var majorAxis = Math.max(this.stage.width, this.stage.height);
 			if (majorAxis)
 			{
-				var dx = (event.x - this.stage._mMouseDownX) / majorAxis;
-				var dy = (event.y - this.stage._mMouseDownY) / majorAxis;
+				var dx = Math.abs(event.x - this.stage._mMouseDownX) / majorAxis;
+				var dy = Math.abs(event.y - this.stage._mMouseDownY) / majorAxis;
 				if (wasDown && new Date() - this.stage._mMouseDownTime < TGE.CLICK_TIME * 1000 && dx < TGE.CLICK_DISTANCE_FRACTION && dy < TGE.CLICK_DISTANCE_FRACTION)
 				{
 					event.type = "click";
