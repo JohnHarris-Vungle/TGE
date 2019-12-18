@@ -2009,10 +2009,6 @@ TGE.Game.prototype =
         {
             TreSensa.Playable.initialGameLoadComplete();
         }
-        else if(window.TGL)
-        {
-            TGL.gameLaunched(); // (deprecated)
-        }
 
         // Simulate ad header if specified
         if(this._mTestAdHeader===1)
