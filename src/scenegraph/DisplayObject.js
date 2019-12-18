@@ -897,11 +897,22 @@ TGE.DisplayObject.prototype =
 
 	/**
 	 * Indicates whether or not the mouse (or other user input device) is currently down.
+	 * NOTE: Numberous games were already using `isMouseDown` properties, which conflicted with that name. Thus, the switch to 'Pointer'.
 	 * @return {Boolean} Whether or not the mouse (or other user input device) is currently down.
 	 */
-	isMouseDown: function()
+	isPointerDown: function()
 	{
 		return this._mMouseDown;
+	},
+
+	/**
+	 * Returns whether or not the mouse is currently over the object. This method will always return false unless this.mouseEnabled is set to true.
+	 * (Added for namespace compatibility with isPointerDown)
+	 * @return {Boolean}
+	 */
+	isPointerOver: function()
+	{
+		return this._mMouseOver===true;
 	},
 
 	/**
@@ -910,7 +921,7 @@ TGE.DisplayObject.prototype =
      */
     isMouseOver: function()
     {
-        return this._mMouseOver===true;
+	    return this._mMouseOver===true;
     },
 
     /**

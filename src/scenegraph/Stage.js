@@ -242,6 +242,15 @@ TGE.Stage.prototype =
 	},
 
 	/**
+	 * Indicates whether or not the mouse (or other user input device) is currently down.
+	 * @return {Boolean} Whether or not the mouse (or other user input device) is currently down.
+	 */
+	isMouseDown: function()
+	{
+		return this._mMouseDown;
+	},
+
+	/**
 	 * Indicates whether the game view is currently in landscape orientation
 	 * @returns {Boolean} Returns true if the game is in landscape
 	 */
