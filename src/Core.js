@@ -166,6 +166,10 @@ function getQueryString()
     {
         return TreSensa.Playable.getParameters();
     }
+    else if(window.GameConfig && GameConfig.DIRECT_AD) // Deprecated, but older CB versions used GameConfig.DIRECT_AD so we must retain support
+    {
+        return GameConfig.DIRECT_AD;
+    }
 
     var result = {}, queryString = location.search.substring(1),
         re = /([^&=]+)=([^&]*)/g, m;
