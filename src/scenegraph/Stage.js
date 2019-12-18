@@ -397,6 +397,11 @@ TGE.Stage.prototype =
 					return;
 				}
 			}
+			else if (dispObj !== this && dispObj.hitTestPoint(mouseX, mouseY))
+			{
+				// PAN-1442 need to block mouse events below the update root, which gets skipped above due to having already been processed in the "always send" section
+				return;
+			}
 		}
 	},
 
