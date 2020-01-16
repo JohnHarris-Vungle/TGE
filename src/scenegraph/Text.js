@@ -649,6 +649,36 @@ TGE.Text.prototype =
 
 			// Determine where to begin vertically
 			var y = 0;
+
+			// apply vertical font offsets, if enabled and present
+			if (GameConfig.USE_FONT_OFFSETS && window._TREFONTS && _TREFONTS[this.fontFamily])
+			{
+				// get platform string for font offset lookup
+				var platform = TGE.BrowserDetect.platform;
+				if (platform.indexOf("iP") === 0)
+				{
+					platform = "iOS";
+				}
+				else if (platform.indexOf("Win") === 0)
+				{
+					platform = "windows";
+				}
+				else
+				{
+					platform = platform.toLowerCase();
+				}
+
+				var verticalOffsets = _TREFONTS[this.fontFamily].verticalOffsets;
+				if (verticalOffsets[platform] === undefined)
+				{
+					// use "default" if there's no offset specified for this platform
+					platform = "default";
+				}
+
+				// apply offset
+				y += (verticalOffsets[platform] || 0) * this.fontSize;
+			}
+
 			if(this._mLines.length>1 && !offscreenContext)
 			{
 				y = this.vAlign==="top" ? 0 : (this.vAlign==="middle" ? -this.height/2 : y = -this.height);
