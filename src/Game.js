@@ -1128,7 +1128,6 @@ TGE.Game.prototype =
             return dapi.getScreenSize().width;
         }
 
-        if (TGE.BrowserDetect.onAndroid && (dst==="B0134")) { return window.outerWidth; }
         if (dst==="B0119") { return document.body.clientWidth; }
         // JH: window.innerWidth/Height was returning bad values on Chrome iOS 10.3.2 (a mix of portrait innerWidth and landscape innerHeight)
         if (window.innerWidth && (!TGE.BrowserDetect.oniOS || window.applovinMraid)) { return window.innerWidth; }
@@ -1161,8 +1160,7 @@ TGE.Game.prototype =
         {
             return dapi.getScreenSize().height;
         }
-
-        if (TGE.BrowserDetect.onAndroid && (dst==="B0134")) { return window.outerHeight; }
+        
         if (dst==="B0119") { return document.body.clientHeight; }
         if (window.innerWidth && (!TGE.BrowserDetect.oniOS || window.applovinMraid)) { return window.innerHeight; }
         if (document.documentElement && document.documentElement.clientHeight != 0) { return document.documentElement.clientHeight; }
