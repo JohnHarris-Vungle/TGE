@@ -187,15 +187,6 @@ TGE.FirstGameWindow = null;
 TGE.GameViewableParameter = null;
 
 /**
- * TGE.OnUnsupportedPlatform can be set to a user defined function that will be called when the platform does not support HTML5 canvas.
- * <strong>Only works only in conjunction with the deprecated TGL game loader</strong>. A common tactic for this callback would be to redirect to another page
- * with an error message. Keep in mind if this function is called there will be no TGE.Game object and you cannot use any TGE features. 
- * Assume only basic DOM/CSS operations are available.
- * @deprecated
- */
-TGE.OnUnsupportedPlatform = null;
-
-/**
  * Time window for detecting a down/up mouse event sequence on the same object as a "click"
  * @constant {number}
  */
@@ -717,7 +708,6 @@ TGE.Game.prototype =
 
     /**
      * Launching point for the entire game. Calling this function will initialize the game environment and begin downloading required assets.
-     * If you are using the TreSensa Game Loader (TGL) you do not need to call launch(), TGL will do this for you.
      * @param {Object} gameParameters Information about how the game should be setup.
      * @param {String} gameParameters.gameDiv ID of the game canvas div element.
      * @param {String} [gameParameters.orientation="unspecified"] The orientation the game is meant to be played in. Can be "portrait", "landscape", or "unspecified".
@@ -1810,20 +1800,6 @@ TGE.Game.prototype =
             this._mAssetListLoaded[listName] = "loading";
             this.assetManager.loadAssetList(listName,null,this._finishedLoadingRequiredAssets.bind(this,listNumber));
         }
-    },
-
-    // Still need this because it's what TGL calls
-    /** @deprecated */
-    Launch: function(gameParameters)
-    {
-        this.launch(gameParameters);
-    },
-
-    // Still need this because it's what TGL calls
-    /** @deprecated */
-    IsPlatformAcceptable: function()
-    {
-        return true;
     },
 
     /** @ignore */
