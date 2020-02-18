@@ -546,7 +546,7 @@ TGE.ScriptLoader = function(url, tags, priority)
 		var that = this;
 		setTimeout(function() {
 			that.loader.onLoad(that);
-		},0);
+		},1);
 	};
 
 	// called to trigger download
