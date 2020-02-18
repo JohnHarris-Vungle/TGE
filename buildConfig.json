@@ -1,6 +1,6 @@
 {
 	"name": "TGE-SDK",
-	"version": "1.1.136",
+	"version": "1.1.137",
 	"files": [
         "Core.js",
         "Loader.js",
