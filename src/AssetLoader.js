@@ -540,8 +540,13 @@ TGE.ScriptLoader = function(url, tags, priority)
 		{
 			this.scriptNode.onreadystatechange = null;
 			this.scriptNode.onload = null;
-		}		
-		this.loader.onLoad(this);
+		}
+
+		// PAN-1458
+		var that = this;
+		setTimeout(function() {
+			that.loader.onLoad(that);
+		},0);
 	};
 
 	// called to trigger download
