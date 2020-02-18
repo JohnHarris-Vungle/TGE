@@ -24,7 +24,7 @@ TGE.RemoteSettings._getDefaultAudioSetting = function ()
         case "B0135": // Snapchat
         case "B0149": // Web links
         case "B0154": // Creative Builder
-        case "B0003": // Facebook
+        //case "B0003": // Facebook PAN-1456 Disabling FB support due to a blocking issue when audio failed to load
             audioEnabled = true;
             break;
         case "B0094": // Beeswax RTB
