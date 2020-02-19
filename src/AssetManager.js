@@ -1136,8 +1136,60 @@ TGE.AssetManager.prototype =
         }
 	},
 
+    /** @ignore */
+    _processSheetLayouts: function(assetList,updateCallback,completeCallback,attempts)
+    {
+        attempts = typeof(attempts)==="number" ? attempts : 1;
+
+        // Due to PAN-1459 we need to first verify the subsheets are actually available in TGE.AssetManager.SpriteSheets[subsheetName]
+        for(var lf=0; lf<assetList.layoutFiles.length; lf++)
+        {
+            var entry = assetList.layoutFiles[lf];
+            if (entry.subsheetURL)
+            {
+                if (Array.isArray(entry.subsheetURL))
+                {
+                    for (var i = entry.subsheetURL.length; --i >= 0; )
+                    {
+                        if(!TGE.AssetManager.SpriteSheets[trimmedFilename(entry.subsheetURL[i])])
+                        {
+                            this._pollProcessSheetLayouts(assetList,updateCallback,completeCallback,attempts);
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    if(!TGE.AssetManager.SpriteSheets[trimmedFilename(entry.subsheetURL)])
+                    {
+                        this._pollProcessSheetLayouts(assetList,updateCallback,completeCallback,attempts);
+                        return;
+                    }
+                }
+            }
+            this._addSheetImagesToAssetList(assetList, entry.sheetURL, entry.localized);
+        }
+
+        // If we got here then all the subsheets are resident. Proceed to the true _processSheetLayouts function.
+        this._finalProcessSheetLayouts(assetList,updateCallback,completeCallback);
+    },
+
+    /** @ignore */
+    _pollProcessSheetLayouts: function(assetList,updateCallback,completeCallback,attempts)
+    {
+        // Don't let this go on forever
+        if(attempts>100)
+        {
+            return;
+        }
+
+        // A subsheet that should be available isn't (PAN-1459). Wait a little bit and try this again...
+        TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "TGE.AssetManager._processSheetLayouts all sheets were not available, polling...");
+        setTimeout(this._processSheetLayouts.bind(this,assetList,updateCallback,completeCallback,++attempts), 10);
+    },
+
 	/** @ignore */
-	_processSheetLayouts: function(assetList,updateCallback,completeCallback)
+    _finalProcessSheetLayouts: function(assetList,updateCallback,completeCallback)
 	{
 		// Load each of the images in each of the sheets
 		for(var lf=0; lf<assetList.layoutFiles.length; lf++)
