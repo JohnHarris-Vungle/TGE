@@ -540,8 +540,7 @@ TGE.ScriptLoader = function(url, tags, priority)
 		{
 			this.scriptNode.onreadystatechange = null;
 			this.scriptNode.onload = null;
-		}
-
+		}		
 		this.loader.onLoad(this);
 	};
 
