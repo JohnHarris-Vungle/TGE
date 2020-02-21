@@ -24,8 +24,18 @@ TGE.RemoteSettings._getDefaultAudioSetting = function ()
         case "B0135": // Snapchat
         case "B0149": // Web links
         case "B0154": // Creative Builder
-        //case "B0003": // Facebook PAN-1456 Disabling FB support due to a blocking issue when audio failed to load
             audioEnabled = true;
+            break;
+        case "B0003": // Facebook
+            {
+                // We use the FetchAPI to load inlined audio, but this was only supported from iOS 10.3 on. Facebook
+                // makes this test difficult because they wrap the native window.fetch function.
+                audioEnabled = true;
+                try { window.fetch("data:@file/x-empty;base64,"); } catch (e) {
+                    TGE.Debug.Log(TGE.Debug.LOG_WARNING, "Fetch API not supported, disabling audio");
+                    audioEnabled = false;
+                }
+            }
             break;
         case "B0094": // Beeswax RTB
         default:
