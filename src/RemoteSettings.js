@@ -253,7 +253,7 @@ TGE.Game.prototype._errorHandleRemoteSettings = function (config)
     // Does the type of 'default' match the 'type' passed in?
     if (typeof(config.default) != config.type)
     {
-        TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has a default value that does not match the required data type.');
+        TGE.Debug.Log(TGE.Debug.LOG_WARNING, 'remote setting "' + config.name + '" has a default value that does not match the required data type.');
         hasErrors = true;
 
         // PAN-1450 substitute a suitable default value in the correct type
@@ -280,7 +280,7 @@ TGE.Game.prototype._errorHandleRemoteSettings = function (config)
         {
             if (config.type !== "number")
             {
-                TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has an option that is not of the correct data type.');
+                TGE.Debug.Log(TGE.Debug.LOG_WARNING, 'remote setting "' + config.name + '" has an option that is not of the correct data type.');
                 hasErrors = true;
             }
             else
@@ -298,7 +298,7 @@ TGE.Game.prototype._errorHandleRemoteSettings = function (config)
         }
         else if (typeof(config.options[i]) != config.type)
         {
-            TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has an option that is not of the correct data type.');
+            TGE.Debug.Log(TGE.Debug.LOG_WARNING, 'remote setting "' + config.name + '" has an option that is not of the correct data type.');
             hasErrors = true;
         }
     }
@@ -306,7 +306,7 @@ TGE.Game.prototype._errorHandleRemoteSettings = function (config)
     // Does the 'default' appear in the 'options' array?
     if (Array.isArray(config.options) && config.options.length && config.options.indexOf(config.default) === -1 && !defaultExistsInRange)
     {
-        TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has a default value that is not in the valid options array.');
+        TGE.Debug.Log(TGE.Debug.LOG_WARNING, 'remote setting "' + config.name + '" has a default value that is not in the valid options array.');
         hasErrors = true;
         config.default = defaultValue !== undefined ? defaultValue : config.options[0];     // PAN-1450 substitute a valid range value, or the first options element
     }
