@@ -217,33 +217,28 @@ TGE.Game.prototype._initRemoteSetting = function (settingName, settingObject)
     settingObject.wasSet = false;
 
     // Before attempting an override, verify that the config settings as defined in the GameConfig are valid
-    if (this._errorHandleRemoteSettings(settingObject))
+    this._errorHandleRemoteSettings(settingObject);
+
+    settingObject.value = settingObject.default;
+
+    // The existence of any variant settings from the dashboard should preclude any querystring overrides - don't mix them
+    if (window.TreSensa && window.TreSensa.Playable.getSetting("remoteSettings"))
     {
-        settingObject.value = null;
+        var variantOverwrite = this._checkForVariantOverwrite(settingObject);
+        if (variantOverwrite !== null)
+        {
+            settingObject.value = variantOverwrite;
+            settingObject.wasSet = true;
+        }
     }
     else
     {
-        settingObject.value = settingObject.default;        
-
-        // The existence of any variant settings from the dashboard should preclude any querystring overrides - don't mix them
-        if (window.TreSensa && window.TreSensa.Playable.getSetting("remoteSettings"))
+        // Allow passed in query string parameters to overwrite remote settings values
+        var queryStringOverwrite = this._checkForQueryStringOverwrite(settingObject);
+        if (queryStringOverwrite !== null)
         {
-            var variantOverwrite = this._checkForVariantOverwrite(settingObject);
-            if (variantOverwrite !== null)
-            {
-                settingObject.value = variantOverwrite;
-                settingObject.wasSet = true;
-            }
-        }
-        else
-        {
-            // Allow passed in query string parameters to overwrite remote settings values
-            var queryStringOverwrite = this._checkForQueryStringOverwrite(settingObject);
-            if (queryStringOverwrite !== null)
-            {
-                settingObject.value = queryStringOverwrite;
-                settingObject.wasSet = true;
-            }
+            settingObject.value = queryStringOverwrite;
+            settingObject.wasSet = true;
         }
     }
 }
@@ -253,12 +248,29 @@ TGE.Game.prototype._errorHandleRemoteSettings = function (config)
 {
     var hasErrors = false;
     var defaultExistsInRange = false;
+    var defaultValue;
 
     // Does the type of 'default' match the 'type' passed in?
     if (typeof(config.default) != config.type)
     {
         TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has a default value that does not match the required data type.');
         hasErrors = true;
+
+        // PAN-1450 substitute a suitable default value in the correct type
+        switch (config.type)
+        {
+            case "string":
+                config.default = "";
+                break;
+            case "number":
+                config.default = 0;
+                break;
+            case "boolean":
+                config.default = false;
+                break;
+
+            // NOTE: if we want to support additional types here, we also need to change _convertStringToType
+        }
     }
 
     // Does the type of each element in 'options' match the 'type' passed in?
@@ -266,12 +278,21 @@ TGE.Game.prototype._errorHandleRemoteSettings = function (config)
     {
         if (typeof config.options[i].min == "number" || typeof config.options[i].max == "number")
         {
-            defaultExistsInRange = defaultExistsInRange || this._numberExistsInRange(config.options[i].min, config.options[i].max, config.default, config.options[i].interval);
-
             if (config.type !== "number")
             {
                 TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has an option that is not of the correct data type.');
                 hasErrors = true;
+            }
+            else
+            {
+                if (this._numberExistsInRange(config.options[i].min, config.options[i].max, config.default, config.options[i].interval))
+                {
+                    defaultExistsInRange = true;
+                }
+                else
+                {
+                    defaultValue = config.options[i].min || 0;  // PAN-1450 save a valid default value
+                }
             }
 
         }
@@ -283,10 +304,11 @@ TGE.Game.prototype._errorHandleRemoteSettings = function (config)
     }
 
     // Does the 'default' appear in the 'options' array?
-    if (Array.isArray(config.options) && config.options.indexOf(config.default) === -1 && !defaultExistsInRange)
+    if (Array.isArray(config.options) && config.options.length && config.options.indexOf(config.default) === -1 && !defaultExistsInRange)
     {
         TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has a default value that is not in the valid options array.');
         hasErrors = true;
+        config.default = defaultValue !== undefined ? defaultValue : config.options[0];     // PAN-1450 substitute a valid range value, or the first options element
     }
 
     // We're going to allow persistent settings to be redefined in GameConfig for the "lang" parameter, so devs can specify supported languages
@@ -397,6 +419,7 @@ TGE.Game.prototype._convertStringToType = function (string, type)
                 newVar = false;
             }
             break;
+        // NOTE: if we want to support additional types here, we also need to change _errorHandleRemoteSettings
     }
 
     return newVar;
