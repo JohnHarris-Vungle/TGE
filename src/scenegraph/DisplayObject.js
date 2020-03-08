@@ -949,7 +949,7 @@ TGE.DisplayObject.prototype =
         {
             this.mouseEnabled = true;
 
-            if (this instanceof TGE.Stage && TGE.Game.GetUpdateRoot() !== this && !TGE.Game.GetInstance()._mBufferingScreen)
+	        if (this instanceof TGE.Stage && TGE.Game.GetUpdateRoot() && TGE.Game.GetUpdateRoot() !== this && !TGE.Game.GetInstance()._mBufferingScreen)
             {
 	            TGE.Debug.Log(TGE.Debug.LOG_WARNING,"Adding mouse event listener to stage when SetUpdateRoot is pointing elsewhere. See PAN-1239.");
             }
