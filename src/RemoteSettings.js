@@ -269,7 +269,7 @@ TGE.Game.prototype.validateSettingValue = function (value, config)
     // ensure the value type matches the setting type
     if (typeof value !== config.type && value != null)
     {
-        TGE.Debug.Log(TGE.Debug.LOG_WARNING, 'remote setting "' + config.name + '" has a value that does not match the required data type');
+        TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has a value that does not match the required data type');
 
         // PAN-1450 substitute a suitable default value in the correct type
         switch (config.type)
@@ -323,12 +323,12 @@ TGE.Game.prototype.validateSettingValue = function (value, config)
 
         if (typeError)
         {
-            TGE.Debug.Log(TGE.Debug.LOG_WARNING, 'remote setting "' + config.name + '" has an option that is not the correct data type');
+            TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has an option that is not the correct data type');
         }
 
         if (!validated)
         {
-            TGE.Debug.Log(TGE.Debug.LOG_WARNING, 'remote setting "' + config.name + '" has a default value that is not in the valid options array');
+            TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" has a default value that is not in the valid options array');
             value = defaultRangeValue !== undefined ? defaultRangeValue : config.options[0];     // PAN-1450 substitute a valid range value, or the first options element
         }
     }
