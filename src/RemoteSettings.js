@@ -143,7 +143,7 @@ TGE.RemoteSettings.WasSet = function (settingName)
 /** @ignore */
 TGE.Game.prototype._getRemoteSetting = function (settingName)
 {
-    if (this._mRemoteSettings && this._mRemoteSettings[settingName] && typeof(this._mRemoteSettings[settingName].value) !== "undefined")
+    if (this._mRemoteSettings && this._mRemoteSettings[settingName])
     {
         return this._mRemoteSettings[settingName].value;
     }
@@ -238,7 +238,7 @@ TGE.Game.prototype._initRemoteSetting = function (settingName, settingObject)
         }
     }
 
-    if (overrideValue !== undefined && this.validateSettingValue(overrideValue, settingObject) === overrideValue)
+    if (overrideValue != null && this.validateSettingValue(overrideValue, settingObject) === overrideValue)
     {
         settingObject.value = overrideValue;
         settingObject.wasSet = true;
@@ -267,7 +267,7 @@ TGE.Game.prototype.validateSettingValue = function (value, config)
     var defaultRangeValue;
 
     // ensure the value type matches the setting type
-    if (typeof value !== config.type)
+    if (typeof value !== config.type && value != null)
     {
         TGE.Debug.Log(TGE.Debug.LOG_WARNING, 'remote setting "' + config.name + '" has a value that does not match the required data type');
 
@@ -295,7 +295,7 @@ TGE.Game.prototype.validateSettingValue = function (value, config)
         var validated = false;
 
         // first check if the value exists directly as an options element
-        if (config.options.indexOf(value) >= 0)
+        if (config.options.indexOf(value) >= 0 || value == null)
         {
             validated = true;
         }
