@@ -226,15 +226,15 @@ TGE.Game.prototype._initRemoteSetting = function (settingName, settingObject)
     var playableSettings = window.TreSensa && window.TreSensa.Playable.getSetting("remoteSettings");
     if (playableSettings)
     {
-        overrideValue = playableSettings[config.name];
+        overrideValue = playableSettings[settingObject.name];
     }
     else
     {
         // Allow passed in query string parameters to overwrite remote settings values
-        var queryStringParam = getQueryString()[config.name];
+        var queryStringParam = getQueryString()[settingObject.name];
         if (queryStringParam !== undefined)
         {
-            overrideValue = this._convertStringToType(queryStringParam, config.type);
+            overrideValue = this._convertStringToType(queryStringParam, settingObject.type);
         }
     }
 
