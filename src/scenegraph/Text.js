@@ -650,6 +650,12 @@ TGE.Text.prototype =
 			// Determine where to begin vertically
 			var y = 0;
 
+			if(this._mLines.length>1 && !offscreenContext)
+			{
+				y = this.vAlign==="top" ? 0 : (this.vAlign==="middle" ? -this.height/2 : y = -this.height);
+				canvasContext.textBaseline = "top";
+			}
+
 			// apply vertical font offsets, if enabled and present
 			if (GameConfig.USE_FONT_OFFSETS && window._TREFONTS && _TREFONTS[this.fontFamily])
 			{
@@ -677,12 +683,6 @@ TGE.Text.prototype =
 
 				// apply offset
 				y += (verticalOffsets[platform] || 0) * this.fontSize;
-			}
-
-			if(this._mLines.length>1 && !offscreenContext)
-			{
-				y = this.vAlign==="top" ? 0 : (this.vAlign==="middle" ? -this.height/2 : y = -this.height);
-				canvasContext.textBaseline = "top";
 			}
 
 			// Draw the text
