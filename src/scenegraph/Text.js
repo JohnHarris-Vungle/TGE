@@ -47,6 +47,7 @@ TGE.Text = function()
 	this._mPreviousLineSpacing = 0;
 	this._mLines = [];
 	this._mLineHeight = 0;
+	this._mLineSpace = 0;
 	this._mCachePadding = 0;
     this._mFontFallbacks = [];
 
@@ -273,14 +274,14 @@ TGE.Text.prototype =
 
 		// Determine the height (this is not accurate - but it's not critical anyways)
 		this._mLineHeight = 30;
-		var spacing = 0;
+		this._mLineSpace = 0;
 		try
 		{
 			var pos = this.font.indexOf("px");
 			var ss =  this.font.substring(0,pos).replace(/[^\d.]/g, '');
 			this._mLineHeight = parseInt(ss,10);
-			spacing = (this._mLineHeight*this.lineSpacing)>>0;
-			this._mLineHeight += spacing;
+			this._mLineSpace = (this._mLineHeight*this.lineSpacing)>>0;
+			this._mLineHeight += this._mLineSpace;
 		}
 		catch(e) {}
 
@@ -331,7 +332,7 @@ TGE.Text.prototype =
 			var textDimensions = canvasContext.measureText(this.text);
 			this.width = textDimensions.width;
 		}
-		this.height = this._mLineHeight*this._mLines.length - spacing; // PAN-505
+		this.height = this._mLineHeight*this._mLines.length - this._mLineSpace; // PAN-505
 
 		// Set the registration points to match the text alignment settings
 		this.registrationX = this.hAlign===null || this.hAlign==="center" ? 0.5 : (this.hAlign==="left" || this.hAlign==="justify" ? 0 : 1);
@@ -652,8 +653,7 @@ TGE.Text.prototype =
 
 			if(this._mLines.length>1 && !offscreenContext)
 			{
-				y = this.vAlign==="top" ? 0 : (this.vAlign==="middle" ? -this.height/2 : y = -this.height);
-				canvasContext.textBaseline = "top";
+				y = this.vAlign==="top" ? 0 : (this.vAlign==="middle" ? (-this.height/2 + (this._mLineHeight-this._mLineSpace)/2) : (-this.height + (this._mLineHeight-this._mLineSpace)/1));
 			}
 
 			// apply vertical font offsets, if enabled and present
