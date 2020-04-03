@@ -17,6 +17,7 @@
 
 		"scenegraph/DisplayObject.js",
 		"scenegraph/DisplayObjectContainer.js",
+		"scenegraph/GameStage.js",
 		"scenegraph/Stage.js",
 		"scenegraph/Sprite.js",
 		"scenegraph/RectMask.js",

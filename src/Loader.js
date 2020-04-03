@@ -337,12 +337,12 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 	// for mobile, we need to load the video on an input event
     var addMobilePreload = function () {
 	    // console.log("---adding touch listener for _preloadVideo: " + Date.now()/1000);
-	    TGE.Game.GetInstance().stage.addEventListener("mouseup", _preloadVideo);
+	    TGE.Game.GetInstance()._mStage.addEventListener("mouseup", _preloadVideo);
     };
 
     var _preloadVideo = function() {
 	    // console.log("---calling _preloadVideo now: " + Date.now()/1000);
-	    TGE.Game.GetInstance().stage.removeEventListener("mouseup", _preloadVideo);
+	    TGE.Game.GetInstance()._mStage.removeEventListener("mouseup", _preloadVideo);
     	var video = self.el;
 	    video.muted = true;
 	    var promise = video.play();

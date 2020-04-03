@@ -32,7 +32,6 @@ TGE.Stage = function(canvasDiv,initialWidth,initialHeight)
 	// methods (like _drawClass) from before there was a plugin renderer architecture.
 	this._mSpareCanvasRenderer = new TGE.CanvasRenderer();
 
-    this.stage = this;
     this.mouseEnabled = true;
 	this._mAddedToStage = true;
 
@@ -133,12 +132,28 @@ TGE.Stage = function(canvasDiv,initialWidth,initialHeight)
 	// Get the renderer to initialize based on the canvas size
 	this._mRenderer.resizedGameDiv();
 
+	// Create the "game stage", which is the stage visible to users. Important that we create it and then add it,
+	// otherwise its this.stage property gets overwritten to null (because this.stage is still null).
+	this.stage = new TGE.GameStage(this);
+	this.addChild(this.stage);
+
     return this;
 }
 
 TGE.Stage.prototype =
 {
-    /**
+	/**
+	 * The game stage can be resized so that it does not match exactly the true stage size. Currently it is only possible
+	 * to adjust the height so that it is less than the true stage, leaving empty space at the bottom for something like
+	 * a persistent footer panel.
+	 * @param {Number} height The desired height of the game stage, expressed as a percentage of the true stage's height.
+	 */
+	setGameStageHeight: function(height)
+	{
+		this.stage._setHeight(height);
+	},
+
+	/**
      * Tells the stage to draw all of its visible children. The background will only be cleared if the backgroundColor property has been set to a color.
      */
     draw: function()
@@ -248,15 +263,6 @@ TGE.Stage.prototype =
 	isMouseDown: function()
 	{
 		return this._mMouseDown;
-	},
-
-	/**
-	 * Indicates whether the game view is currently in landscape orientation
-	 * @returns {Boolean} Returns true if the game is in landscape
-	 */
-	isLandscape: function ()
-	{
-		return this.height < this.width;
 	},
 
 	/**

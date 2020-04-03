@@ -113,12 +113,12 @@ TGE.Sprite.prototype =
             }
             else if(arg1 instanceof Image)
             {
-                this._mRendererTexture = this.stage._mRenderer.processImage(arg1,false);
+                this._mRendererTexture = this.stage._mStage._mRenderer.processImage(arg1,false);
             }
             else if(arg1 && arg1.spriteSheet instanceof Image)
             {
                 // PAN-642 The TGE 0.3 bridge passes the sprite sheet info object as arg1 when it's a sprite sheet asset
-                this._mRendererTexture = this.stage._mRenderer.processImage(arg1.spriteSheet,true);
+                this._mRendererTexture = this.stage._mStage._mRenderer.processImage(arg1.spriteSheet,true);
                 var sheetInfo = arg1;
             }
 

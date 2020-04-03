@@ -743,7 +743,7 @@ TGE.DisplayObject.prototype =
     markForRemoval: function()
     {
         this._mMarkedForRemoval = true;
-        this.stage._trashObject(this);
+        this.stage._mStage._trashObject(this);
     },
 
     /**
@@ -949,7 +949,7 @@ TGE.DisplayObject.prototype =
         {
             this.mouseEnabled = true;
 
-	        if (this instanceof TGE.Stage && TGE.Game.GetUpdateRoot() && TGE.Game.GetUpdateRoot() !== this && !TGE.Game.GetInstance()._mBufferingScreen)
+	        if (this instanceof TGE.GameStage && TGE.Game.GetUpdateRoot() && TGE.Game.GetUpdateRoot() !== this && !TGE.Game.GetInstance()._mBufferingScreen)
             {
 	            TGE.Debug.Log(TGE.Debug.LOG_WARNING,"Adding mouse event listener to stage when SetUpdateRoot is pointing elsewhere. See PAN-1239.");
             }
@@ -962,7 +962,7 @@ TGE.DisplayObject.prototype =
         else if(type==="update" && this.stage)
         {
 	        // PAN-343
-	        this.stage._addUpdateObj(this);
+	        this.stage._mStage._addUpdateObj(this);
         }
 
         return newListener.id;
@@ -985,9 +985,9 @@ TGE.DisplayObject.prototype =
                 {
                     // mark it for removal, and add to list for removal processing
 	                l.id = 0;
-	                if (this.stage._mListenerRemovals.indexOf(this) < 0)
+	                if (this.stage._mStage._mListenerRemovals.indexOf(this) < 0)
 	                {
-		                this.stage._mListenerRemovals.push(this);
+		                this.stage._mStage._mListenerRemovals.push(this);
 	                }
                     return;
                 }
@@ -1645,8 +1645,8 @@ TGE.DisplayObject.prototype =
 	    // instead of a renderer object. If so, use our spare renderer and make the call properly
 	    if(!renderer.isTGERenderer)
 	    {
-		    this.stage._mSpareCanvasRenderer.swapContext(renderer); // Actually a context
-		    return this._draw(this.stage._mSpareCanvasRenderer);
+		    this.stage._mStage._mSpareCanvasRenderer.swapContext(renderer); // Actually a context
+		    return this._draw(this.stage._mStage._mSpareCanvasRenderer);
 	    }
 
         this._checkVisibilityChange();
@@ -1661,11 +1661,11 @@ TGE.DisplayObject.prototype =
         // Add it to the collection of mouse targets if it is mouseEnabled and visible
         if(this.stage!==null && this.mouseEnabled)
         {
-            this.stage._mMouseTargets.push(this);
+            this.stage._mStage._mMouseTargets.push(this);
         }
 
 	    // Apply the world transform
-	    var stageScale = (this.stage!==null && this.stage._mScale!==1) ? this.stage._mScale : 1;
+	    var stageScale = (this.stage!==null && this.stage._mStage._mScale!==1) ? this.stage._mStage._mScale : 1;
 	    renderer.setWorldTransform(this._mWorldTransform,stageScale);
 
         // Set the alpha for the object
@@ -1708,12 +1708,12 @@ TGE.DisplayObject.prototype =
 	    }
 
 	    // Increment the visible objects count
-	    this.stage._mNumVisibleObjects++;
+	    this.stage._mStage._mNumVisibleObjects++;
 
 	    // Increment the drawn objects count
 	    if(this.doesDrawing())
 	    {
-		    this.stage._mNumDrawnObjects++;
+		    this.stage._mStage._mNumDrawnObjects++;
 	    }
     },
 
@@ -1731,9 +1731,9 @@ TGE.DisplayObject.prototype =
 	{
 		if(!internalCall)
 		{
-			this.stage._mSpareCanvasRenderer.swapContext(canvasContext);
-			this.stage._mSpareCanvasRenderer.deprecatedDrawCycle = true;
-			this._objectDraw(this.stage._mSpareCanvasRenderer);
+			this.stage._mStage._mSpareCanvasRenderer.swapContext(canvasContext);
+			this.stage._mStage._mSpareCanvasRenderer.deprecatedDrawCycle = true;
+			this._objectDraw(this.stage._mStage._mSpareCanvasRenderer);
 		}
 	},
 
