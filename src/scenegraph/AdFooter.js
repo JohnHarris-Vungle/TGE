@@ -298,9 +298,9 @@ TGE.AdFooter.prototype =
     adjustPanelPosition: function()
     {
         this.x = 0;
-        this.y = this.stage._mFullStage.height * (1 - (this.expanded ? this.panelSettings.expandedSize : this.panelSettings.collapsedSize));
-        this.width = this.stage._mFullStage.width;
-        this.height = this.stage._mFullStage.height;
+        this.y = this._mFullStage.height * (1 - (this.expanded ? this.panelSettings.expandedSize : this.panelSettings.collapsedSize));
+        this.width = this._mFullStage.width;
+        this.height = this._mFullStage.height;
     },
 
     cleanup: function()

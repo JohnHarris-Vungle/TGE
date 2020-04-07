@@ -1,5 +1,6 @@
 /**
  * The DisplayObject class is the base class for all visual objects that can be placed on the stage.
+ * The DisplayObject class is the base class for all visual objects that can be placed on the stage.
  * The DisplayObject class supports basic functionality like the x and y position of an object, rotation, and scaling, as well as more advanced properties of the object such as its transformation matrix.
  * Typically you would not instantiate a TGE.DisplayObject directly - it would be more common to use {@link TGE.DisplayObjectContainer} or {@link TGE.Sprite}.
  * @property {Number} x Indicates the x coordinate of the display object relative to the local coordinates of the parent TGE.DisplayObjectContainer.
@@ -131,6 +132,7 @@ TGE.DisplayObject = function()
     this._mPreviousParent = null;
     this._mLayoutResizeListener = null;
     this._mLayout = null;
+    this._mFullStage = this.stage ? this.stage._mFullStage : null;
 
     return this;
 };
@@ -743,7 +745,7 @@ TGE.DisplayObject.prototype =
     markForRemoval: function()
     {
         this._mMarkedForRemoval = true;
-        this.stage._mFullStage._trashObject(this);
+        this._mFullStage._trashObject(this);
     },
 
     /**
@@ -962,7 +964,7 @@ TGE.DisplayObject.prototype =
         else if(type==="update" && this.stage)
         {
 	        // PAN-343
-	        this.stage._mFullStage._addUpdateObj(this);
+	        this._mFullStage._addUpdateObj(this);
         }
 
         return newListener.id;
@@ -985,9 +987,9 @@ TGE.DisplayObject.prototype =
                 {
                     // mark it for removal, and add to list for removal processing
 	                l.id = 0;
-	                if (this.stage._mFullStage._mListenerRemovals.indexOf(this) < 0)
+	                if (this._mFullStage._mListenerRemovals.indexOf(this) < 0)
 	                {
-		                this.stage._mFullStage._mListenerRemovals.push(this);
+		                this._mFullStage._mListenerRemovals.push(this);
 	                }
                     return;
                 }
@@ -1645,8 +1647,8 @@ TGE.DisplayObject.prototype =
 	    // instead of a renderer object. If so, use our spare renderer and make the call properly
 	    if(!renderer.isTGERenderer)
 	    {
-		    this.stage._mFullStage._mSpareCanvasRenderer.swapContext(renderer); // Actually a context
-		    return this._draw(this.stage._mFullStage._mSpareCanvasRenderer);
+		    this._mFullStage._mSpareCanvasRenderer.swapContext(renderer); // Actually a context
+		    return this._draw(this._mFullStage._mSpareCanvasRenderer);
 	    }
 
         this._checkVisibilityChange();
@@ -1661,11 +1663,11 @@ TGE.DisplayObject.prototype =
         // Add it to the collection of mouse targets if it is mouseEnabled and visible
         if(this.stage!==null && this.mouseEnabled)
         {
-            this.stage._mFullStage._mMouseTargets.push(this);
+            this._mFullStage._mMouseTargets.push(this);
         }
 
 	    // Apply the world transform
-	    var stageScale = (this.stage!==null && this.stage._mFullStage._mScale!==1) ? this.stage._mFullStage._mScale : 1;
+	    var stageScale = (this.stage!==null && this._mFullStage._mScale!==1) ? this._mFullStage._mScale : 1;
 	    renderer.setWorldTransform(this._mWorldTransform,stageScale);
 
         // Set the alpha for the object
@@ -1708,12 +1710,12 @@ TGE.DisplayObject.prototype =
 	    }
 
 	    // Increment the visible objects count
-	    this.stage._mFullStage._mNumVisibleObjects++;
+	    this._mFullStage._mNumVisibleObjects++;
 
 	    // Increment the drawn objects count
 	    if(this.doesDrawing())
 	    {
-		    this.stage._mFullStage._mNumDrawnObjects++;
+		    this._mFullStage._mNumDrawnObjects++;
 	    }
     },
 
@@ -1731,9 +1733,9 @@ TGE.DisplayObject.prototype =
 	{
 		if(!internalCall)
 		{
-			this.stage._mFullStage._mSpareCanvasRenderer.swapContext(canvasContext);
-			this.stage._mFullStage._mSpareCanvasRenderer.deprecatedDrawCycle = true;
-			this._objectDraw(this.stage._mFullStage._mSpareCanvasRenderer);
+			this._mFullStage._mSpareCanvasRenderer.swapContext(canvasContext);
+			this._mFullStage._mSpareCanvasRenderer.deprecatedDrawCycle = true;
+			this._objectDraw(this._mFullStage._mSpareCanvasRenderer);
 		}
 	},
 
@@ -1962,6 +1964,7 @@ TGE.DisplayObject.prototype =
     _setStage: function(stage, addedToStage)
     {
         this.stage = stage;
+        this._mFullStage = stage._mFullStage;
 	    this._mAddedToStage = addedToStage;
     },
 

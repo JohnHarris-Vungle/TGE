@@ -1588,7 +1588,10 @@ TGE.Game.prototype =
     /** @ignore */
     _initializeRenderer: function(width,height)
     {
+        // Create the full stage object
         this._mFullStage = new TGE.FullStage(this.mCanvasDiv,width,height);
+
+        // Set the public stage object that games treat as the root stage (can be a subset of the full stage)
         this.stage = this._mFullStage.stage;
 
          // PAN-574

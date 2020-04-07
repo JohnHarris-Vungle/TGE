@@ -136,6 +136,7 @@ TGE.FullStage = function(canvasDiv,initialWidth,initialHeight)
 	// otherwise its this.stage property gets overwritten to null (because this.stage is still null).
 	this.stage = new TGE.GameStage(this);
 	this.addChild(this.stage);
+	this._mFullStage = this;
 
     return this;
 }
