@@ -41,6 +41,16 @@ TGE.GameStage.prototype =
         this.width = this.parent.width;
         this.height = this.parent.height * this._mHeightRatio;
         this.scale = 1;
-    }
+    },
+
+    /**
+     * (documented in superclass)
+     * @ignore
+     */
+    getBounds: function()
+    {
+        // PAN-354 overriding this function to always return the intended stage dimensions without querying children
+        return TGE.GameStage.superclass.getBounds.call(this, true);
+    },
 }
 extend(TGE.GameStage, TGE.DisplayObjectContainer);
