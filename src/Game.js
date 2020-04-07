@@ -860,10 +860,10 @@ TGE.Game.prototype =
 			    if(getQueryString()["tgedebug"]==="2")
 			    {
 				    // List entity counts
-				    str += (game.stage ? game.stage.numChildren(true) : 0) + " scene objects<br>" +
-					    (game.stage ? game.stage.numVisibleObjects() : 0) + " visible objects<br>" +
-					    (game.stage ? game.stage.numDrawnObjects() : 0) + " drawn objects<br>" +
-					    (game.stage ? game.stage._mUpdateGroup.length : 0) + " updating objects<br>";
+				    str += (game._mFullStage ? game._mFullStage.numChildren(true) : 0) + " scene objects<br>" +
+					    (game._mFullStage ? game._mFullStage.numVisibleObjects() : 0) + " visible objects<br>" +
+					    (game._mFullStage ? game._mFullStage.numDrawnObjects() : 0) + " drawn objects<br>" +
+					    (game._mFullStage ? game._mFullStage._mUpdateGroup.length : 0) + " updating objects<br>";
 
 				    // List the active TGE.Window objects
 				    str += "<div style='font-weight: bold; font-size: 14px; padding-top: 4px; padding-bottom: 2px;'>Active Windows:</div>";
