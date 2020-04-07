@@ -265,7 +265,7 @@ TGE.Text.prototype =
 			return;
 		}
 
-		var canvasContext = this._mOffscreenContext ? this._mOffscreenContext : this.stage._mStage._mRenderer.getCanvasContext();
+		var canvasContext = this._mOffscreenContext ? this._mOffscreenContext : this.stage._mFullStage._mRenderer.getCanvasContext();
 
 		canvasContext.save();
 
@@ -630,7 +630,7 @@ TGE.Text.prototype =
 			}
 			else
 			{
-				var stageScale = (this.stage!==null && this.stage._mStage._mScale!==1) ? this.stage._mStage._mScale : 1;
+				var stageScale = (this.stage!==null && this.stage._mFullStage._mScale!==1) ? this.stage._mFullStage._mScale : 1;
 				renderer.setWorldTransform(this._mWorldTransformNoReg,stageScale);
 				canvasContext.textAlign = this.hAlign!==null ? (this.hAlign==="justify" ? "left" : this.hAlign) : "center";
 				canvasContext.textBaseline = this.vAlign!==null ? this.vAlign : "middle";

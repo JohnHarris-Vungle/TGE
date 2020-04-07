@@ -370,7 +370,7 @@ TGE.DisplayObjectContainer.prototype =
 		this.offscreenRenderer.getCanvasContext().clearRect(0,0,this.canvas.width,this.canvas.height);
 
 		// This is a dirty hack - but we can force the global stage rendering scale using the private _mScale property
-		this.stage._mStage._mScale = this.canvasScale;
+		this.stage._mFullStage._mScale = this.canvasScale;
 
 		// Draw all the children into the offscreen canvas
 		this._mCached = false;      // flag off, so it does a full object/children draw
@@ -380,7 +380,7 @@ TGE.DisplayObjectContainer.prototype =
 
 		// all transforms are now relative to the offscreen canvas, so force them to rebuild next update cycle
 		this._resetTransforms();
-		this.stage._mStage._mScale = 1;         // reset global stage scale
+		this.stage._mFullStage._mScale = 1;         // reset global stage scale
 	},
 
 	updateCache: function()

@@ -4,7 +4,7 @@ TGE.GameStage = function(trueStage)
 
     this.stage = this;
 
-    this._mStage = trueStage;
+    this._mFullStage = trueStage;
     this._mHeightRatio = 1.0; // 100%
 
     this.registrationX = this.registrationY = 0;

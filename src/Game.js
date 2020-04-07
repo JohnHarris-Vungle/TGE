@@ -70,7 +70,7 @@ TGE.Game = function()
     this._initializeRemoteSettings();
 
     this.stage = null; // The public game stage
-    this._mStage = null; // The private true stage
+    this._mFullStage = null; // The private true stage
     this.assetManager = new TGE.AssetManager();
 	if (TGE.AudioManager) this.audioManager = new TGE.AudioManager(this.assetManager);
     this.tracking = new TGE.Tracking();
@@ -1246,7 +1246,7 @@ TGE.Game.prototype =
             return;
         }
 
-	    if(!this._mStage)
+	    if(!this._mFullStage)
 	    {
 		    TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "abandoning _resizeViewport - stage not ready");
 		    return;
@@ -1262,8 +1262,8 @@ TGE.Game.prototype =
         var paddingTop = getQueryString()["padding-top"];
         var paddingTop = isNaN(paddingTop) ? 0 : parseInt(paddingTop);
 
-        var gameWidth = this._mStage._mOriginalWidth;
-        var gameHeight = this._mStage._mOriginalHeight;
+        var gameWidth = this._mFullStage._mOriginalWidth;
+        var gameHeight = this._mFullStage._mOriginalHeight;
         var screenWidth = this._innerWidth();
         var screenHeight = this._innerHeight()-paddingTop;
 
@@ -1377,13 +1377,13 @@ TGE.Game.prototype =
 			    this.canvasHeight = gameHeight;
 
 			    // Need to tell the game...
-			    if(this._mStage)
+			    if(this._mFullStage)
 			    {
-				    this._mStage.setSize(gameWidth,gameHeight);
+				    this._mFullStage.setSize(gameWidth,gameHeight);
 
 				    TGE._ResizeEvent.width = TGE._ResizeEvent.endEvent.width = gameWidth;
 				    TGE._ResizeEvent.height = TGE._ResizeEvent.endEvent.height = gameHeight;
-				    this._mStage.dispatchEvent(TGE._ResizeEvent);
+				    this._mFullStage.dispatchEvent(TGE._ResizeEvent);
 			    }
 		    }
             else
@@ -1518,9 +1518,9 @@ TGE.Game.prototype =
 		this._mActive = active;
 
 		// Fire an event so the game can do custom handling like creating/closing a pause screen, pausing or resuming audio
-		if(this._mStage)
+		if(this._mFullStage)
 		{
-			this._mStage.dispatchEvent({type: active ? "activate" : "deactivate"});
+			this._mFullStage.dispatchEvent({type: active ? "activate" : "deactivate"});
 		}
 	},
 
@@ -1588,8 +1588,8 @@ TGE.Game.prototype =
     /** @ignore */
     _initializeRenderer: function(width,height)
     {
-        this._mStage = new TGE.FullStage(this.mCanvasDiv,width,height);
-        this.stage = this._mStage.stage;
+        this._mFullStage = new TGE.FullStage(this.mCanvasDiv,width,height);
+        this.stage = this._mFullStage.stage;
 
          // PAN-574
         if (!this.audioManager.canPlayAudio())
@@ -1932,7 +1932,7 @@ TGE.Game.prototype =
             // UI objects need to be notified of mouse activity even when paused, but not while buffering
 		    if (!this._mBufferingScreen)
 		    {
-			    this._mStage._updateObjectMouseOverStates(this._mPointerX, this._mPointerY);
+			    this._mFullStage._updateObjectMouseOverStates(this._mPointerX, this._mPointerY);
 		    }
 
 		    var updateEvent = { type:"update",elapsedTime:elapsedTime };
@@ -1940,25 +1940,25 @@ TGE.Game.prototype =
             // Make sure the update root is still valid
             if(!this._mUpdateRoot || this._mUpdateRoot.markedForRemoval() || this._mUpdateRoot.parent===null)
             {
-                this._mUpdateRoot = this._mStage;
+                this._mUpdateRoot = this._mFullStage;
             }
             this._mUpdateRoot.dispatchEvent(updateEvent);
 
             // If the ad header is active we have to make sure it gets an update event (PAN-745)
-            if(TGE.AdHeader.GetInstance()!==null && this._mUpdateRoot!==this._mStage)
+            if(TGE.AdHeader.GetInstance()!==null && this._mUpdateRoot!==this._mFullStage)
             {
                 TGE.AdHeader.GetInstance().dispatchEvent(updateEvent);
             }
 	    }
 
-        this._mStage._emptyTrash();
-	    this._mStage._pruneListeners();
+        this._mFullStage._emptyTrash();
+	    this._mFullStage._pruneListeners();
 
         // Do this before rendering - http://paulirish.com/2011/requestanimationframe-for-smart-animating/
         requestAnimationFrame(this._update.bind(this));
 
         // Draw our renderable entities
-        this._mStage.draw();
+        this._mFullStage.draw();
     },
 
 	/**
@@ -2070,7 +2070,7 @@ TGE.Game.prototype =
             if(this.allowMultitouch || this._mCurrentPointer<0 || identifier===this._mCurrentPointer)
             {
                 this._processMousePosition(x,y);
-                this._mStage._notifyObjectsOfMouseEvent(type,this._mPointerX,this._mPointerY,identifier);
+                this._mFullStage._notifyObjectsOfMouseEvent(type,this._mPointerX,this._mPointerY,identifier);
 
                 // Account for single touch filtering
                 if(!this.allowMultitouch)
@@ -2128,7 +2128,7 @@ TGE.Game.prototype =
 		    this._mKeysDown[e.keyCode] = true;
 
 		    // Notify stage objects of key events
-		    this._mStage._notifyObjectsOfKeyEvent("keydown", e.keyCode);
+		    this._mFullStage._notifyObjectsOfKeyEvent("keydown", e.keyCode);
 	    }
 
 	    // PAN-410, 436, 475
@@ -2146,7 +2146,7 @@ TGE.Game.prototype =
 		    this._mKeysDown[e.keyCode] = false;
 
 		    // Notify stage objects of key events
-		    this._mStage._notifyObjectsOfKeyEvent("keyup", e.keyCode);
+		    this._mFullStage._notifyObjectsOfKeyEvent("keyup", e.keyCode);
 	    }
 
 	    // PAN-410, 436, 475
@@ -2178,7 +2178,7 @@ TGE.Game.prototype =
 		if(this._mNumInteractions===1)
 		{
 			// Send an event to our own scenegraph
-			this._mStage.dispatchEvent({type:"engagement",name:"primary"});
+			this._mFullStage.dispatchEvent({type:"engagement",name:"primary"});
 
 			TGE.Events.logInteraction();
 		}

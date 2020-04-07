@@ -743,7 +743,7 @@ TGE.DisplayObject.prototype =
     markForRemoval: function()
     {
         this._mMarkedForRemoval = true;
-        this.stage._mStage._trashObject(this);
+        this.stage._mFullStage._trashObject(this);
     },
 
     /**
@@ -962,7 +962,7 @@ TGE.DisplayObject.prototype =
         else if(type==="update" && this.stage)
         {
 	        // PAN-343
-	        this.stage._mStage._addUpdateObj(this);
+	        this.stage._mFullStage._addUpdateObj(this);
         }
 
         return newListener.id;
@@ -985,9 +985,9 @@ TGE.DisplayObject.prototype =
                 {
                     // mark it for removal, and add to list for removal processing
 	                l.id = 0;
-	                if (this.stage._mStage._mListenerRemovals.indexOf(this) < 0)
+	                if (this.stage._mFullStage._mListenerRemovals.indexOf(this) < 0)
 	                {
-		                this.stage._mStage._mListenerRemovals.push(this);
+		                this.stage._mFullStage._mListenerRemovals.push(this);
 	                }
                     return;
                 }
@@ -1645,8 +1645,8 @@ TGE.DisplayObject.prototype =
 	    // instead of a renderer object. If so, use our spare renderer and make the call properly
 	    if(!renderer.isTGERenderer)
 	    {
-		    this.stage._mStage._mSpareCanvasRenderer.swapContext(renderer); // Actually a context
-		    return this._draw(this.stage._mStage._mSpareCanvasRenderer);
+		    this.stage._mFullStage._mSpareCanvasRenderer.swapContext(renderer); // Actually a context
+		    return this._draw(this.stage._mFullStage._mSpareCanvasRenderer);
 	    }
 
         this._checkVisibilityChange();
@@ -1661,11 +1661,11 @@ TGE.DisplayObject.prototype =
         // Add it to the collection of mouse targets if it is mouseEnabled and visible
         if(this.stage!==null && this.mouseEnabled)
         {
-            this.stage._mStage._mMouseTargets.push(this);
+            this.stage._mFullStage._mMouseTargets.push(this);
         }
 
 	    // Apply the world transform
-	    var stageScale = (this.stage!==null && this.stage._mStage._mScale!==1) ? this.stage._mStage._mScale : 1;
+	    var stageScale = (this.stage!==null && this.stage._mFullStage._mScale!==1) ? this.stage._mFullStage._mScale : 1;
 	    renderer.setWorldTransform(this._mWorldTransform,stageScale);
 
         // Set the alpha for the object
@@ -1708,12 +1708,12 @@ TGE.DisplayObject.prototype =
 	    }
 
 	    // Increment the visible objects count
-	    this.stage._mStage._mNumVisibleObjects++;
+	    this.stage._mFullStage._mNumVisibleObjects++;
 
 	    // Increment the drawn objects count
 	    if(this.doesDrawing())
 	    {
-		    this.stage._mStage._mNumDrawnObjects++;
+		    this.stage._mFullStage._mNumDrawnObjects++;
 	    }
     },
 
@@ -1731,9 +1731,9 @@ TGE.DisplayObject.prototype =
 	{
 		if(!internalCall)
 		{
-			this.stage._mStage._mSpareCanvasRenderer.swapContext(canvasContext);
-			this.stage._mStage._mSpareCanvasRenderer.deprecatedDrawCycle = true;
-			this._objectDraw(this.stage._mStage._mSpareCanvasRenderer);
+			this.stage._mFullStage._mSpareCanvasRenderer.swapContext(canvasContext);
+			this.stage._mFullStage._mSpareCanvasRenderer.deprecatedDrawCycle = true;
+			this._objectDraw(this.stage._mFullStage._mSpareCanvasRenderer);
 		}
 	},
 
