@@ -1,7 +1,7 @@
 /**
  <p>The Stage class represents the main drawing area.
  It inherits from {@link TGE.DisplayObjectContainer}, which allows you to add child objects using the addChild method.
- To redraw the contents of the stage you must make a call to {@link TGE.Stage.draw}.</p>
+ To redraw the contents of the stage you must make a call to {@link TGE.FullStage.draw}.</p>
  <p>If your game is built off of the {@link TGE.Game} class you do not need to manually manage or draw a stage object as this is done for you by {@link TGE.Game}.</p>
 
  * @class
@@ -11,9 +11,9 @@
  * @extends TGE.DisplayObjectContainer
  * @constructor
  */
-TGE.Stage = function(canvasDiv,initialWidth,initialHeight)
+TGE.FullStage = function(canvasDiv,initialWidth,initialHeight)
 {
-    TGE.Stage.superclass.constructor.call(this);
+    TGE.FullStage.superclass.constructor.call(this);
 
     // Private members
 	this._mRenderer = null;
@@ -92,7 +92,7 @@ TGE.Stage = function(canvasDiv,initialWidth,initialHeight)
     this.width = this._mOriginalWidth = canvasWidth;
     this.height = this._mOriginalHeight = canvasHeight;
 
-    TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "TGE.Stage initialized with dimensions: " + this.width + "x" + this.height);
+    TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "TGE.FullStage initialized with dimensions: " + this.width + "x" + this.height);
 
 	this._mAABB.x = this._mAABB.y = 0;
 	this._mAABB.width = this.width;
@@ -140,7 +140,7 @@ TGE.Stage = function(canvasDiv,initialWidth,initialHeight)
     return this;
 }
 
-TGE.Stage.prototype =
+TGE.FullStage.prototype =
 {
 	/**
 	 * The game stage can be resized so that it does not match exactly the true stage size. Currently it is only possible
@@ -288,7 +288,7 @@ TGE.Stage.prototype =
 		}
 		else
 		{
-			TGE.Stage.superclass.dispatchEvent.call(this,event);
+			TGE.FullStage.superclass.dispatchEvent.call(this,event);
 		}
 	},
 
@@ -298,7 +298,7 @@ TGE.Stage.prototype =
      */
     removeChildren: function()
     {
-        TGE.Stage.superclass.removeChildren.call(this);
+        TGE.FullStage.superclass.removeChildren.call(this);
 
         // If there was an ad header or footer we need to make sure they get added back in
         if(TGE.AdHeader.GetInstance())
@@ -513,4 +513,4 @@ TGE.Stage.prototype =
         this.dispatchEvent(keyEvent);
     }
 }
-extend(TGE.Stage, TGE.DisplayObjectContainer);
+extend(TGE.FullStage, TGE.DisplayObjectContainer);

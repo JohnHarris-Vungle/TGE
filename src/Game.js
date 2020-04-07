@@ -1588,7 +1588,7 @@ TGE.Game.prototype =
     /** @ignore */
     _initializeRenderer: function(width,height)
     {
-        this._mStage = new TGE.Stage(this.mCanvasDiv,width,height);
+        this._mStage = new TGE.FullStage(this.mCanvasDiv,width,height);
         this.stage = this._mStage.stage;
 
          // PAN-574

@@ -23,7 +23,7 @@ TGE.GameViewableCallback = null;
 TGE.SessionEndedCallback = null;
 
 /**
- * The optional TGE.StageReady callback, if set, will call the specified function as soon as the game's TGE.Stage instance is created.
+ * The optional TGE.StageReady callback, if set, will call the specified function as soon as the game's TGE.GameStage instance is created.
  * @deprecated
  */
 TGE.StageReady = null;

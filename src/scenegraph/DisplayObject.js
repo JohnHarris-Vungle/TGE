@@ -25,7 +25,7 @@
  * @property {Number} registrationX Indicates the horizontal registration point for the display object as a percentage (ie: 0=far left, 0.5=center, 1=far right). Default is 0.5.
  * @property {Number} registrationY Indicates the vertical registration point for the display object as a percentage (ie: 0=top, 0.5=middle, 1=bottom). Default is 0.5.
  * @property {TGE.DisplayObjectContainer} parent Indicates the TGE.DisplayObjectContainer object that contains this display object as a child.
- * @property {TGE.Stage} stage The TGE.Stage instance that this display object is on.
+ * @property {TGE.GameStage} stage The TGE.GameStage instance that this display object is on.
  * @property {Boolean} mouseEnabled Determines whether or not the display object responds to mouse actions. Default is false.
  * @property {TGE.Vector2} pointerLocal Indicates the coordinates of the user input pointer (touch, mouse, etc.), in pixels, relative to the top left corner of the display object. This value is only accurate when mouseEnabled = true.
  * @property {TGE.Vector2} pointerStage Indicates the coordinates of the user input pointer (touch, mouse, etc.), in pixels, relative to the top left corner of the stage. This value is only accurate when mouseEnabled = true.
