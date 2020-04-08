@@ -25,7 +25,6 @@ TGE.AdFooter = function()
     }
 
     // Event listeners
-    this.addEventListener("update", this._onUpdate);
     this.addEventListener("drawbegin", this._onDrawBegin);
     this.addEventListener("resize", this._onResize); // Necessary since responsive css behavior doesn't align with TGE responsive behavior
 }
@@ -314,17 +313,6 @@ TGE.AdFooter.prototype =
         {
             this.htmlPanel.remove();
             this.htmlPanel = null;
-        }
-    },
-
-    _onUpdate: function(event)
-    {
-        // Make sure the footer is always on top of the scene, only allow the TGE.AdHeader close button to be above it
-        var top1 = this.stage._mChildren[this.stage._mChildren.length-1];
-        var top2 = this.stage._mChildren.length>1 ? this.stage._mChildren[this.stage._mChildren.length-2] : null;
-        if(!(top1===this || (top2===this && top1===TGE.AdHeader.GetInstance())))
-        {
-            this.bringToFront();
         }
     },
 

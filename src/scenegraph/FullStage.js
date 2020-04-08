@@ -314,21 +314,6 @@ TGE.FullStage.prototype =
 	},
 
     /**
-     * (documented in superclass)
-     * @ignore
-     */
-    removeChildren: function()
-    {
-        TGE.FullStage.superclass.removeChildren.call(this);
-
-        // If there was an ad header or footer we need to make sure they get added back in
-        if(TGE.AdHeader.GetInstance())
-        {
-            TGE.AdHeader.Create(TGE.AdHeader.GetInstance().closeFunction,TGE.AdHeader.GetInstance().closeButton.visible);
-        }
-    },
-
-    /**
      * Prunes all inactive listeners (ones with id=0)
      * @ignore
      */
