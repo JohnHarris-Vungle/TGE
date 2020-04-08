@@ -140,6 +140,12 @@ TGE.FullStage = function(canvasDiv,initialWidth,initialHeight)
 	// Create the "game stage", which is the stage visible to users.
 	this.gameStage = this.addChild(new TGE.GameStage(this));
 
+	// A special case here - adding the game stage as a child of the full stage would correctly set the stage to the
+	// full stage instance. However we want the game stage to act as the virtual root of the entire game scene so we
+	// need to force its stage member to be itself, otherwise its children would also think they are directly descendents
+	// of the full stage.
+	this.gameStage.stage = this.gameStage;
+
     return this;
 }
 
