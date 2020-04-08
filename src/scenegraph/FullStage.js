@@ -450,7 +450,7 @@ TGE.FullStage.prototype =
 				dispObj._handleMouseEvent(mouseEvent);
 
 				// restore the "up" event type
-				mouseEvent.type = "up";
+				mouseEvent.type = "mouseup";
 			}
 		}
 		return false;
