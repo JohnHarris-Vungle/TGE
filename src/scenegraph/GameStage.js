@@ -1,10 +1,10 @@
-TGE.GameStage = function(trueStage)
+TGE.GameStage = function(fullStage)
 {
     TGE.GameStage.superclass.constructor.call(this);
 
     this.stage = this;
 
-    this._mFullStage = trueStage;
+    this._mFullStage = fullStage;
     this._mHeightRatio = 1.0; // 100%
 
     this.registrationX = this.registrationY = 0;
@@ -22,6 +22,15 @@ TGE.GameStage.prototype =
     isLandscape: function()
     {
         return this.height < this.width;
+    },
+
+    /**
+     * Indicates whether or not the mouse (or other user input device) is currently down.
+     * @return {Boolean} Whether or not the mouse (or other user input device) is currently down.
+     */
+    isMouseDown: function()
+    {
+        return this._mFullStage._mMouseDown;
     },
 
     /** @ignore */

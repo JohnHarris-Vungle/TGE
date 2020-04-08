@@ -279,7 +279,7 @@ TGE.Game.Hibernate = function(on)
 		TGE.Debug.Log(TGE.Debug.LOG_INFO, (on ? "hibernating" : "waking up") + " game...");
 
 		// Hide the canvas div completely
-		game.stage._mCanvas.style.display = on ? "none" : "block";
+		game._mFullStage._mCanvas.style.display = on ? "none" : "block";
 
 		// Block the scenegraph from doing any processing at all
 		game.halt = on;
@@ -1592,7 +1592,7 @@ TGE.Game.prototype =
         this._mFullStage = new TGE.FullStage(this.mCanvasDiv,width,height);
 
         // Set the public stage object that games treat as the root stage (can be a subset of the full stage)
-        this.stage = this._mFullStage.stage;
+        this.stage = this._mFullStage.gameStage;
 
          // PAN-574
         if (!this.audioManager.canPlayAudio())
@@ -1943,9 +1943,13 @@ TGE.Game.prototype =
             // Make sure the update root is still valid
             if(!this._mUpdateRoot || this._mUpdateRoot.markedForRemoval() || this._mUpdateRoot.parent===null)
             {
-                this._mUpdateRoot = this._mFullStage;
+                // The default update root will be the game stage (TGE.GameStage) as opposed to _mFullStage (TGE.FullStage).
+                // Games need the ability to inspect and change the update root, and to them the game stage is the root
+                // of the scene graph. The update is dispatched from the full stage anyways, and it will account for its
+                // own existence (and descendents) there.
+                this._mUpdateRoot = this.stage;
             }
-            this._mUpdateRoot.dispatchEvent(updateEvent);
+            this._mFullStage.dispatchUpdate(updateEvent, this._mUpdateRoot);
 
             // If the ad header is active we have to make sure it gets an update event (PAN-745)
             if(TGE.AdHeader.GetInstance()!==null && this._mUpdateRoot!==this._mFullStage)

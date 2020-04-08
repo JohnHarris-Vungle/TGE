@@ -72,7 +72,7 @@ TGE.DisplayObject = function()
     this.registrationX = TGE.DisplayObject.DefaultRegistrationX;
     this.registrationY = TGE.DisplayObject.DefaultRegistrationY;
     this.parent = null;
-	this.stage = TGE.Game.GetInstance() ? TGE.Game.GetInstance().stage : null;
+	this.stage = TGE.Game.GetInstance().stage;
     this.mouseEnabled = false;
     this.cameraShakeTag = "DEFAULT";
     this.instanceName = "";
@@ -132,7 +132,7 @@ TGE.DisplayObject = function()
     this._mPreviousParent = null;
     this._mLayoutResizeListener = null;
     this._mLayout = null;
-    this._mFullStage = this.stage ? this.stage._mFullStage : null;
+    this._mFullStage = TGE.Game.GetInstance()._mFullStage; // This is constant
 
     return this;
 };
@@ -1964,7 +1964,6 @@ TGE.DisplayObject.prototype =
     _setStage: function(stage, addedToStage)
     {
         this.stage = stage;
-        this._mFullStage = stage._mFullStage;
 	    this._mAddedToStage = addedToStage;
     },
 

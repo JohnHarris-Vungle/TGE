@@ -132,11 +132,13 @@ TGE.FullStage = function(canvasDiv,initialWidth,initialHeight)
 	// Get the renderer to initialize based on the canvas size
 	this._mRenderer.resizedGameDiv();
 
-	// Create the "game stage", which is the stage visible to users. Important that we create it and then add it,
-	// otherwise its this.stage property gets overwritten to null (because this.stage is still null).
-	this.stage = new TGE.GameStage(this);
-	this.addChild(this.stage);
-	this._mFullStage = this;
+	// We need to be able to rely on an object's stage member to reflect whether it is a descendent of the game stage (TGE.GameStage)
+	// or if it is outside the game stage. For this reason the full stage's stage member references itself so that any descendents
+	// outside the game stage know they are not on the game stage.
+	this.stage = this._mFullStage = this;
+
+	// Create the "game stage", which is the stage visible to users.
+	this.gameStage = this.addChild(new TGE.GameStage(this));
 
     return this;
 }
@@ -151,7 +153,7 @@ TGE.FullStage.prototype =
 	 */
 	setGameStageHeight: function(height)
 	{
-		this.stage._setHeight(height);
+		this.gameStage._setHeight(height);
 	},
 
 	/**
@@ -276,20 +278,37 @@ TGE.FullStage.prototype =
 		return this._mAABB;
 	},
 
-    /**
-     * (documented in superclass)
-     * @ignore
-     */
-	dispatchEvent: function(event)
+	/**
+	 * Dispatches an update event to the scene, and makes sure any objects that are not part of the game stage will
+	 * still be updated in the event that the update root isn't the game stage itself.
+	 * @ignore
+	 */
+	dispatchUpdate: function(event, updateRoot)
 	{
-		// PAN-343
-		if(event.type==="update")
+		// If the update root is the game stage, then this is a regular update and we pass the event to all objects
+		if(updateRoot === this.gameStage || updateRoot === this)
 		{
+			// Normal update
 			this._updateAllObjects(event);
 		}
 		else
 		{
-			TGE.FullStage.superclass.dispatchEvent.call(this,event);
+			// Here we want to ensure the objects that aren't on the game stage get updated
+			var gameStage = this.gameStage;
+			this.eachChild(function() {
+					if(this !== gameStage)
+					{
+						this.dispatchEvent(event);
+					}
+				}
+			);
+
+			// And now we can dispatch the update event to the temporary update root. Don't do this if the object
+			// isn't a child of the game stage, as it will have already been updated above.
+			if(updateRoot.stage !== this)
+			{
+				updateRoot.dispatchEvent.call(this,event);
+			}
 		}
 	},
 
@@ -382,43 +401,35 @@ TGE.FullStage.prototype =
         this._mObjectTrash = [];
     },
 
-    /**
-     * @ignore
-     */
+	/**
+	 * @ignore
+	 */
 	_notifyObjectsOfMouseEvent: function(event,mouseX,mouseY,identifier)
 	{
 		// Setup the event
 		var eventName = "mouse"+event;
 		var mouseEvent = {type:eventName, x:mouseX, y:mouseY, stageX:mouseX, stageY:mouseY, identifier:identifier};
+
+		// The update root will never be the TGE.FullStage, its default value is the TGE.GameStage. We will handle
+		// the full stage at the bottom as it is a special case and game code would never add mouse listeners to it.
 		var updateRoot = TGE.Game.GetUpdateRoot();
 
-		// Always send events to the update root first (children cannot block input)
-		if(updateRoot.mouseEnabled && updateRoot.visible)
-		{
-			this._processMouseTarget(updateRoot, mouseEvent);
-		}
-
-		// Loop through the mouse targets from front to back (reverse order of the array)
+		// We are going to loop through all the potential mouse targets, front to back (reverse order of the array).
+		// The update root always needs to receive the mouse event.
+		var handleEvent = true;
 		for(var i=this._mMouseTargets.length; --i >= 0; )
 		{
 			var dispObj = this._mMouseTargets[i];
-
-			// PAN-490 Don't send double mouse events to update root, and don't send events to stage when it's not the root
-			// (If stage _is_ the root, then events were sent in the 'Always send' section above the loop).
-			if (dispObj !== updateRoot && dispObj !== this)
+			if((handleEvent || dispObj===updateRoot) && this._processMouseTarget(dispObj, mouseEvent))
 			{
-				if (this._processMouseTarget(dispObj, mouseEvent))
-				{
-					// This object will block the event from continuing to any object beneath it
-					return;
-				}
-			}
-			else if (dispObj !== this && dispObj.hitTestPoint(mouseX, mouseY))
-			{
-				// PAN-1442 need to block mouse events below the update root, which gets skipped above due to having already been processed in the "always send" section
-				return;
+				// This object will block the event from continuing to any object beneath it
+				handleEvent = false;
 			}
 		}
+
+		// The full stage always get the mouse event, regardless of any hits to objects above or the current update
+		// root. Full stage mouse handlers are reserved for TGE and perform critical tasks like enabling audio and video.
+		this._handleMouseEvent(mouseEvent);
 	},
 
 	/**
@@ -447,7 +458,7 @@ TGE.FullStage.prototype =
 					return true;
 				}
 			}
-			else if (event === "up" && dispObj._mMouseDown)
+			else if (mouseEvent.type === "mouseup" && dispObj._mMouseDown)
 			{
 				// for an "up" event that occurs outside of an object that received the mousedown, send a mouseupoutside event
 				mouseEvent.type = "mouseupoutside";
