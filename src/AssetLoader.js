@@ -280,7 +280,7 @@ TGE.AssetLoader.prototype = {
     {
 	    // Create renderer specific textures
 	    var assetManager = TGE.Game.GetInstance().assetManager;
-	    var renderer = TGE.Game.GetInstance()._mStage._mRenderer;
+	    var renderer = TGE.Game.GetInstance()._mFullStage._mRenderer;
 	    for(var i=0; i<this.mAssetList.list.length; i++)
 	    {
 		    var asset = this.mAssetList.list[i];

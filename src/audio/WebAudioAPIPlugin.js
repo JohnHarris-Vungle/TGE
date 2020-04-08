@@ -146,8 +146,8 @@ TGE.WebAudioAPIPlugin.prototype =
 	// because AudioManager is created before the stage, this is called in TGE.Game upon stage creation
 	unlockAudioOnTouch: function()
 	{
-		this._mTouchListenerDown = TGE.Game.GetInstance()._mStage.addEventListener ( "mousedown", this.testUnlock.bind ( this ) );
-		this._mTouchListenerUp = TGE.Game.GetInstance()._mStage.addEventListener ( "mouseup", this.testUnlock.bind ( this ) );
+		this._mTouchListenerDown = TGE.Game.GetInstance()._mFullStage.addEventListener ( "mousedown", this.testUnlock.bind ( this ) );
+		this._mTouchListenerUp = TGE.Game.GetInstance()._mFullStage.addEventListener ( "mouseup", this.testUnlock.bind ( this ) );
 	},
 
 	testUnlock: function ()
@@ -184,8 +184,8 @@ TGE.WebAudioAPIPlugin.prototype =
 		this._mUnlockedAudio = true;
 		if (this._mTouchListenerUp)
 		{
-			TGE.Game.GetInstance()._mStage.removeEventListener ( "mousedown", this._mTouchListenerDown );
-			TGE.Game.GetInstance()._mStage.removeEventListener ( "mouseup", this._mTouchListenerUp );
+			TGE.Game.GetInstance()._mFullStage.removeEventListener ( "mousedown", this._mTouchListenerDown );
+			TGE.Game.GetInstance()._mFullStage.removeEventListener ( "mouseup", this._mTouchListenerUp );
 			this._mTouchListenerUp = null;
 			this._mTouchListenerDown = null;
 		}

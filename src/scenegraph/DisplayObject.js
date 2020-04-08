@@ -1,5 +1,6 @@
 /**
  * The DisplayObject class is the base class for all visual objects that can be placed on the stage.
+ * The DisplayObject class is the base class for all visual objects that can be placed on the stage.
  * The DisplayObject class supports basic functionality like the x and y position of an object, rotation, and scaling, as well as more advanced properties of the object such as its transformation matrix.
  * Typically you would not instantiate a TGE.DisplayObject directly - it would be more common to use {@link TGE.DisplayObjectContainer} or {@link TGE.Sprite}.
  * @property {Number} x Indicates the x coordinate of the display object relative to the local coordinates of the parent TGE.DisplayObjectContainer.
@@ -25,7 +26,7 @@
  * @property {Number} registrationX Indicates the horizontal registration point for the display object as a percentage (ie: 0=far left, 0.5=center, 1=far right). Default is 0.5.
  * @property {Number} registrationY Indicates the vertical registration point for the display object as a percentage (ie: 0=top, 0.5=middle, 1=bottom). Default is 0.5.
  * @property {TGE.DisplayObjectContainer} parent Indicates the TGE.DisplayObjectContainer object that contains this display object as a child.
- * @property {TGE.Stage} stage The TGE.Stage instance that this display object is on.
+ * @property {TGE.GameStage} stage The TGE.GameStage instance that this display object is on.
  * @property {Boolean} mouseEnabled Determines whether or not the display object responds to mouse actions. Default is false.
  * @property {TGE.Vector2} pointerLocal Indicates the coordinates of the user input pointer (touch, mouse, etc.), in pixels, relative to the top left corner of the display object. This value is only accurate when mouseEnabled = true.
  * @property {TGE.Vector2} pointerStage Indicates the coordinates of the user input pointer (touch, mouse, etc.), in pixels, relative to the top left corner of the stage. This value is only accurate when mouseEnabled = true.
@@ -71,7 +72,7 @@ TGE.DisplayObject = function()
     this.registrationX = TGE.DisplayObject.DefaultRegistrationX;
     this.registrationY = TGE.DisplayObject.DefaultRegistrationY;
     this.parent = null;
-	this.stage = TGE.Game.GetInstance() ? TGE.Game.GetInstance().stage : null;
+	this.stage = TGE.Game.GetInstance().stage;
     this.mouseEnabled = false;
     this.cameraShakeTag = "DEFAULT";
     this.instanceName = "";
@@ -131,6 +132,7 @@ TGE.DisplayObject = function()
     this._mPreviousParent = null;
     this._mLayoutResizeListener = null;
     this._mLayout = null;
+    this._mFullStage = TGE.Game.GetInstance()._mFullStage; // This is constant
 
     return this;
 };
@@ -743,7 +745,7 @@ TGE.DisplayObject.prototype =
     markForRemoval: function()
     {
         this._mMarkedForRemoval = true;
-        this.stage._mStage._trashObject(this);
+        this._mFullStage._trashObject(this);
     },
 
     /**
@@ -962,7 +964,7 @@ TGE.DisplayObject.prototype =
         else if(type==="update" && this.stage)
         {
 	        // PAN-343
-	        this.stage._mStage._addUpdateObj(this);
+	        this._mFullStage._addUpdateObj(this);
         }
 
         return newListener.id;
@@ -985,9 +987,9 @@ TGE.DisplayObject.prototype =
                 {
                     // mark it for removal, and add to list for removal processing
 	                l.id = 0;
-	                if (this.stage._mStage._mListenerRemovals.indexOf(this) < 0)
+	                if (this._mFullStage._mListenerRemovals.indexOf(this) < 0)
 	                {
-		                this.stage._mStage._mListenerRemovals.push(this);
+		                this._mFullStage._mListenerRemovals.push(this);
 	                }
                     return;
                 }
@@ -1645,8 +1647,8 @@ TGE.DisplayObject.prototype =
 	    // instead of a renderer object. If so, use our spare renderer and make the call properly
 	    if(!renderer.isTGERenderer)
 	    {
-		    this.stage._mStage._mSpareCanvasRenderer.swapContext(renderer); // Actually a context
-		    return this._draw(this.stage._mStage._mSpareCanvasRenderer);
+		    this._mFullStage._mSpareCanvasRenderer.swapContext(renderer); // Actually a context
+		    return this._draw(this._mFullStage._mSpareCanvasRenderer);
 	    }
 
         this._checkVisibilityChange();
@@ -1661,11 +1663,11 @@ TGE.DisplayObject.prototype =
         // Add it to the collection of mouse targets if it is mouseEnabled and visible
         if(this.stage!==null && this.mouseEnabled)
         {
-            this.stage._mStage._mMouseTargets.push(this);
+            this._mFullStage._mMouseTargets.push(this);
         }
 
 	    // Apply the world transform
-	    var stageScale = (this.stage!==null && this.stage._mStage._mScale!==1) ? this.stage._mStage._mScale : 1;
+	    var stageScale = (this.stage!==null && this._mFullStage._mScale!==1) ? this._mFullStage._mScale : 1;
 	    renderer.setWorldTransform(this._mWorldTransform,stageScale);
 
         // Set the alpha for the object
@@ -1708,12 +1710,12 @@ TGE.DisplayObject.prototype =
 	    }
 
 	    // Increment the visible objects count
-	    this.stage._mStage._mNumVisibleObjects++;
+	    this._mFullStage._mNumVisibleObjects++;
 
 	    // Increment the drawn objects count
 	    if(this.doesDrawing())
 	    {
-		    this.stage._mStage._mNumDrawnObjects++;
+		    this._mFullStage._mNumDrawnObjects++;
 	    }
     },
 
@@ -1731,9 +1733,9 @@ TGE.DisplayObject.prototype =
 	{
 		if(!internalCall)
 		{
-			this.stage._mStage._mSpareCanvasRenderer.swapContext(canvasContext);
-			this.stage._mStage._mSpareCanvasRenderer.deprecatedDrawCycle = true;
-			this._objectDraw(this.stage._mStage._mSpareCanvasRenderer);
+			this._mFullStage._mSpareCanvasRenderer.swapContext(canvasContext);
+			this._mFullStage._mSpareCanvasRenderer.deprecatedDrawCycle = true;
+			this._objectDraw(this._mFullStage._mSpareCanvasRenderer);
 		}
 	},
 

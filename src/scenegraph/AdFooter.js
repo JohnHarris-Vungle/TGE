@@ -49,7 +49,7 @@ TGE.AdFooter.Create = function()
     var game = TGE.Game.GetInstance();
 
     // We want this function to also add the text to the scene, so make sure the scene is ready
-    if(!game || !game._mStage)
+    if(!game || !game._mFullStage)
     {
         TGE.Debug.Log(TGE.Debug.LOG_ERROR, "TGE.AdFooter.Create was called too early - wait until the TGE game object has been launched");
         return null;
@@ -65,7 +65,7 @@ TGE.AdFooter.Create = function()
     var adFooter = null;
     if(expandable)
     {
-        TGE.AdFooter._sInstanceNonGame = adFooter = game._mStage.addChild(new TGE.AdFooter().setup({
+        TGE.AdFooter._sInstanceNonGame = adFooter = game._mFullStage.addChild(new TGE.AdFooter().setup({
             expandable: true
         }));
     }
@@ -113,7 +113,7 @@ TGE.AdFooter.prototype =
             var settings = this.panelSettings;
 
             // Push the game stage up to make room for the top of the panel
-            TGE.Game.GetInstance()._mStage.setGameStageHeight(1 - settings.collapsedSize);
+            TGE.Game.GetInstance()._mFullStage.setGameStageHeight(1 - settings.collapsedSize);
 
             params.backgroundColor = "#fff";
             params.registrationX = 0;
@@ -149,7 +149,7 @@ TGE.AdFooter.prototype =
         else
         {
             // Reset the game stage size in case it was previously a panel footer
-            TGE.Game.GetInstance()._mStage.setGameStageHeight(1);
+            TGE.Game.GetInstance()._mFullStage.setGameStageHeight(1);
 
             params.registrationX = 0.5;
             params.registrationY = 1;
@@ -209,7 +209,7 @@ TGE.AdFooter.prototype =
         this.expanded = false;
 
         // Restore the update root
-        TGE.Game.SetUpdateRoot(this.previousUpdateRoot || this._mStage);
+        TGE.Game.SetUpdateRoot(this.previousUpdateRoot || this._mFullStage);
 
         // Push the panel down to its collapsed position
         this.adjustPanelPosition();
@@ -298,9 +298,9 @@ TGE.AdFooter.prototype =
     adjustPanelPosition: function()
     {
         this.x = 0;
-        this.y = this.stage._mStage.height * (1 - (this.expanded ? this.panelSettings.expandedSize : this.panelSettings.collapsedSize));
-        this.width = this.stage._mStage.width;
-        this.height = this.stage._mStage.height;
+        this.y = this._mFullStage.height * (1 - (this.expanded ? this.panelSettings.expandedSize : this.panelSettings.collapsedSize));
+        this.width = this._mFullStage.width;
+        this.height = this._mFullStage.height;
     },
 
     cleanup: function()
