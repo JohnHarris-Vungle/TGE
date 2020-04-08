@@ -285,8 +285,9 @@ TGE.FullStage.prototype =
 	 */
 	dispatchUpdate: function(event, updateRoot)
 	{
-		// If the update root is the game stage, then this is a regular update and we pass the event to all objects
-		if(updateRoot === this.gameStage || updateRoot === this)
+		// If the update root is the game stage, then this is a regular update and we pass the event to all objects.
+		// Note that the update root will never be the full stage, as we default it to game stage.
+		if(updateRoot === this.gameStage)
 		{
 			// Normal update
 			this._updateAllObjects(event);

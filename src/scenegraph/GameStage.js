@@ -30,7 +30,7 @@ TGE.GameStage.prototype =
      */
     isMouseDown: function()
     {
-        return this._mFullStage._mMouseDown;
+        return this._mMouseDown;
     },
 
     /** @ignore */
