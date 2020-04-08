@@ -7,7 +7,7 @@
 TGE.AdFooter = function()
 {
     // Assign the singleton
-    TGE.AdFooter._sInstance = this;
+    TGE.AdFooter.__sInstance = this;
 
     TGE.AdFooter.superclass.constructor.call(this);
 
@@ -19,7 +19,7 @@ TGE.AdFooter = function()
 };
 
 /** @ignore */
-TGE.AdFooter._sInstance = null;
+TGE.AdFooter.__sInstance = null;
 
 /**
  * Creates an instance of the TGE.AdFooter object and adds it to the scene.
@@ -75,14 +75,14 @@ TGE.AdFooter.Create = function()
  */
 TGE.AdFooter.GetInstance = function()
 {
-    return TGE.AdFooter._sInstance;
+    return TGE.AdFooter.__sInstance;
 }
 
 TGE.AdFooter.Destroy = function()
 {
-    if(TGE.AdFooter._sInstance!==null)
+    if(TGE.AdFooter.__sInstance!==null)
     {
-        TGE.AdFooter._sInstance.removeFromScene();
+        TGE.AdFooter.__sInstance.removeFromScene();
     }
 }
 
@@ -403,9 +403,9 @@ TGE.AdFooter.prototype =
 
         this.cleanup();
 
-        if(TGE.AdFooter._sInstance===this)
+        if(TGE.AdFooter.__sInstance===this)
         {
-            TGE.AdFooter._sInstance = null;
+            TGE.AdFooter.__sInstance = null;
         }
     }
 }
