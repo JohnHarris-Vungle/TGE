@@ -1950,12 +1950,6 @@ TGE.Game.prototype =
                 this._mUpdateRoot = this.stage;
             }
             this._mFullStage.dispatchUpdate(updateEvent, this._mUpdateRoot);
-
-            // If the ad header is active we have to make sure it gets an update event (PAN-745)
-            if(TGE.AdHeader.GetInstance()!==null && this._mUpdateRoot!==this._mFullStage)
-            {
-                TGE.AdHeader.GetInstance().dispatchEvent(updateEvent);
-            }
 	    }
 
         this._mFullStage._emptyTrash();

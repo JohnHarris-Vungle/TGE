@@ -21,9 +21,6 @@ TGE.AdHeader = function()
 
     // Default size
     this.width = this.height = 100;
-
-    // Event listeners
-    this.addEventListener("update",this._onUpdate);
 }
 
 /** @ignore */
@@ -56,8 +53,8 @@ TGE.AdHeader.Create = function(callback,closeButtonVisible)
         TGE.AdHeader._sInstance = null;
     }
 
-    // Create the instance and add it to the stage
-    var adHeader = TGE.Game.GetInstance().stage.addChild(new TGE.AdHeader().setup({
+    // Create the instance and add it to the full stage. On the full stage the game won't ever be able to cover it or remove it.
+    var adHeader = TGE.Game.GetInstance()._mFullStage.addChild(new TGE.AdHeader().setup({
         //backgroundColor: "pink",
         registrationX: 0,
         registrationY: 0,
@@ -514,15 +511,6 @@ TGE.AdHeader.prototype =
         }
 
         this.countdown--;
-    },
-
-    _onUpdate: function(event)
-    {
-        // Make sure the close button is always on top of the scene
-        if(this.stage._mChildren[this.stage._mChildren.length-1]!=this)
-        {
-            this.bringToFront();
-        }
     }
 }
 extend(TGE.AdHeader,TGE.DisplayObjectContainer);
