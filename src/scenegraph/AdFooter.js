@@ -16,6 +16,49 @@ TGE.AdFooter = function()
     this.previousUpdateRoot = TGE.Game.GetUpdateRoot();
     this.htmlPanel = null;
     this.panelSettings = null;
+
+    // A hack, if not obvious :P
+    this.HACKTEXT = "<div class=\"isi-mainbody\"><h3>Who should not take FARXIGA?</h3>\n" +
+        "<h4>Do not take FARXIGA if you:</h4>\n" +
+        "<ul class=\"orange-bulleted-list\">\n" +
+        "<li>are allergic to dapagliflozin or any of the ingredients in FARXIGA. Symptoms of a serious allergic reaction may include skin rash, raised red patches on your skin (hives), swelling of the face, lips, tongue, and throat that may cause difficulty in breathing or swallowing. If you have any of these symptoms, stop taking FARXIGA and contact your healthcare provider or go to the nearest hospital emergency room right away</li>\n" +
+        "<li>have severe kidney problems or are on dialysis. Your healthcare provider should do blood tests to check how well your kidneys are working before and during your treatment with FARXIGA</li>\n" +
+        "</ul>\n" +
+        "<h3>What are the possible side effects of FARXIGA?</h3>\n" +
+        "<h4>FARXIGA may cause serious side effects including:</h4>\n" +
+        "<ul class=\"orange-bulleted-list\">\n" +
+        "<li><span class=\"bold-text\">Dehydration</span> (the loss of body water and salt), which may cause you to feel dizzy, faint, lightheaded, or weak, especially when you stand up (orthostatic hypotension). You may be at a higher risk of dehydration if you have low blood pressure; take medicines to lower your blood pressure, including water pills (diuretics); are 65 years of age or older; are on a low salt diet, or have kidney problems</li>\n" +
+        "<li><span class=\"bold-text\">Ketoacidosis</span> occurred in people with type 1 and type 2 diabetes during treatment with FARXIGA. Ketoacidosis is a serious condition which may require hospitalization and may lead to death. Symptoms may include nausea, tiredness, vomiting, trouble breathing, and abdominal pain. If you get any of these symptoms, stop taking FARXIGA and call your healthcare provider right away. If possible, check for ketones in your urine or blood, even if your blood sugar is less than 250 mg/dL</li>\n" +
+        "<li><span class=\"bold-text\">Kidney problems.</span> Sudden kidney injury occurred in people taking FARXIGA. Call your healthcare provider right away if you reduce the amount you eat or drink, or if you lose liquids; for example, from vomiting, diarrhea, or excessive heat exposure</li>\n" +
+        "<li><span class=\"bold-text\">Serious urinary tract infections (UTI),</span> some that lead to hospitalization, occurred in people taking FARXIGA. Tell your healthcare provider if you have any signs or symptoms of UTI including a burning feeling when passing urine, a need to urinate often, the need to urinate right away, pain in the lower part of your stomach (pelvis), or blood in the urine with or without fever, back pain, nausea, or vomiting</li>\n" +
+        "<li><span class=\"bold-text\">Low blood sugar (hypoglycemia)</span> can occur if you take FARXIGA with another medicine that can cause low blood sugar, such as sulfonylureas or insulin. Symptoms of low blood sugar include shaking, sweating, fast heartbeat, dizziness, hunger, headache, and irritability. Follow your healthcare provider's instructions for treating low blood sugar</li>\n" +
+        "<li><span class=\"bold-text\">Bacterial infections under the skin of the genitals and areas around them.</span> Rare but serious infections that cause severe tissue damage under the skin of the genitals and areas around them have happened with FARXIGA. This infection has happened in women and men and may lead to hospitalization, surgeries and death. Seek medical attention immediately if you have fever or you are feeling very weak, tired or uncomfortable and you also develop any pain or tenderness, swelling, or redness of the skin in the genitals and areas around them</li>\n" +
+        "<li><span class=\"bold-text\">Vaginal yeast infections</span> in women who take FARXIGA. Talk to your healthcare provider if you experience vaginal odor, white or yellowish vaginal discharge (discharge may be lumpy or look like cottage cheese), or vaginal itching</li>\n" +
+        "<li><span class=\"bold-text\">Yeast infection of skin around the penis (balanitis)</span> in men who take FARXIGA. Talk to your healthcare provider if you experience redness, itching, or swelling of the penis; rash of the penis; foul smelling discharge from the penis; or pain in the skin around penis. Certain uncircumcised men may have swelling of the penis that makes it difficult to pull back the skin around the tip of the penis</li>\n" +
+        "<!--li><span class=\"bold-text\">Increase in bad cholesterol (LDL-C).</span> Your healthcare provider should check your LDL-C during treatment with FARXIGA</li>\n" +
+        "<li><span class=\"bold-text\">Bladder cancer.</span> In studies of FARXIGA in people with diabetes, bladder cancer occurred in a few more people who were taking FARXIGA than in people who were taking other diabetes medications. There were too few cases of bladder cancer to know if bladder cancer was related to FARXIGA. Tell your healthcare provider right away if you have blood or a red color in your urine or pain while you urinate</li-->\n" +
+        "</ul>\n" +
+        "<p><span class=\"bold-text\">The most common side effects of FARXIGA include</span> yeast infections of the vagina or penis, and changes in urination, including urgent need to urinate more often, in larger amounts, or at night.</p>\n" +
+        "<h3>What should I tell my healthcare provider before taking FARXIGA?</h3>\n" +
+        "<h4>Before you take FARXIGA, tell your healthcare provider:</h4>\n" +
+        "<ul class=\"orange-bulleted-list\">\n" +
+        "<li><span class=\"bold-text\">all of your medical conditions,</span> including problems with your kidneys, liver, bladder, or pancreas</li>\n" +
+        "<li><span class=\"bold-text\">if you have had, or have risk factors for, ketoacidosis</span> (including type 1 diabetes, are eating less due to illness, surgery, or a change in your diet, are going to have surgery, or binge drink)</li>\n" +
+        "<li><span class=\"bold-text\">if you are pregnant, or plan to become pregnant.</span> FARXIGA may harm your unborn baby</li>\n" +
+        "<li><span class=\"bold-text\">if you are breastfeeding, or plan to breastfeed.</span> It is unknown if FARXIGA passes into your breast milk</li>\n" +
+        "<li><span class=\"bold-text\">about all the medicines you take,</span> including prescription and nonprescription medicines, vitamins, and herbal supplements</li>\n" +
+        "</ul>\n" +
+        "<h2 class=\"what-is-farxiga-isi\" id=\"what-is-farxiga-isi\">What is FARXIGA?</h2>\n" +
+        "<p>FARXIGA is a prescription medicine used to:</p>\n" +
+        "<ul class=\"orange-bulleted-list\">\n" +
+        "<li>improve blood sugar control along with diet and exercise in adults with  <span class=\"nowrap\">type 2 diabetes</span></li>\n" +
+        "<li>reduce the risk of hospitalization for heart failure in adults with type 2 diabetes and known cardiovascular disease or multiple cardiovascular  <span class=\"nowrap\">risk factors</span></li>\n" +
+        "</ul>\n" +
+        "\n" +
+        "<p class=\"extra-marbtm25\">FARXIGA should not be used to treat people with type 1 diabetes or diabetic ketoacidosis (increased ketones in your blood or urine).</p>\n" +
+        "<p class=\"bold-text\">Please see full <a href=\"http://www.azpicentral.com/pi.html?product=farxiga&amp;country=us&amp;popup=no\" target=\"_blank\" class=\"pdflink nowrap\">Prescribing Information</a> and <a href=\"http://www.azpicentral.com/pi.html?product=farxiga_med&amp;country=us&amp;popup=no\" target=\"_blank\" class=\"pdflink nowrap\">Medication Guide</a> for FARXIGA.</p>\n" +
+        "<p class=\"normal-content fda-line\"><span class=\"italic-text \">You may report side effects related to AstraZeneca products by</span> <span class=\"nowrap\"><span class=\"italic-text \">clicking </span><a href=\"http://us-aereporting.astrazeneca.com\" target=\"_blank\">here</a></span>.</p>\n" +
+        "</div>";
 };
 
 /** @ignore */
@@ -253,7 +296,7 @@ TGE.AdFooter.prototype =
         doc.write("<style>body {margin: 0px;}</style><div style='color: black; height: 96%; overflow: scroll; font-family: Arial; font-size: 18px; " +
             "padding: 0% " + this.panelSettings.padding + "% " + " 0% " + this.panelSettings.padding + "%;" +
             "'>" +
-            GameConfig.TEXT_DEFS["tge_legal_footer"].text +
+            /*GameConfig.TEXT_DEFS["tge_legal_footer"].text*/this.HACKTEXT +
             "</div>");
         doc.close();
     },
@@ -304,7 +347,7 @@ TGE.AdFooter.prototype =
         doc.write("<style>body {margin: 0px;}</style><div style='color: black; height: 98%; overflow: scroll; font-family: Arial; font-size: 18px; " +
             "padding: 0% " + this.panelSettings.padding + "% " + " 0% " + this.panelSettings.padding + "%;" +
             "'>" +
-            GameConfig.TEXT_DEFS["tge_legal_footer"].text +
+            /*GameConfig.TEXT_DEFS["tge_legal_footer"].text*/this.HACKTEXT +
             "</div>");
         doc.close();
     },
