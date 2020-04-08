@@ -15,29 +15,11 @@ TGE.AdFooter = function()
     this.expanded = false;
     this.previousUpdateRoot = TGE.Game.GetUpdateRoot();
     this.htmlPanel = null;
-
-    this.panelSettings = {
-        collapsedSize: 0.25, // in percent
-        expandedSize: 0.92, // in percent (leave some clearance so the ad close button isn't confused with panel close)
-        padding: 4, // css percent. This is the padding around the text in the panel.
-        primaryColor: "#41b5cd", // Ultimately we want this to be a CB color def
-        toggleButtonRadius: 0.03
-    }
-
-    // Event listeners
-    this.addEventListener("drawbegin", this._onDrawBegin);
-    this.addEventListener("resize", this._onResize); // Necessary since responsive css behavior doesn't align with TGE responsive behavior
-}
+    this.panelSettings = null;
+};
 
 /** @ignore */
 TGE.AdFooter._sInstance = null;
-
-// This is a mess. The problem is a game restart (which the CB uses often) will remove all children from the game stage
-// but not the true stage. The default ad footer is a child of the game stage, so it gets removed but the _sInstance
-// static variable is not cleared. This caused a bug (can't remember what), so the CB sets _sInstance to null when it does
-// a restart. However when a panel style footer is added, it isn't added to the game stage and isn't destroyed on a restart.
-// But the _sInstance is still set to null which would prevent the panel footer from ever getting destroyed on a restart.
-TGE.AdFooter._sInstanceNonGame = null;
 
 /**
  * Creates an instance of the TGE.AdFooter object and adds it to the scene.
@@ -57,24 +39,35 @@ TGE.AdFooter.Create = function()
     // If there's any existing footer, destroy it
     TGE.AdFooter.Destroy();
 
-    // Is this an expandable footer (ie: ISI panel)?
-    var expandable = TGE.RemoteSettings.HasSetting("expandableLegalText") ? TGE.RemoteSettings("expandableLegalText") : false;
+    // Determine the panel type
+    var style = "none";
+    if(TGE.RemoteSettings.HasSetting("legalTextStyle") && !TGE.RemoteSettings.HasSetting("useLegalText"))
+    {
+        // This should be the recommended implementation going forward: no deprecated useLegalText setting, only legalTextStyle
+        style = TGE.RemoteSettings("legalTextStyle");
+    }
+    else if(TGE.RemoteSettings.HasSetting("legalTextStyle") && TGE.RemoteSettings.HasSetting("useLegalText"))
+    {
+        // New setting + backwards compatibility: both settings exist, but useLegalText being true only serves to instantiate the TGE.AdFooter
+        style = TGE.RemoteSettings("legalTextStyle");
+    }
+    else if(TGE.RemoteSettings.HasSetting("useLegalText"))
+    {
+        // Only legacy setting exists
+        style = TGE.RemoteSettings("useLegalText") ? "simple" : "none";
+    }
 
-    // Create the instance and add it to the stage
-    var adFooter = null;
-    if(expandable)
+    // If the style is "none" then don't create anything
+    if(style === "none")
     {
-        TGE.AdFooter._sInstanceNonGame = adFooter = game._mFullStage.addChild(new TGE.AdFooter().setup({
-            expandable: true
-        }));
+        return null;
     }
-    else
-    {
-        adFooter = game.stage.addChild(new TGE.AdFooter().setup({
-            expandable: false
-        }));
-    }
-}
+
+    // Create the footer object and add it to the full stage.
+    game._mFullStage.addChild(new TGE.AdFooter().setup({
+        style: style
+    }));
+};
 
 /**
  * Returns the single instance of the TGE.AdFooter object.
@@ -91,23 +84,39 @@ TGE.AdFooter.Destroy = function()
     {
         TGE.AdFooter._sInstance.removeFromScene();
     }
-
-    // If a footer panel exists outside of the game scene graph, then destroy it so we don't create a duplicate. A game restart
-    // will have only cleared the game stage and not this object.
-    if(TGE.AdFooter._sInstanceNonGame!=null)
-    {
-        TGE.AdFooter._sInstanceNonGame.removeFromScene();
-        TGE.AdFooter._sInstanceNonGame = null;
-    }
 }
 
 TGE.AdFooter.prototype =
 {
     setup: function(params)
     {
-        this.expandable = params.expandable;
+        // Initialize members and settings based on the style
+        switch(params.style)
+        {
+            case "isiPanel":
+            {
+                this.expandable = true;
+                this.panelSettings = {
+                    collapsedSize: 0.25, // in percent
+                    expandedSize: 0.92, // in percent (leave some clearance so the ad close button isn't confused with panel close)
+                    padding: 4, // css percent. This is the padding around the text in the panel.
+                    primaryColor: "#41b5cd", // Ultimately we want this to be a CB color def
+                    toggleButtonRadius: 0.03
+                };
+            }
+            break;
 
-        if(params.expandable)
+            case "simple":
+            default:
+            {
+                this.expandable = false;
+                this.panelSettings = null;
+            }
+                break;
+        }
+
+        // Proceed with setup...
+        if(this.expandable)
         {
             var settings = this.panelSettings;
 
@@ -144,6 +153,12 @@ TGE.AdFooter.prototype =
             // The click listener will be for the upper right toggle button (as well as making the entire panel a click
             // target so clicks don't pass through).
             this.addEventListener("click", this._onClick);
+
+            // A draw listener for the expand/collapse button
+            this.addEventListener("drawbegin", this._onDrawBegin);
+
+            // A resize listener is necessary since responsive css behavior doesn't align with TGE responsive behavior
+            this.addEventListener("resize", this._onResize);
         }
         else
         {
