@@ -178,7 +178,7 @@ TGE.AdFooter.prototype =
             {
                 params.backgroundColor = "#ffffff";
             }
-            
+
             params.registrationX = 0;
             params.registrationY = 0;
             params.layout = function() {
@@ -448,6 +448,7 @@ TGE.AdFooter.prototype =
             var size = this._uiScalingDimension() * 0.15;
             if(my <= size && mx >= this.width - size)
             {
+                TGE.Analytics.CustomEvent("footer" + (this.expanded ? "Collapse" : "Expand"));
                 this.togglePanel();
             }
         }
