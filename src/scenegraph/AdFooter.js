@@ -11,14 +11,16 @@ TGE.AdFooter = function()
 
     TGE.AdFooter.superclass.constructor.call(this);
 
+    this.instanceName = "tge_isi_text";
     this.expandable = false;
     this.expanded = false;
     this.previousUpdateRoot = TGE.Game.GetUpdateRoot();
     this.htmlPanel = null;
     this.panelSettings = null;
+    this.panelHeaderText = null;
 
     // A hack, if not obvious :P
-    this.HACKTEXT = "<div class=\"isi-mainbody\"><h3>Who should not take FARXIGA?</h3>\n" +
+    /*GameConfig.TEXT_DEFS["tge_isi_text"].text = "<div class=\"isi-mainbody\"><h3>Who should not take FARXIGA?</h3>\n" +
         "<h4>Do not take FARXIGA if you:</h4>\n" +
         "<ul class=\"orange-bulleted-list\">\n" +
         "<li>are allergic to dapagliflozin or any of the ingredients in FARXIGA. Symptoms of a serious allergic reaction may include skin rash, raised red patches on your skin (hives), swelling of the face, lips, tongue, and throat that may cause difficulty in breathing or swallowing. If you have any of these symptoms, stop taking FARXIGA and contact your healthcare provider or go to the nearest hospital emergency room right away</li>\n" +
@@ -58,7 +60,7 @@ TGE.AdFooter = function()
         "<p class=\"extra-marbtm25\">FARXIGA should not be used to treat people with type 1 diabetes or diabetic ketoacidosis (increased ketones in your blood or urine).</p>\n" +
         "<p class=\"bold-text\">Please see full <a href=\"http://www.azpicentral.com/pi.html?product=farxiga&amp;country=us&amp;popup=no\" target=\"_blank\" class=\"pdflink nowrap\">Prescribing Information</a> and <a href=\"http://www.azpicentral.com/pi.html?product=farxiga_med&amp;country=us&amp;popup=no\" target=\"_blank\" class=\"pdflink nowrap\">Medication Guide</a> for FARXIGA.</p>\n" +
         "<p class=\"normal-content fda-line\"><span class=\"italic-text \">You may report side effects related to AstraZeneca products by</span> <span class=\"nowrap\"><span class=\"italic-text \">clicking </span><a href=\"http://us-aereporting.astrazeneca.com\" target=\"_blank\">here</a></span>.</p>\n" +
-        "</div>";
+        "</div>";*/
 };
 
 /** @ignore */
@@ -83,21 +85,18 @@ TGE.AdFooter.Create = function()
     TGE.AdFooter.Destroy();
 
     // Determine the panel type
-    var style = "none";
-    if(TGE.RemoteSettings.HasSetting("legalTextStyle") && !TGE.RemoteSettings.HasSetting("useLegalText"))
+    var style;
+    if(TGE.RemoteSettings.HasSetting("legalTextStyle"))
     {
-        // This should be the recommended implementation going forward: no deprecated useLegalText setting, only legalTextStyle
         style = TGE.RemoteSettings("legalTextStyle");
     }
-    else if(TGE.RemoteSettings.HasSetting("legalTextStyle") && TGE.RemoteSettings.HasSetting("useLegalText"))
+    else
     {
-        // New setting + backwards compatibility: both settings exist, but useLegalText being true only serves to instantiate the TGE.AdFooter
-        style = TGE.RemoteSettings("legalTextStyle");
-    }
-    else if(TGE.RemoteSettings.HasSetting("useLegalText"))
-    {
-        // Only legacy setting exists
-        style = TGE.RemoteSettings("useLegalText") ? "simple" : "none";
+        style = getQueryString()["legalTextStyle"];
+        if(!style)
+        {
+            style = (TGE.RemoteSettings.HasSetting("useLegalText") && TGE.RemoteSettings("useLegalText")) ? "simple" : "none";
+        }
     }
 
     // If the style is "none" then don't create anything
@@ -126,6 +125,12 @@ TGE.AdFooter.Destroy = function()
     if(TGE.AdFooter.__sInstance!==null)
     {
         TGE.AdFooter.__sInstance.removeFromScene();
+
+        // Reset the game stage size in case it was previously a panel footer. Admittedly this makes the assumption that
+        // only the ad footer can control the game stage size, which although currently true may not be the case in the
+        // future. When other use cases arise we'll need to figure out a good way for multiple features to request changes
+        // to game stage height without conflict.
+        TGE.Game.GetInstance()._mFullStage.setGameStageHeight(1);
     }
 }
 
@@ -140,10 +145,8 @@ TGE.AdFooter.prototype =
             {
                 this.expandable = true;
                 this.panelSettings = {
-                    collapsedSize: 0.25, // in percent
                     expandedSize: 0.92, // in percent (leave some clearance so the ad close button isn't confused with panel close)
                     padding: 4, // css percent. This is the padding around the text in the panel.
-                    primaryColor: "#41b5cd", // Ultimately we want this to be a CB color def
                     toggleButtonRadius: 0.03
                 };
             }
@@ -164,9 +167,9 @@ TGE.AdFooter.prototype =
             var settings = this.panelSettings;
 
             // Push the game stage up to make room for the top of the panel
-            TGE.Game.GetInstance()._mFullStage.setGameStageHeight(1 - settings.collapsedSize);
+            TGE.Game.GetInstance()._mFullStage.setGameStageHeight(1 - this._panelCollapsedSize());
 
-            params.backgroundColor = "#fff";
+            params.colorDef = "tge_isi_background",
             params.registrationX = 0;
             params.registrationY = 0;
             params.layout = function() {
@@ -174,10 +177,10 @@ TGE.AdFooter.prototype =
             };
 
             // Important Safety Information header
-            this.addChild(new TGE.Text().setup({
+            this.panelHeaderText = this.addChild(new TGE.Text().setup({
                 text: "Important Safety Information",
-                textColor: settings.primaryColor,
-                fontSize: 12,
+                textColor: this._headerColor(),
+                fontSize: 14,
                 fontWeight: "bold",
                 hAlign: "left",
                 vAlign: "top",
@@ -202,12 +205,15 @@ TGE.AdFooter.prototype =
 
             // A resize listener is necessary since responsive css behavior doesn't align with TGE responsive behavior
             this.addEventListener("resize", this._onResize);
+
+            // If we're in the CB editor, apply the header colorDef every frame
+            if(TGE.InCreativeBuilder())
+            {
+                this.addEventListener("update", this._updateHeaderColor);
+            }
         }
         else
         {
-            // Reset the game stage size in case it was previously a panel footer
-            TGE.Game.GetInstance()._mFullStage.setGameStageHeight(1);
-
             params.registrationX = 0.5;
             params.registrationY = 1;
             params.width = 125;
@@ -273,7 +279,7 @@ TGE.AdFooter.prototype =
 
         // Create an iframe to host the html. This is the only effective way to ignore any parent css rules.
         var shoulder = 1;
-        var panelHeight = Math.floor(settings.collapsedSize * this.height);
+        var panelHeight = Math.floor(this._panelCollapsedSize() * this.height);
         var panelWidth = Math.floor(this.width);
         var topClearance = Math.floor((settings.toggleButtonRadius * 3.5) * this._uiScalingDimension());
         this.htmlPanel = document.createElement('iframe');
@@ -293,10 +299,10 @@ TGE.AdFooter.prototype =
         // Now write the legal text into its own div
         var doc = this.htmlPanel.contentWindow.document;
         doc.open();
-        doc.write("<style>body {margin: 0px;}</style><div style='color: black; height: 96%; overflow: scroll; font-family: Arial; font-size: 18px; " +
+        doc.write("<style>body {margin: 0px;}</style><div style='color: black; height: 96%; overflow-x: hidden; overflow-y: scroll; font-family: Arial; font-size: " + this._fontSize() + "px; " +
             "padding: 0% " + this.panelSettings.padding + "% " + " 0% " + this.panelSettings.padding + "%;" +
             "'>" +
-            /*GameConfig.TEXT_DEFS["tge_legal_footer"].text*/this.HACKTEXT +
+            GameConfig.TEXT_DEFS["tge_isi_text"].text +
             "</div>");
         doc.close();
     },
@@ -324,7 +330,7 @@ TGE.AdFooter.prototype =
         // Create an iframe to host the html. This is the only effective way to ignore any parent css rules.
         var shoulder = 1;
         var panelWidth = Math.floor(this.width);
-        var topSpace = Math.floor(this.height - settings.expandedSize * this.height);
+        var topSpace = Math.floor(this.height - this._panelExpandedSize() * this.height);
         var topClearance = Math.floor((settings.toggleButtonRadius * 3.5) * this._uiScalingDimension());
         var panelHeight = Math.floor(this.height - topSpace - topClearance);
         this.htmlPanel = document.createElement('iframe');
@@ -344,10 +350,10 @@ TGE.AdFooter.prototype =
         // Now write the legal text into its own div
         var doc = this.htmlPanel.contentWindow.document;
         doc.open();
-        doc.write("<style>body {margin: 0px;}</style><div style='color: black; height: 98%; overflow: scroll; font-family: Arial; font-size: 18px; " +
+        doc.write("<style>body {margin: 0px;}</style><div style='color: black; height: 98%; overflow-x: hidden; overflow-y: scroll; font-family: Arial; font-size: " + this._fontSize() + "px; " +
             "padding: 0% " + this.panelSettings.padding + "% " + " 0% " + this.panelSettings.padding + "%;" +
             "'>" +
-            /*GameConfig.TEXT_DEFS["tge_legal_footer"].text*/this.HACKTEXT +
+            GameConfig.TEXT_DEFS["tge_isi_text"].text +
             "</div>");
         doc.close();
     },
@@ -355,7 +361,7 @@ TGE.AdFooter.prototype =
     adjustPanelPosition: function()
     {
         this.x = 0;
-        this.y = this._mFullStage.height * (1 - (this.expanded ? this.panelSettings.expandedSize : this.panelSettings.collapsedSize));
+        this.y = this._mFullStage.height * (1 - (this.expanded ? this._panelExpandedSize() : this._panelCollapsedSize()));
         this.width = this._mFullStage.width;
         this.height = this._mFullStage.height;
     },
@@ -363,6 +369,22 @@ TGE.AdFooter.prototype =
     cleanup: function()
     {
         this._removeIFrame();
+    },
+
+    /** @ignore
+     * Claim this object is cached so that the Creative Builder will request a re-cache on changes like text updates.
+     */
+    isCached: function()
+    {
+        return true;
+    },
+
+    /** @ignore
+     * This prompts the html panel to update.
+     */
+    cache: function(obj)
+    {
+        this.makeHtmlPanel();
     },
 
     _removeIFrame: function()
@@ -389,12 +411,12 @@ TGE.AdFooter.prototype =
 
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-            ctx.fillStyle = this.panelSettings.primaryColor;
+            ctx.fillStyle = this._headerColor();
             ctx.fill();
 
             ctx.beginPath();
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 2 * window.devicePixelRatio;
+            ctx.strokeStyle = this._backgroundColor();
+            ctx.lineWidth = Math.round(1.75 * window.devicePixelRatio);
             ctx.lineCap = "round";
             ctx.moveTo(centerX - lineLength, centerY);
             ctx.lineTo(centerX + lineLength, centerY);
@@ -424,17 +446,68 @@ TGE.AdFooter.prototype =
 
     _onResize: function(event)
     {
-        // The way TGE elements behave responsively aren't in lock-step with the way the native html elements react
-        // responsively, so it's easiest that we simply rebuild the whole html content on a resize.
+        // Make sure that the amount of space the footer pushes the game stage into hasn't changed
+        var gameStageSize = this._mFullStage.gameStage.getHeight();
+        var requiredSize = this.expandable ?  (1 - this._panelCollapsedSize()) : 1;
+        if(gameStageSize !== requiredSize)
+        {
+            this._mFullStage.setGameStageHeight(requiredSize);
+        }
+
         if(this.expandable)
         {
+            // The way TGE elements behave responsively aren't in lock-step with the way the native html elements react
+            // responsively, so it's easiest that we simply rebuild the whole html content on a resize.
             this.makeHtmlPanel();
         }
     },
 
     _uiScalingDimension: function()
     {
-        return Math.min(this.width, this.height);
+        return Math.min(this._portraitTablet() ? this.width * 0.8 : this.width, this.height);
+    },
+
+    _panelCollapsedSize: function()
+    {
+        // Don't take up as much of the screen in landscape, since it's already very limited
+        return this._mFullStage.width > this._mFullStage.height ? 0.20 : 0.25;
+    },
+
+    _panelExpandedSize: function()
+    {
+        // Allow some additional close button clearance in landscape
+        return this.panelSettings.expandedSize * (this._mFullStage.width > this._mFullStage.height ? 0.9 : 1);
+    },
+
+    _fontSize: function()
+    {
+        // As portrait aspect ratio approaches more of a square (like on tablet), use the landscape font size
+        var landscape = this._mFullStage.width > this._mFullStage.height || this._portraitTablet();
+        var width = this.htmlPanel.offsetWidth;
+        var divisor = landscape ? 62 : 32;
+
+        return Math.round(width/divisor);
+    },
+
+    _backgroundColor: function()
+    {
+        return (GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_background"]) || "#ffffff";
+    },
+
+    _headerColor: function()
+    {
+        return (GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_header"]) || "#000000";
+    },
+
+    _updateHeaderColor: function()
+    {
+        this.panelHeaderText.textColor = this._headerColor();
+    },
+
+    _portraitTablet: function()
+    {
+        return this._mFullStage.width <= this._mFullStage.height &&
+            this._mFullStage.width * 1.34 > this._mFullStage.height;
     },
 
     /**

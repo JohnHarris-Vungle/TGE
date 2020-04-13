@@ -159,7 +159,7 @@ TGE.FullStage.prototype =
 	 */
 	setGameStageHeight: function(height)
 	{
-		this.gameStage._setHeight(height);
+		this.gameStage.setHeight(height);
 	},
 
 	/**
@@ -226,23 +226,6 @@ TGE.FullStage.prototype =
 	{
 		return Math.round(this._mTotalDrawnObjects/this._mTotalFramesDrawn);
 	},
-
-    /**
-     * Applies a uniform scale to the stage. This should really only be used when the containing div is scaled by the same amount.
-     * @param {Number} scale The scaling factor to apply to the stage (1=100%)
-     */
-    setScale: function(scale)
-    {
-        this._mScale = scale;
-
-        // Make sure the actual canvas size matches the new div size
-        this._mCanvas.width = this._mOriginalWidth*scale;
-        this._mCanvas.height = this._mOriginalHeight*scale;
-
-	    // Make sure the stage thinks it's still the original size
-	    this.width = this._mAABB.width = this._mOriginalWidth;
-	    this.height = this._mAABB.height = this._mOriginalHeight;
-    },
 	
 	/**
      * Sets this size of the stage. This should really only be used when the containing div is resized by the same amount.
@@ -263,6 +246,9 @@ TGE.FullStage.prototype =
 
 		// Tell the renderer
 		this._mRenderer.resizedGameDiv();
+
+		// Setup the global resize event and dispatch it
+		this.dispatchResize();
 	},
 
 	/**
@@ -317,6 +303,29 @@ TGE.FullStage.prototype =
 				updateRoot.dispatchEvent.call(this,event);
 			}
 		}
+	},
+
+	/**
+	 * Dispatches ???
+	 * @ignore
+	 */
+	dispatchResize: function()
+	{
+		// Here we want to ensure the objects that aren't on the game stage get the resize event, but that
+		// it's using the full stage dimensions, and not the game stage dimensions.
+		TGE._ResizeEvent.width = TGE._ResizeEvent.endEvent.width = this.width;
+		TGE._ResizeEvent.height = TGE._ResizeEvent.endEvent.height = this.height;
+		var gameStage = this.gameStage;
+		this.eachChild(function() {
+				if(this !== gameStage)
+				{
+					this.dispatchEvent(TGE._ResizeEvent);
+				}
+			}
+		);
+
+		// Now we can dispatch to the game stage, which will use the game stage dimensions
+		this.gameStage.dispatchResize();
 	},
 
     /**
@@ -402,10 +411,51 @@ TGE.FullStage.prototype =
 		var eventName = "mouse"+event;
 		var mouseEvent = {type:eventName, x:mouseX, y:mouseY, stageX:mouseX, stageY:mouseY, identifier:identifier};
 
+		// The full stage always get the mouse event, regardless of any hits to objects above or the current update
+		// root. Full stage mouse handlers are reserved for TGE and perform critical tasks like enabling audio and video.
+		this._handleMouseEvent(mouseEvent);
+
 		// The update root will never be the TGE.FullStage, its default value is the TGE.GameStage. We will handle
 		// the full stage at the bottom as it is a special case and game code would never add mouse listeners to it.
 		var updateRoot = TGE.Game.GetUpdateRoot();
 
+		// Required TGE 1.1 method: ------------------------------------------------------------------------------------
+
+		// Always send events to the update root first (children cannot block input)
+		if(updateRoot.mouseEnabled && updateRoot.visible)
+		{
+			this._processMouseTarget(updateRoot, mouseEvent);
+		}
+
+		// We are going to loop through all the potential mouse targets, front to back (reverse order of the array).
+		var handleEvent = true;
+		for(var i=this._mMouseTargets.length; --i >= 0; )
+		{
+			var dispObj = this._mMouseTargets[i];
+
+			// PAN-490 Don't send double mouse events to update root, and don't send events to stage when it's not the root
+			// (If stage _is_ the root, then events were sent in the 'Always send' section above the loop).
+			if(dispObj !== updateRoot && dispObj !== this)
+			{
+				if (this._processMouseTarget(dispObj, mouseEvent))
+				{
+					// This object will block the event from continuing to any object beneath it
+					return;
+				}
+			}
+			else if (dispObj !== this && dispObj.hitTestPoint(mouseX, mouseY))
+			{
+				// PAN-1442 need to block mouse events below the update root, which gets skipped above due to having already been processed in the "always send" section
+				return;
+			}
+		}
+
+		// Preferred method for TGE 2.0: -------------------------------------------------------------------------------
+
+		// We were unable to use this approach because it makes the stage/update root get the mouse events last. There
+		// was at least one game (twistbuilder) that broke when scene objects got mouse events before the stage.
+
+		/*
 		// We are going to loop through all the potential mouse targets, front to back (reverse order of the array).
 		// The update root always needs to receive the mouse event.
 		var handleEvent = true;
@@ -422,6 +472,7 @@ TGE.FullStage.prototype =
 		// The full stage always get the mouse event, regardless of any hits to objects above or the current update
 		// root. Full stage mouse handlers are reserved for TGE and perform critical tasks like enabling audio and video.
 		this._handleMouseEvent(mouseEvent);
+		*/
 	},
 
 	/**
