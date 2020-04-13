@@ -170,7 +170,15 @@ TGE.AdFooter.prototype =
             // Push the game stage up to make room for the top of the panel
             TGE.Game.GetInstance()._mFullStage.setGameStageHeight(1 - this._panelCollapsedSize());
 
-            params.colorDef = "tge_isi_background",
+            if(GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_background"])
+            {
+                params.colorDef = "tge_isi_background"
+            }
+            else
+            {
+                params.backgroundColor = "#ffffff";
+            }
+            
             params.registrationX = 0;
             params.registrationY = 0;
             params.layout = function() {
