@@ -1379,11 +1379,8 @@ TGE.Game.prototype =
 			    // Need to tell the game...
 			    if(this._mFullStage)
 			    {
+			        // Calling this function on the full stage will automatically dispatch a resize event
 				    this._mFullStage.setSize(gameWidth,gameHeight);
-
-				    TGE._ResizeEvent.width = TGE._ResizeEvent.endEvent.width = gameWidth;
-				    TGE._ResizeEvent.height = TGE._ResizeEvent.endEvent.height = gameHeight;
-				    this._mFullStage.dispatchEvent(TGE._ResizeEvent);
 			    }
 		    }
             else

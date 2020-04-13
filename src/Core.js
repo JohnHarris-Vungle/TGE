@@ -244,7 +244,7 @@ var merge = function extend(obj)
 // Detect whether we're running inside the CB editor
 TGE.InCreativeBuilder = function()
 {
-    return (window._selfServe !== undefined);
+    return (window._selfServe !== undefined && !window.__gameOnly);
 };
 
 // Browser/Device detection code. Taken from: http://www.quirksmode.org/js/detect.html
