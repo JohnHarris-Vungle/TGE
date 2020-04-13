@@ -20,7 +20,8 @@ TGE.AdFooter = function()
     this.panelHeaderText = null;
 
     // A hack, if not obvious :P
-    /*GameConfig.TEXT_DEFS["tge_isi_text"].text = "<div class=\"isi-mainbody\"><h3>Who should not take FARXIGA?</h3>\n" +
+    GameConfig.TEXT_DEFS["tge_isi_text"] = GameConfig.TEXT_DEFS["tge_isi_text"] || {};
+    GameConfig.TEXT_DEFS["tge_isi_text"].text = "<div class=\"isi-mainbody\"><h3>Who should not take FARXIGA?</h3>\n" +
         "<h4>Do not take FARXIGA if you:</h4>\n" +
         "<ul class=\"orange-bulleted-list\">\n" +
         "<li>are allergic to dapagliflozin or any of the ingredients in FARXIGA. Symptoms of a serious allergic reaction may include skin rash, raised red patches on your skin (hives), swelling of the face, lips, tongue, and throat that may cause difficulty in breathing or swallowing. If you have any of these symptoms, stop taking FARXIGA and contact your healthcare provider or go to the nearest hospital emergency room right away</li>\n" +
@@ -60,7 +61,7 @@ TGE.AdFooter = function()
         "<p class=\"extra-marbtm25\">FARXIGA should not be used to treat people with type 1 diabetes or diabetic ketoacidosis (increased ketones in your blood or urine).</p>\n" +
         "<p class=\"bold-text\">Please see full <a href=\"http://www.azpicentral.com/pi.html?product=farxiga&amp;country=us&amp;popup=no\" target=\"_blank\" class=\"pdflink nowrap\">Prescribing Information</a> and <a href=\"http://www.azpicentral.com/pi.html?product=farxiga_med&amp;country=us&amp;popup=no\" target=\"_blank\" class=\"pdflink nowrap\">Medication Guide</a> for FARXIGA.</p>\n" +
         "<p class=\"normal-content fda-line\"><span class=\"italic-text \">You may report side effects related to AstraZeneca products by</span> <span class=\"nowrap\"><span class=\"italic-text \">clicking </span><a href=\"http://us-aereporting.astrazeneca.com\" target=\"_blank\">here</a></span>.</p>\n" +
-        "</div>";*/
+        "</div>";
 };
 
 /** @ignore */
