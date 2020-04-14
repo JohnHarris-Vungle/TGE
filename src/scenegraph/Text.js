@@ -630,7 +630,7 @@ TGE.Text.prototype =
 			}
 			else
 			{
-				var stageScale = (this.stage!==null && this._mFullStage._mScale!==1) ? this._mFullStage._mScale : 1;
+				var stageScale = (this._mFullStage!==null && this._mFullStage._mScale!==1) ? this._mFullStage._mScale : 1;
 				renderer.setWorldTransform(this._mWorldTransformNoReg,stageScale);
 				canvasContext.textAlign = this.hAlign!==null ? (this.hAlign==="justify" ? "left" : this.hAlign) : "center";
 				canvasContext.textBaseline = this.vAlign!==null ? this.vAlign : "middle";

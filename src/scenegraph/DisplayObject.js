@@ -1667,7 +1667,7 @@ TGE.DisplayObject.prototype =
         }
 
 	    // Apply the world transform
-	    var stageScale = (this.stage!==null && this._mFullStage._mScale!==1) ? this._mFullStage._mScale : 1;
+	    var stageScale = (this._mFullStage!==null && this._mFullStage._mScale!==1) ? this._mFullStage._mScale : 1;
 	    renderer.setWorldTransform(this._mWorldTransform,stageScale);
 
         // Set the alpha for the object
@@ -1709,14 +1709,9 @@ TGE.DisplayObject.prototype =
 		    this._objectDraw(renderer);
 	    }
 
-	    // Increment the visible objects count
-	    this._mFullStage._mNumVisibleObjects++;
-
-	    // Increment the drawn objects count
-	    if(this.doesDrawing())
-	    {
-		    this._mFullStage._mNumDrawnObjects++;
-	    }
+	    // Increment the stage debug counters
+		this._mFullStage._mNumVisibleObjects++;
+		this._mFullStage._mNumDrawnObjects += this.doesDrawing() ? 1 : 0;
     },
 
     /** @ignore */
@@ -1965,6 +1960,10 @@ TGE.DisplayObject.prototype =
     {
         this.stage = stage;
 	    this._mAddedToStage = addedToStage;
+
+	    // Make sure the full stage is set. If an object was constructed before the stage was ready, and added
+		// later, then it's possible the full stage member could be null.
+		this._mFullStage = this._mFullStage || stage._mFullStage;
     },
 
     _makeGradient: function(gradient)
