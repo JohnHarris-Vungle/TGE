@@ -310,7 +310,8 @@ TGE.DisplayObject.prototype =
 			// If the object is already in the scenegraph, update with the new layout
 			if(this.parent)
 			{
-				this.reapplyLayout();
+				this._resize(TGE._ResizeEvent);
+				this._dispatchToChildren(TGE._ResizeEvent);
 			}
 		}
 	},

@@ -301,14 +301,7 @@ TGE.DisplayObjectContainer.prototype =
         TGE.DisplayObjectContainer.superclass.dispatchEvent.call(this,event);
 
         // Do the children
-        var len = this._mChildren.length;
-        for(var i=0; i<len; i++)
-        {
-            if(this._mChildren[i])
-            {
-                this._mChildren[i].dispatchEvent(event);
-            }
-        }
+	    this._dispatchToChildren(event);
 
         // If a corresponding end event has been setup, fire it now that the children are finished
         if(event.endEvent)
@@ -316,6 +309,22 @@ TGE.DisplayObjectContainer.prototype =
             this.handleEvent(event.endEvent);
         }
     },
+
+	/**
+	 * Dispatch event to object's children
+	 * @ignore
+	 */
+	_dispatchToChildren: function(event)
+	{
+		var len = this._mChildren.length;
+		for(var i=0; i<len; i++)
+		{
+			if(this._mChildren[i])
+			{
+				this._mChildren[i].dispatchEvent(event);
+			}
+		}
+	},
 
 	/**
 	 * Caches the contents including all children into an offscreen canvas, reducing drawn object count.
