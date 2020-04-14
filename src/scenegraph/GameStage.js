@@ -21,6 +21,42 @@ TGE.GameStage = function(fullStage)
 TGE.GameStage.prototype =
 {
     /**
+     * For debugging, this method can be used to determine the number of scene objects that were visible during the last rendered frame. This will include objects that have children but may not doing any drawing themselves.
+     * @returns {number} The number of scene objects that were visible during the last rendered frame.
+     */
+    numVisibleObjects: function()
+    {
+        return this._mFullStage.numVisibleObjects();
+    },
+
+    /**
+     * For debugging, this method can be used to determine the number of visible objects that preformed some sort of drawing during the last rendered frame (ie: images, text, something with backgroundColor).
+     * @returns {number} The number of scene objects that were determined to be visible and drawn during the last rendered frame.
+     */
+    numDrawnObjects: function()
+    {
+        return this._mFullStage.numDrawnObjects();
+    },
+
+    /**
+     * For debugging, this method can be used to determine the maximum number of objects that were drawn during any frame since startup (ie: images, text, something with backgroundColor).
+     * @returns {number} The maximum number of objects that were drawn in any frame since startup.
+     */
+    maxDrawnObjects: function()
+    {
+        return this._mFullStage.maxDrawnObjects();
+    },
+
+    /**
+     * For debugging, this method provides the average number of objects drawn every frame since startup (ie: images, text, something with backgroundColor).
+     * @returns {number} The average number of objects drawn every frame since startup.
+     */
+    averageDrawnObjects: function()
+    {
+        return this._mFullStage.averageDrawnObjects();
+    },
+
+    /**
      * Indicates whether the game view is currently in landscape orientation
      * @returns {Boolean} Returns true if the game is in landscape
      */
