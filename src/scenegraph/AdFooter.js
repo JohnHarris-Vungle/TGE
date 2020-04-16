@@ -286,6 +286,12 @@ TGE.AdFooter.prototype =
         // Push the panel down to its collapsed position
         this.adjustPanelPosition();
 
+        // NOTE: the iframe size/positioning is done differently here compared to the expanded state, where the iframe
+        // only occupies space on top of the actual panel area. However there was a very annoying bug on iOS (likely
+        // v12 and under), where the contents of the iframe where rendered invisible if the top setting of the iframe
+        // was below a certain percentage of the screen. The only successful workaround was to cover the entire viewport
+        // with the iframe (disabling all user input), and sizing/positioning the content div over just the panel.
+
         // Create an iframe to host the html. This is the only effective way to ignore any parent css rules.
         var shoulder = 1;
         var panelHeight = Math.floor(this._panelCollapsedSize() * this.height);
@@ -294,21 +300,26 @@ TGE.AdFooter.prototype =
         this.htmlPanel = document.createElement('iframe');
         this.htmlPanel.setAttribute("style",
             //"background: red; " +
+            "user-select: none; " +
+            "pointer-events: none; " +
             "border: none; " +
             "margin: 0px; " +
             "padding: 0px; " +
             "position: absolute; " +
-            "top: " + (this.height - panelHeight + topClearance) + "px; " +
+            "top: 0px; " +
             "left: " + shoulder + "px; " +
             "overflow: hidden; " +
             "width: " + (panelWidth - shoulder * 2) + "px; " +
-            "height: " + (panelHeight - topClearance - shoulder) + "px;");
+            "height: " + this.height + "px;");
         TGE.Game.GameDiv().appendChild(this.htmlPanel);
 
         // Now write the legal text into its own div
         var doc = this.htmlPanel.contentWindow.document;
         doc.open();
-        doc.write("<style>body {margin: 0px;}</style><div style='color: black; height: 96%; overflow-x: hidden; overflow-y: scroll; font-family: Arial; font-size: " + this._fontSize() + "px; " +
+        doc.write("<style>body {margin: 0px; overflow: hidden;}</style><div style='position: absolute; top: " +
+            (this.height - panelHeight + topClearance) + "px; height: " + (panelHeight - topClearance - 5) + "px; " +
+            //"background: red; " +
+            "color: black; overflow-x: hidden; overflow-y: hidden; font-family: Arial; font-size: " + this._fontSize() + "px; " +
             "padding: 0% " + this.panelSettings.padding + "% " + " 0% " + this.panelSettings.padding + "%;" +
             "'>" +
             GameConfig.TEXT_DEFS["tge_isi_text"].text +
