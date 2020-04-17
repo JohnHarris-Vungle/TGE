@@ -20,7 +20,7 @@ TGE.AdFooter = function()
     this.panelHeaderText = null;
 
     // A hack, if not obvious :P
-    GameConfig.TEXT_DEFS["tge_isi_text"] = GameConfig.TEXT_DEFS["tge_isi_text"] || {};
+    /*GameConfig.TEXT_DEFS["tge_isi_text"] = GameConfig.TEXT_DEFS["tge_isi_text"] || {};
     GameConfig.TEXT_DEFS["tge_isi_text"].text = "<div class=\"isi-mainbody\"><h3>Who should not take FARXIGA?</h3>\n" +
         "<h4>Do not take FARXIGA if you:</h4>\n" +
         "<ul class=\"orange-bulleted-list\">\n" +
@@ -61,7 +61,7 @@ TGE.AdFooter = function()
         "<p class=\"extra-marbtm25\">FARXIGA should not be used to treat people with type 1 diabetes or diabetic ketoacidosis (increased ketones in your blood or urine).</p>\n" +
         "<p class=\"bold-text\">Please see full <a href=\"http://www.azpicentral.com/pi.html?product=farxiga&amp;country=us&amp;popup=no\" target=\"_blank\" class=\"pdflink nowrap\">Prescribing Information</a> and <a href=\"http://www.azpicentral.com/pi.html?product=farxiga_med&amp;country=us&amp;popup=no\" target=\"_blank\" class=\"pdflink nowrap\">Medication Guide</a> for FARXIGA.</p>\n" +
         "<p class=\"normal-content fda-line\"><span class=\"italic-text \">You may report side effects related to AstraZeneca products by</span> <span class=\"nowrap\"><span class=\"italic-text \">clicking </span><a href=\"http://us-aereporting.astrazeneca.com\" target=\"_blank\">here</a></span>.</p>\n" +
-        "</div>";
+        "</div>";*/
 };
 
 /** @ignore */
@@ -146,6 +146,7 @@ TGE.AdFooter.prototype =
             {
                 this.expandable = true;
                 this.panelSettings = {
+                    headerBar: true,
                     expandedSize: 0.92, // in percent (leave some clearance so the ad close button isn't confused with panel close)
                     padding: 4, // css percent. This is the padding around the text in the panel.
                     toggleButtonRadius: 0.03
@@ -185,11 +186,26 @@ TGE.AdFooter.prototype =
                 this.adjustPanelPosition();
             };
 
-            // Important Safety Information header
+            // Header background
+            if(this.panelSettings.headerBar)
+            {
+                this.addChild(new TGE.DisplayObjectContainer().setup({
+                    colorDef: "tge_isi_header",
+                    registrationX: 0,
+                    registrationY: 0,
+                    layout: function() {
+                        this.x = this.y = 0;
+                        this.width = this.parent.width;
+                        this.height = this.parent._headerBarSize();
+                    }
+                }));
+            }
+
+            // Important Safety Information text
             this.panelHeaderText = this.addChild(new TGE.Text().setup({
-                text: "Important Safety Information",
-                textColor: this._headerColor(),
-                fontSize: 14,
+                text: "IMPORTANT SAFETY INFORMATION",
+                textColor: this.panelSettings.headerBar ? "#000000" : this._headerColor(),
+                fontSize: 10,
                 fontWeight: "bold",
                 hAlign: "left",
                 vAlign: "top",
@@ -203,14 +219,22 @@ TGE.AdFooter.prototype =
                 }
             }));
 
+            // Button container
+            this.addChild(new TGE.DisplayObject().setup({
+                registrationX: 1,
+                registrationY: 0,
+                layout: function() {
+                    this.x = this.parent.width;
+                    this.y = 0;
+                    this.width = this.height = this.parent._headerBarSize();
+                }
+            })).addEventListener("drawend", this._drawButton);
+
             this.makeHtmlPanel();
 
             // The click listener will be for the upper right toggle button (as well as making the entire panel a click
             // target so clicks don't pass through).
             this.addEventListener("click", this._onClick);
-
-            // A draw listener for the expand/collapse button
-            this.addEventListener("drawbegin", this._onDrawBegin);
 
             // A resize listener is necessary since responsive css behavior doesn't align with TGE responsive behavior
             this.addEventListener("resize", this._onResize);
@@ -296,7 +320,7 @@ TGE.AdFooter.prototype =
         var shoulder = 1;
         var panelHeight = Math.floor(this._panelCollapsedSize() * this.height);
         var panelWidth = Math.floor(this.width);
-        var topClearance = Math.floor((settings.toggleButtonRadius * 3.5) * this._uiScalingDimension());
+        var topClearance =  this._headerBarSize();
         this.htmlPanel = document.createElement('iframe');
         this.htmlPanel.setAttribute("style",
             //"background: red; " +
@@ -351,7 +375,7 @@ TGE.AdFooter.prototype =
         var shoulder = 1;
         var panelWidth = Math.floor(this.width);
         var topSpace = Math.floor(this.height - this._panelExpandedSize() * this.height);
-        var topClearance = Math.floor((settings.toggleButtonRadius * 3.5) * this._uiScalingDimension());
+        var topClearance = this._headerBarSize();
         var panelHeight = Math.floor(this.height - topSpace - topClearance);
         this.htmlPanel = document.createElement('iframe');
         this.htmlPanel.setAttribute("style",
@@ -416,37 +440,34 @@ TGE.AdFooter.prototype =
         }
     },
 
-    _onDrawBegin: function(event)
+    _drawButton: function(event)
     {
-        // For expandable panels, draw the expand/collapse toggle button in the upper right
-        if(this.expandable)
+        var ctx = event.canvasContext;
+        var footer = this.parent;
+
+        var p = footer._uiScalingDimension() * (footer.panelSettings.padding/100);
+        var radius = footer._uiScalingDimension() * footer.panelSettings.toggleButtonRadius;
+        var centerX = this.width / 2;
+        var centerY = this.height / 2;
+        var lineLength = radius * 0.6;
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = footer.panelSettings.headerBar ? "#000000" : footer._headerColor();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.strokeStyle = footer.panelSettings.headerBar ? footer._headerColor() : footer._backgroundColor();
+        ctx.lineWidth = Math.round(1.75 * window.devicePixelRatio);
+        ctx.lineCap = "round";
+        ctx.moveTo(centerX - lineLength, centerY);
+        ctx.lineTo(centerX + lineLength, centerY);
+        if(!footer.expanded)
         {
-            var ctx = event.canvasContext;
-
-            var p = this._uiScalingDimension() * (this.panelSettings.padding/100);
-            var radius = this._uiScalingDimension() * this.panelSettings.toggleButtonRadius;
-            var centerX = this.width - p - radius;
-            var centerY = p * 0.6 + radius;
-            var lineLength = radius * 0.6;
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-            ctx.fillStyle = this._headerColor();
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.strokeStyle = this._backgroundColor();
-            ctx.lineWidth = Math.round(1.75 * window.devicePixelRatio);
-            ctx.lineCap = "round";
-            ctx.moveTo(centerX - lineLength, centerY);
-            ctx.lineTo(centerX + lineLength, centerY);
-            if(!this.expanded)
-            {
-                ctx.moveTo(centerX, centerY - lineLength);
-                ctx.lineTo(centerX, centerY + lineLength);
-            }
-            ctx.stroke();
+            ctx.moveTo(centerX, centerY - lineLength);
+            ctx.lineTo(centerX, centerY + lineLength);
         }
+        ctx.stroke();
     },
 
     _onClick: function(event)
@@ -510,6 +531,11 @@ TGE.AdFooter.prototype =
         return Math.round(width/divisor);
     },
 
+    _headerBarSize: function()
+    {
+        return Math.floor(this.panelSettings.toggleButtonRadius * 3.5 * this._uiScalingDimension());
+    },
+
     _backgroundColor: function()
     {
         return (GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_background"]) || "#ffffff";
@@ -522,7 +548,10 @@ TGE.AdFooter.prototype =
 
     _updateHeaderColor: function()
     {
-        this.panelHeaderText.textColor = this._headerColor();
+        if(!this.panelSettings.headerBar)
+        {
+            this.panelHeaderText.textColor = this._headerColor();
+        }
     },
 
     _portraitTablet: function()
