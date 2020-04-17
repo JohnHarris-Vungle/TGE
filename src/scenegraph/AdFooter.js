@@ -189,8 +189,7 @@ TGE.AdFooter.prototype =
             // Header background
             if(this.panelSettings.headerBar)
             {
-                this.addChild(new TGE.DisplayObjectContainer().setup({
-                    colorDef: "tge_isi_header",
+                var barParams = {
                     registrationX: 0,
                     registrationY: 0,
                     layout: function() {
@@ -198,7 +197,16 @@ TGE.AdFooter.prototype =
                         this.width = this.parent.width;
                         this.height = this.parent._headerBarSize();
                     }
-                }));
+                };
+                if(GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_header"])
+                {
+                    barParams.colorDef = "tge_isi_header";
+                }
+                else
+                {
+                    barParams.backgroundColor = "#dadada";
+                }
+                this.addChild(new TGE.DisplayObjectContainer().setup(barParams));
             }
 
             // Important Safety Information text
@@ -346,7 +354,7 @@ TGE.AdFooter.prototype =
             "color: black; overflow-x: hidden; overflow-y: hidden; font-family: Arial; font-size: " + this._fontSize() + "px; " +
             "padding: 0% " + this.panelSettings.padding + "% " + " 0% " + this.panelSettings.padding + "%;" +
             "'>" +
-            GameConfig.TEXT_DEFS["tge_isi_text"].text +
+            this._panelText() +
             "</div>");
         doc.close();
     },
@@ -397,7 +405,7 @@ TGE.AdFooter.prototype =
         doc.write("<style>body {margin: 0px;}</style><div style='color: black; height: 98%; overflow-x: hidden; overflow-y: scroll; font-family: Arial; font-size: " + this._fontSize() + "px; " +
             "padding: 0% " + this.panelSettings.padding + "% " + " 0% " + this.panelSettings.padding + "%;" +
             "'>" +
-            GameConfig.TEXT_DEFS["tge_isi_text"].text +
+            this._panelText() +
             "</div>");
         doc.close();
     },
@@ -504,6 +512,11 @@ TGE.AdFooter.prototype =
         }
     },
 
+    _panelText: function()
+    {
+        return GameConfig.TEXT_DEFS && GameConfig.TEXT_DEFS["tge_isi_text"] ? GameConfig.TEXT_DEFS["tge_isi_text"].text : "";
+    },
+
     _uiScalingDimension: function()
     {
         return Math.min(this._portraitTablet() ? this.width * 0.8 : this.width, this.height);
@@ -543,7 +556,7 @@ TGE.AdFooter.prototype =
 
     _headerColor: function()
     {
-        return (GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_header"]) || "#000000";
+        return (GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_header"]) || "#dadada";
     },
 
     _updateHeaderColor: function()
