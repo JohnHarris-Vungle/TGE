@@ -300,7 +300,7 @@ TGE.FullStage.prototype =
 			// isn't a child of the game stage, as it will have already been updated above.
 			if(updateRoot.stage !== this)
 			{
-				updateRoot.dispatchEvent.call(this,event);
+				updateRoot.dispatchEvent.call(updateRoot,event);
 			}
 		}
 	},
