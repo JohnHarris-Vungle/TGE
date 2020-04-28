@@ -272,7 +272,19 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
         loadEvent;
 
     this.url = url;
-    this.el = document.createElement(type);
+
+    // Create the element, but first check if it was already created in the html. This is required in the Facebook .zip format.
+    var parts = url.split("/");
+    var filename = parts[parts.length-1];
+    var el = document.getElementById(filename);
+    if (el)
+    {
+        this.el = el;
+    }
+    else
+    {
+        this.el = document.createElement(type);
+    }
 
 	// cross-browser event binding
 	this.bind = function(eventName, eventHandler) {
@@ -423,12 +435,18 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 			self.el.crossOrigin = "anonymous";
 		}
 		
-		// For packaged builds that require inlined assets (Facebook, Vungle), we will check for the existence of a global
-		// dictionary of asset names to base64 strings
-		if (window._TREIMAGES)
+		// Does the element already have the asset loaded? (ie: Facebook .zip format)
+        if (self.el.width)
+        {
+            // Don't do anything, el is already loaded
+            onLoad();
+        }
+        // For packaged builds that require inlined assets (Facebook, Vungle), we will check for the existence of a global
+        // dictionary of asset names to base64 strings
+        else if (window._TREIMAGES)
 		{
-			var parts = url.split("/");
-			var filename = parts[parts.length-1];
+            var parts = url.split("/");
+            var filename = parts[parts.length-1];
 			self.el.src = _TREIMAGES[filename];
 		}
 		else
