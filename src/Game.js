@@ -156,6 +156,7 @@ TGE.Game = function()
     this._mPreviewMode = queryParams["simulateBanner"] ? 1 : (parseInt(queryParams["previewMode"]) || 0);
     this._mTestAdHeader = parseInt(queryParams["testadheader"]) || 0;
     this._mCustomLoader = parseInt(queryParams["customloader"]) || 0;
+    this._mTestGameViewable = parseInt(queryParams["testgameviewable"]) || 0;
     this._mPortraitGame = null; // Determined on first viewport resize
     this._ignoreOrientation = queryParams["ignoreOrientation"] === "true" || // querystring override
         this._mPreviewMode===1 || // banner ads
@@ -1715,10 +1716,14 @@ TGE.Game.prototype =
             // Game is considered to be in a ready and user viewable state as soon as the first "required" asset list has loaded
             document.dispatchEvent(new Event("tgeGameReady"));
 
+            if(this._mTestGameViewable > 0)
+            {
+                setTimeout(this.gameMadeViewable.bind(this), this._mTestGameViewable * 1000);
+            }
             // PAN-835 - if the game is not running in an MRAID ad container then the game viewable event will
             // never fire. In order to assist in testing TGE.GameViewableCallback features like impression tracking,
             // we'll make this callback fire now when MRAID isn't detected.
-            if(!window.mraid && !window.dapi)
+            else if(!window.mraid && !window.dapi)
             {
                 this.gameMadeViewable();
             }
