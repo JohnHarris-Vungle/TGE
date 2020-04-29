@@ -1317,8 +1317,7 @@ TGE.Game.prototype =
 		    var maxHeight = TGE.BrowserDetect.isMobileDevice ? Number.MAX_VALUE : this.desktopMaxCanvasHeight;
 		    var minHeight = 0;
 
-		    var pixelRatio = TGE.BrowserDetect.isMobileDevice ? window.devicePixelRatio : 1;
-            // pixelRatio = 1;
+		    var pixelRatio = window.devicePixelRatio || 1;
 		    gameWidth = Math.min(Math.max(screenWidth*pixelRatio,minWidth),maxWidth);
 		    gameHeight = Math.min(Math.max(screenHeight*pixelRatio,minHeight),maxHeight);
 
@@ -1415,7 +1414,7 @@ TGE.Game.prototype =
         else
         {
             // Desktop
-            if(this.scaleToFitOnDesktop)
+            if(this._mResizeCanvasToFit || this.scaleToFitOnDesktop)
             {
                 // Scale canvas using css 2D transform
                 this._scaleByCSS2D(finalScale);
