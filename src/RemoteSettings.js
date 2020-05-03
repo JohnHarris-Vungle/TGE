@@ -267,7 +267,7 @@ TGE.Game.prototype.validateSettingValue = function (value, config)
     var defaultRangeValue;
 
     // ensure the value type matches the setting type
-    if (typeof value !== config.type && value != null)
+    if (!((config.type === "Array" && Array.isArray(value)) || typeof value === config.type || value == null))
     {
         TGE.Debug.Log(TGE.Debug.LOG_WARNING, 'replacing remote setting "' + config.name + '", which has a value that does not match the required data type');
 
@@ -282,6 +282,9 @@ TGE.Game.prototype.validateSettingValue = function (value, config)
                 break;
             case "boolean":
                 value = false;
+                break;
+            case "Array":
+                value = [];
                 break;
 
             // NOTE: if we want to support additional types here, we also need to change _convertStringToType
@@ -372,6 +375,11 @@ TGE.Game.prototype._convertStringToType = function (string, type)
             {
                 newVar = false;
             }
+            break;
+        case "Array":
+            try {
+                newVar = JSON.parse(string);
+            } catch (e) {};
             break;
         // NOTE: if we want to support additional types here, we also need to change validateSettingValue
     }
