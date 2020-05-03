@@ -250,6 +250,16 @@ TGE.Game.GameDiv = function()
 }
 
 /**
+ * Returns whether the game is viewable to the user
+ * (versus still in pre-fetch)
+ * @return {Boolean} game viewable state
+ */
+TGE.Game.IsViewable = function()
+{
+    return TGE.Game.GetInstance()._mGameViewableReceived;
+}
+
+/**
  * Typically the game dispatches an "update" event to the stage, which propagates through the entire scenegraph and causes all objects to be updated each frame.
  * Calling SetUpdateRoot allows you to change the object that receives the initiating update event so that you can block update events from
  * getting through to all objects behind it in the scenegraph. This is useful for something like a pause screen, where you want the screen itself to
