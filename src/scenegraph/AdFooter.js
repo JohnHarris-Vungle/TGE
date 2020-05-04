@@ -213,16 +213,16 @@ TGE.AdFooter.prototype =
             this.panelHeaderText = this.addChild(new TGE.Text().setup({
                 text: "IMPORTANT SAFETY INFORMATION",
                 textColor: this.panelSettings.headerBar ? "#000000" : this._headerColor(),
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: "bold",
                 hAlign: "left",
-                vAlign: "top",
+                vAlign: "middle",
                 fontFamily: "Arial",
                 layout: function() {
                     var d = this.parent._uiScalingDimension();
                     var p = d * (settings.padding/100);
                     this.x = p;
-                    this.y = p;
+                    this.y = this.parent._headerBarSize() * 0.5;
                     this.scale = d / 300;
                 }
             }));
