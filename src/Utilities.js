@@ -62,7 +62,7 @@ TGE.DeepClone = function (sourceObject, keyObject)
 			var a = [];
 			for (var i = 0; i < sourceObject.length; ++i)
 			{
-				a.push(TGE.DeepClone(sourceObject[i]), keyObject[i]);
+				a.push(TGE.DeepClone(sourceObject[i], keyObject[i]));
 			}
 			return a;
 		}
