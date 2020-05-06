@@ -51,6 +51,7 @@
 		"RemoteSettings.js",
 		"TGSProxy.js",
 
+		"em.js",
 		"fontfaceobserver.standalone.js"
 	]
 }
