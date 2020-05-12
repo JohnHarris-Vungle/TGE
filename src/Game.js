@@ -2560,7 +2560,7 @@ TGE.Completion = function(reason)
 }
 
 /** @ignore */
-TGE._DefaultTimeBetweenClicks = 3;
+TGE._DefaultTimeBetweenClicks = 1;
 
 /** @ignore */
 TGE._ReadyForNextClick = {};
