@@ -997,8 +997,11 @@ TGE.DisplayObject.prototype =
             }
         }
 
-	    // If we got here the listener wasn't found... log a warning
-	    TGE.Debug.Log(TGE.Debug.LOG_WARNING, "removeEventListener could not find listener specified for "+type+" event");
+	    // If we got here the listener wasn't found... log a warning, but only if outside the removal process.
+		if(!this._mMarkedForRemoval)
+		{
+			TGE.Debug.Log(TGE.Debug.LOG_WARNING, "removeEventListener could not find listener specified for "+type+" event");
+		}
     },
 
     /**
@@ -1382,11 +1385,7 @@ TGE.DisplayObject.prototype =
 				this._mActions.splice(a,1);
 
 				// If there's no actions left, remove the listener
-				if(this._mActions.length===0 && typeof this._mActionsListener==="number")
-				{
-					this.removeEventListener("update",this._mActionsListener);
-					this._mActionsListener = null;
-				}
+				this._removeActionsListener();
 
 				return;
 			}
@@ -1414,7 +1413,17 @@ TGE.DisplayObject.prototype =
 		if(this._mActions.length > 0)
 		{
 			this._mActions = [];
-			this.removeEventListener("update", this._mActionsListener);
+			this._removeActionsListener();
+		}
+	},
+
+	/** @ignore */
+	_removeActionsListener: function()
+	{
+		// If there's no actions left, remove the listener
+		if(this._mActions.length===0 && typeof this._mActionsListener==="number")
+		{
+			this.removeEventListener("update",this._mActionsListener);
 			this._mActionsListener = null;
 		}
 	},
@@ -1581,11 +1590,7 @@ TGE.DisplayObject.prototype =
 		}
 
 		// If there's no actions left, remove the listener
-		if(this._mActions.length===0 && typeof this._mActionsListener==="number")
-		{
-			this.removeEventListener("update",this._mActionsListener);
-			this._mActionsListener = null;
-		}
+		this._removeActionsListener();
 	},
 
     /** @ignore */
