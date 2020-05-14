@@ -525,7 +525,7 @@ TGE.AdFooter.prototype =
     _panelCollapsedSize: function()
     {
         // Don't take up as much of the screen in landscape, since it's already very limited
-        return this._mFullStage.width > this._mFullStage.height ? 0.20 : 0.25;
+        return (this._mFullStage.width > this._mFullStage.height || this._portraitTablet()) ? 0.20 : 0.25;
     },
 
     _panelExpandedSize: function()
