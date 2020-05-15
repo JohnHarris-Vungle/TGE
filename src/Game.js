@@ -674,15 +674,6 @@ TGE.Game.prototype =
     },
 
     /**
-     * Indicates whether the game is a package build
-     * @returns {Boolean} Returns true if the game is a package build.
-     */
-    isPackageBuild: function ()
-    {
-        return window.TreSensa ? window.TreSensa.Playable.packagedBuild : false;
-    },
-
-    /**
      * Indicates whether the game is being played as an ad.
      * @returns {Boolean} Returns true if the game is being played as an ad, and false otherwise.
      */
