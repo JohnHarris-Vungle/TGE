@@ -330,7 +330,7 @@ TGE.AssetManager.prototype =
     {
         this._assetConfigs = [];
 
-        var isPackageBuild = TGE.Game.GetInstance().isPackageBuild();
+        var isPackagedBuild = window.TreSensa && TreSensa.Playable.packagedBuild;
 
         if (window.GameConfig && GameConfig.ASSETS)
         {
@@ -365,7 +365,7 @@ TGE.AssetManager.prototype =
                 }
 
                 // IF THE ASSET SHOULDN'T BE LOADED DURING A PACKAGE BUILD AND YOU'RE IN A PACKAGE BUILD, DON'T QUEUE
-                if (isPackageBuild && assetConfig.packageBuild === false)
+                if (isPackagedBuild && assetConfig.packageBuild === false)
                 {
                     continue;
                 }
