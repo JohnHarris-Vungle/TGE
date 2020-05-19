@@ -132,7 +132,7 @@ TGE.AssetLoader.prototype = {
             return;
         }
 		
-		// Make sure the root location parameter is valid (this is used as back if imageRoot/audioRoot are not passed to game launch()
+		// Make sure the root location parameter is valid (not sure this is necessary...)
         rootLocation = _validPath(rootLocation, "");
 
 	    // Make sure the languageFolder parameter is valid
@@ -141,31 +141,11 @@ TGE.AssetLoader.prototype = {
 	    // Append the current language folder
 	    languagesFolder += language + "/";
 
-        var game = TGE.Game.GetInstance();
-	    if(!game._sConfig)
-	    {
-		    // TGD-523
-		    TGE.Debug.Log(TGE.Debug.LOG_WARNING, "attempting to call TGE.AssetLoader.loadAssets before game is launched - could cause problems with native builds");
-	    }
-        var imageRoot = game._sConfig && game._sConfig.imageRoot || rootLocation;
-        var audioRoot = game._sConfig && game._sConfig.audioRoot || rootLocation;
-
         this.mAssetList = assetList;
         this.mUpdateCallback = updateCallback;
         this.mCompleteCallback = completeCallback;
 
         var loader = new TGE.Loader({statusInterval:3000});
-
-        // Loading audio hangs the HTC One (RAB-223)
-        var isHTCOne = TGE.BrowserDetect.onAndroid &&
-            ( (navigator.userAgent.toString()).indexOf("HTC_PN07120")!==-1 || (navigator.userAgent.toString()).indexOf("HTC One")!==-1 );
-        var loadAudio = assetManager.loadAudio && !isHTCOne;
-
-        if(isHTCOne)
-        {
-            TGE.Debug.Log(TGE.Debug.LOG_WARNING, "ignoring audio assets on HTC One");
-        }
-
 	    var loadingNewAsset = false;
 
         for(var i=0; i<assetList.list.length; i++)
@@ -181,9 +161,9 @@ TGE.AssetLoader.prototype = {
 
             var extension = asset.url ? asset.url.split('.').pop().toLowerCase() : null;
             var isAudio = asset.assetType === "audio" || extension==="ogg" || extension==="mp3";
-            var url = (asset.url ? this.getAssetURL(asset, isAudio ? audioRoot : imageRoot, languagesFolder) : null);
+            var url = (asset.url ? this.getAssetURL(asset, rootLocation, languagesFolder) : null);
 
-            this.loadAssetFromAssetList(assetManager, loader, asset, url, wereErrors, loadAudio);
+            this.loadAssetFromAssetList(assetManager, loader, asset, url, wereErrors, assetManager.loadAudio);
 
             loadingNewAsset = true;
         }

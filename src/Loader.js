@@ -166,17 +166,43 @@ TGE.Loader = function(settings) {
     };
 
     this.onLoad = function(resource) {
-	    onProgress(resource, ResourceState.LOADED);
+        // Add this to the list of loaded assets
+        if (resource.url)       // the url will be null for audio assets "not loaded" from NoAudioLoader
+        {
+            // Add to the required packaging assets lists
+            this.assetManager._recordAsset(resource.url);
 
-    	// add this to the list of loaded assets
-	    if (resource.url)       // the url will be null for audio assets "not loaded" from NoAudioLoader
-	    {
-		    this.assetManager._mLoadedAssets.push(resource.url);
-	    }
+            // If this is coming in after all the required asset lists have loaded, it is being loaded manually.
+            // Make sure it is included in the GameConfig.PACKAGE_ASSETS array, otherwise warn that this asset
+            // will be excluded from packaged builds.
+            if (this.assetManager.allLoaded)
+            {
+                // We need to manually search for the entry since the GameConfig list won't have the assets root prepended
+                if (GameConfig.PACKAGE_ASSETS)
+                {
+                    for (var i=0; i<GameConfig.PACKAGE_ASSETS.length; i++)
+                    {
+                        if (resource.url === (this.assetManager._mRootLocation + GameConfig.PACKAGE_ASSETS[i]))
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                TGE.Debug.Log(TGE.Debug.LOG_WARNING, "asset " + resource.url + " will not be included in packaged builds unless included in GameConfig.PACKAGE_ASSETS");
+            }
+        }
+
+        // Important that we fire onProgress after the above, because onProgress will trigger the list complete callback
+        // to fire. If it fires before the PACKAGE_ASSETS test, it will think all asset loading is done before this asset
+        // is actually processed.
+        onProgress(resource, ResourceState.LOADED);
     };
+
     this.onError = function(resource) {
         onProgress(resource, ResourceState.ERROR);
     };
+
     this.onTimeout = function(resource) {
         onProgress(resource, ResourceState.TIMEOUT);
     };
