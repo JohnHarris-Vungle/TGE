@@ -553,12 +553,6 @@ TGE.DisplayObject.prototype =
                 this.scaleY *= (sy<0 ? -1 : 1);
             }
 
-			// Execute a custom function if provided
-			if(typeof layout.custom === "function")
-			{
-				this._executeLayoutFunction(layout.custom,event);
-			}
-
             // Match width / height
             if (typeof layout.matchWidth === "number")
             {
@@ -614,13 +608,24 @@ TGE.DisplayObject.prototype =
 	            }
 */
             }
+
+			// Execute a custom function if provided
+			if(typeof layout.custom === "function")
+			{
+				this._executeLayoutFunction(layout.custom,event);
+			}
 		}
 	},
 
 	/** @ignore */
 	_executeLayoutFunction: function(layout,event)
 	{
-		layout.call(this,event);
+		var returnedLayout = layout.call(this,event);
+		if (returnedLayout)
+		{
+			this._checkLayout(returnedLayout, "custom function");
+			this._resize(returnedLayout, event);
+		}
 	},
 
 	/** @ignore */
