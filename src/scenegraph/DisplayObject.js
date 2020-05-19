@@ -816,6 +816,25 @@ TGE.DisplayObject.prototype =
     },
 
 	/**
+	 * Returns true if this object is a descendant of the object specified.
+	 * @param {Object} object The object to search if descendant of.
+	 * @param {Boolean} [recursive=true] Whether or not to search children's children of the object.
+	 * @return {Boolean} Whether or not this object is a descendant of the object specified.
+	 */
+	isDescendantOf: function(object, recursive)
+	{
+		if (this === object)
+		{
+			return true;
+		}
+		if (recursive !== false && this.parent)
+		{
+			return this.parent.isDescendantOf(object, recursive);
+		}
+		return false;
+	},
+
+	/**
 	 * Returns whether the contents are currently cached.
 	 * DisplayObject has no children, and is thus never cached.
 	 * @returns {boolean}
