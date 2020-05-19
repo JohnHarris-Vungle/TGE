@@ -621,11 +621,13 @@ TGE.DisplayObject.prototype =
 	_executeLayoutFunction: function(layout,event)
 	{
 		var returnedLayout = layout.call(this,event);
+/*
 		if (returnedLayout)
 		{
 			this._checkLayout(returnedLayout, "custom function");
 			this._resize(returnedLayout, event);
 		}
+*/
 	},
 
 	/** @ignore */
