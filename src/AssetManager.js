@@ -23,17 +23,11 @@ TGE.AssetManager = function(loadAudio)
     }
 
     // Public members
-
-	// PAN-211 - renaming the rootLocation var so it is private and games currently trying to set it have no effect
-	this._mRootLocation = (window.GameConfig && GameConfig.CDN_ROOT) ? GameConfig.CDN_ROOT : "";
-
 	this.useSpriteSheets = true;
     this.loadAudio = loadAudio;
     this.allLoaded = false;
-    this._mLoadedAssetsCallback = null;
-    this._mLoadedAssets = [];       // array of URLs for all loaded assets
 
-	// PAN-466 Allow games to specify where the languages folder is (always relative to _mRootLocation)
+	// PAN-466 Allow games to specify where the languages folder is
 	this.languagesFolder = "languages";
 	this.currentLanguage = "en"; // Not documenting this - devs should use TGE.Game.setLanguage() instead
 
@@ -45,6 +39,9 @@ TGE.AssetManager = function(loadAudio)
 	this._mRendererTextures = {};
     this._mGroupToListKey = null;
     this._mListToGroupKey = null;
+    this._mLoadedAssetsCallback = null;
+    this._mLoadedAssets = [];       // array of URLs for all loaded assets
+    this._mRootLocation = "";
 
     // Setup the default asset lists
     this._verifyAssetListExists("loading");
@@ -208,6 +205,22 @@ TGE.AssetManager.LoadFontData = function(family, url, weight, loadCallback)
 
 TGE.AssetManager.prototype =
 {
+    /** @ignore
+     * The game will set the root path for the asset manager as soon as the ad container informs it of what it is.
+     */
+    _setRootLocation: function(path)
+    {
+        this._mRootLocation = path;
+
+        // At this point we shoul also add in the list of potential manually loaded assets.
+        if (window.GameConfig && GameConfig.PACKAGE_ASSETS)
+        {
+            GameConfig.PACKAGE_ASSETS.forEach((function(asset) {
+                this._recordAsset(this._mRootLocation + asset);
+            }).bind(this));
+        }
+    },
+
     /**
      * Part of the deprecated asset manager: queues a list of asset groups for loading, in the order they appear in the array. should only be called one per game
      * @param {String[]} assetGroupArray the list of asset groups to be queued for loading
@@ -634,6 +647,17 @@ TGE.AssetManager.prototype =
 			this._mAssetLists[assetListName] = {loaded: false, list: []};
 		}
 	},
+
+    /** @ignore
+     * Used to create a list of unique assets required by the game for packaging.
+     */
+    _recordAsset: function(assetLocation)
+    {
+        if (this._mLoadedAssets.indexOf(assetLocation)===-1)
+        {
+            this._mLoadedAssets.push(assetLocation);
+        }
+    },
 
     /**
      * Sets the loading order for named asset lists, such as ["required", "engagement", "2x", "promo"]

@@ -738,8 +738,6 @@ TGE.Game.prototype =
                 break;
         }
 
-        this._sConfig = gameParameters;
-
         this.onLoad = typeof gameParameters.onLoad === "function" ? gameParameters.onLoad : this.onLoad;
 
         // Get the canvas div
@@ -958,7 +956,10 @@ TGE.Game.prototype =
 		    }
 	    }
 
-        // Begin the asset loading process
+        // Begin the asset loading process. First we set the asset manager's root location. This is passed in
+        // by the ad container as it is platform dependent. Also note the concept of image vs audio roots is
+        // deprecated. This was only necessary years back for native packaging on CocoonJS.
+        this.assetManager._setRootLocation(gameParameters.imageRoot);
         this._beginLoad();
 
         return true;
