@@ -111,6 +111,21 @@ TGE.AssetLoader.prototype = {
     /** @ignore */
     loadAssetList: function(assetManager, assetList, rootLocation, languagesFolder, language, updateCallback, completeCallback)
     {
+		rootLocation = rootLocation || assetManager._mRootLocation;
+
+		// Check if this is being called too early. We can't load assets until TGE.Game.launch() has been called, as this
+		// specifies the root location, which is often dependent on the distribution platform.
+		if (rootLocation === null)
+		{
+			TGE.Debug.Log(TGE.Debug.LOG_WARNING, "asset list manually loaded before game launch, will be deferred until after all required assets have loaded");
+
+			// Cue this up for after all other assets have loaded
+			TGE.Game.AddEventListener("tgeAssetListsLoaded", this.loadAssetList.bind(this, assetManager, assetList,
+				rootLocation, languagesFolder, language, updateCallback, completeCallback));
+
+			return;
+		}
+
 	    var wereErrors = assetList.errors===true;
 
 	    assetList.errors = false;

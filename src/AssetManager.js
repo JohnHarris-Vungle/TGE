@@ -41,7 +41,7 @@ TGE.AssetManager = function(loadAudio)
     this._mListToGroupKey = null;
     this._mLoadedAssetsCallback = null;
     this._mLoadedAssets = [];       // array of URLs for all loaded assets
-    this._mRootLocation = "";
+    this._mRootLocation = null;
 
     // Setup the default asset lists
     this._verifyAssetListExists("loading");
