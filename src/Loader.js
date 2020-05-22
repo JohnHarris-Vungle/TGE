@@ -175,7 +175,7 @@ TGE.Loader = function(settings) {
             // If this is coming in after all the required asset lists have loaded, it is being loaded manually.
             // Make sure it is included in the GameConfig.PACKAGE_ASSETS array, otherwise warn that this asset
             // will be excluded from packaged builds.
-            if (this.assetManager.allLoaded)
+            if (!TGE.InCreativeBuilder() && this.assetManager.allLoaded)
             {
                 // We need to manually search for the entry since the GameConfig list won't have the assets root prepended
                 if (GameConfig.PACKAGE_ASSETS)
