@@ -1719,7 +1719,7 @@ TGE.Game.prototype =
 
             if(this._mTestGameViewable > 0)
             {
-                if(window.TreSensa)
+                if(window.TreSensa && TreSensa.sessionID)
                 {
                     TGE.Debug.Log(TGE.Debug.LOG_ERROR, "the testgameviewable parameter is not supported in production");
                 }
