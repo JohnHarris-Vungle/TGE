@@ -1719,7 +1719,14 @@ TGE.Game.prototype =
 
             if(this._mTestGameViewable > 0)
             {
-                setTimeout(this.gameMadeViewable.bind(this), this._mTestGameViewable * 1000);
+                if(window.TreSensa)
+                {
+                    TGE.Debug.Log(TGE.Debug.LOG_ERROR, "the testgameviewable parameter is not supported in production");
+                }
+                else
+                {
+                    setTimeout(this.gameMadeViewable.bind(this), this._mTestGameViewable * 1000);
+                }
             }
             // PAN-835 - if the game is not running in an MRAID ad container then the game viewable event will
             // never fire. In order to assist in testing TGE.GameViewableCallback features like impression tracking,
