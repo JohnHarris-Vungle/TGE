@@ -8,25 +8,61 @@ TGE.Game.prototype._mServerRequests = {};
 /** @ignore */
 TGE.Game.ServerMode = "POST";
 
+TGE.Game.prototype.accumulatorIncrement = function(index, value, callback)
+{
+    var requestObj = {
+        index: index,
+        value: value
+    };
+    this._accumulatorRequest("increment", requestObj, callback);
+}
+
+TGE.Game.prototype.accumulatorGetTotals = function(callback)
+{
+    var requestObj = {
+
+    };
+    this._accumulatorRequest("getTotals", requestObj, callback);
+}
+
+TGE.Game.prototype._accumulatorRequest = function(type, requestObj, callback)
+{
+    // If we don't have a creative ID then return an empty result (probably a local environment)
+    if (!window._TRESETTINGS)
+    {
+        TGE.Debug.Log(TGE.Debug.LOG_WARNING, "accumulator server requests will not work locally");
+
+        if(typeof(callback)==="function")
+        {
+            callback.call(null, {
+                "success": true,
+                "result": {}
+            });
+        }
+        return;
+    }
+
+    // Add the creative ID to the request object
+    requestObj.creativeId = _TRESETTINGS.gameId;
+
+    this.serverRequest(type, requestObj, callback, 5, true);
+}
+
 /**
  * Communicates with the game server for game specific services such as leaderboards.
- * @param {String} gameId An id used to identify the game to the server.
+ * @param {String} servletId An id used to identify the game to the server.
  * @param {Object} requestObj An object defining the properties of the request. Must contain a 'request' parameter and a 'version' parameter.
  * @param {Function} callback The callback function that will be called with the server response.
  * @param {Number} [timeout=8] An optional timeout value (in seconds) to wait before the server requested is considered to have failed.
  */
-TGE.Game.prototype.serverRequest = function(gameId,requestObj,callback,timeout)
+TGE.Game.prototype.serverRequest = function(servletId, requestObj, callback, timeout, accumulatorRequest)
 {
     // Enforce a callback
     callback = typeof(callback)=="function" ? callback : function(){};
 
     // Start off with a bunch of dummy-proof error checking
     var errorMessage = null;
-    if(!window.GameConfig || typeof(GameConfig.PROD_ENV)==="undefined")
-    {
-        errorMessage = "game is missing GameConfig or PROD_ENV flag";
-    }
-    else if(typeof(gameId)!=="string" || typeof(requestObj)!=="object")
+    if(typeof(servletId)!=="string" || typeof(requestObj)!=="object")
     {
         errorMessage = "invalid arguments";
     }
@@ -48,13 +84,17 @@ TGE.Game.prototype.serverRequest = function(gameId,requestObj,callback,timeout)
         return;
     }
 
+    // Figure out what environment we're in (dev/prod/local)
+    var dev = window.TreSensa ? TreSensa.Playable.onDevServer() : false;
+
+    // Which server are we talking to?
+    var server = accumulatorRequest ? "accumulators" : "brandgame";
+
     // Only production deployments will hit the production server
-    var endpoint = GameConfig.PROD_ENV ?
-        "https://brandgame.tresensa.com/" :
-        "https://brandgame-dev.tresensa.com/";
+    var endpoint = "https://" + server + (dev ? "-dev" : "") + ".tresensa.com/";
 
     // Append the servlet endpoint
-    endpoint += gameId;
+    endpoint += servletId;
 
     // Determine the timeout (specified in seconds)
     timeout = typeof(timeout)==="number" && timeout>0.1 ? timeout*1000 : 8000;
