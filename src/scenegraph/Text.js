@@ -655,19 +655,19 @@ TGE.Text.prototype =
 
 			if(this.vAlign==="top")
 			{
-				var textMetrics = canvasContext.measureText(this._mLines[0]);
+				var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[0]);
 				y = textMetrics.actualBoundingBoxAscent;
 			}
 			else if(this.vAlign==="middle")
 			{
 				var height = (this._mLines.length - 1) * this._mLineHeight;
-				var textMetrics = canvasContext.measureText(this._mLines[this._mLines.length - 1]);
+				var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[this._mLines.length - 1]);
 				y = (-height / 2) + textMetrics.actualBoundingBoxAscent / 2;
 			}
 			else if(this.vAlign==="bottom")
 			{
 				var height = (this._mLines.length - 1) * this._mLineHeight;
-				var textMetrics = canvasContext.measureText(this._mLines[this._mLines.length - 1]);
+				var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[this._mLines.length - 1]);
 				height += textMetrics.actualBoundingBoxDescent;
 				y = -height;
 			}
@@ -696,6 +696,80 @@ TGE.Text.prototype =
 				canvasContext.lineJoin = "miter";
 			}
 		}
+	},
+
+	/** @ignore */
+	measureTextAdvanced: function(canvasContext, text)
+	{
+		// We use this function when we need actualBoundingBoxAscent and actualBoundingBoxDescent
+
+		// See if we get it natively, that's the best case
+		var metrics = canvasContext.measureText(text);
+
+		// Test whether we have everything we need
+		if (false)//text !== "Play again")//typeof metrics.actualBoundingBoxAscent === "number" && typeof metrics.actualBoundingBoxDescent === "number")
+		{
+			return metrics;
+		}
+
+		// We're going to need to calculate them manually...
+		var canvasWidth = Math.ceil(metrics.width);
+		var canvasHeight = this._mLineHeight * 2;
+
+		// Setup a canvas for rendering the characters to
+		var canvas = document.createElement("canvas");
+
+		canvas.width = canvasWidth;
+		canvas.height = canvasHeight;
+		var ctx = canvas.getContext('2d');
+
+		// Fill the canvas with white
+		ctx.beginPath();
+		ctx.rect(0, 0, canvasWidth, canvasHeight);
+		ctx.fillStyle = "white";
+		ctx.fill();
+
+		var drawX = Math.floor(canvasWidth / 2);
+		var drawY = Math.floor(canvasHeight / 2);
+		ctx.font = this.font;
+		ctx.fillStyle = "black";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "alphabetic";
+		ctx.fillText(text, drawX, drawY);
+
+		// Find the top and bottom of the text (instances of black as we scan top-down)
+		var top = drawX;
+		var bottom = drawY;
+
+		var imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+		for (var y = 0; y < canvasHeight; y++)
+		{
+			for (var x = 0; x < canvasWidth; x++)
+			{
+				var redIndex = y * (canvasWidth * 4) + x * 4;
+				if ((imageData.data[redIndex]) <= 100) // is black
+				{
+					// See if we extended any of our ranges
+					if (y < top)
+					{
+						top = y;
+					}
+					if (y > bottom)
+					{
+						bottom = y;
+					}
+				}
+			}
+		}
+
+		// Create a new object to return
+		var newMetrics = {
+			width: metrics.width,
+			actualBoundingBoxAscent: drawY - top,
+			actualBoundingBoxDescent: bottom - drawY
+		};
+
+		return newMetrics;
 	},
 
 	/** @ignore */
