@@ -29,6 +29,11 @@ TGE.SessionEndedCallback = null;
 TGE.StageReady = null;
 
 /**
+ * @ignore Track all the event listeners so we can do a remove all
+ */
+TGE.Game._sEventListeners = {};
+
+/**
  * Adds the specified TGE specific event listener function to the list of event listeners for the specified event type.
  * Internally the document object is used as the event target. Recognized types are tgeGameReady, tgeGameViewable, tgeStageReady, and tgeAssetListsLoaded.
  * @param {String} type A string representing the event type to listen for.
@@ -37,6 +42,13 @@ TGE.StageReady = null;
 TGE.Game.AddEventListener = function(type, listener)
 {
     document.addEventListener(type, listener);
+
+    // Track it
+    if (!TGE.Game._sEventListeners[type])
+    {
+        TGE.Game._sEventListeners[type] = [];
+    }
+    TGE.Game._sEventListeners[type].push(listener);
 
     // Check if any of them need to be fired right away
     var game = TGE.Game.GetInstance();
@@ -70,4 +82,19 @@ TGE.Game.AddEventListener = function(type, listener)
 TGE.Game.RemoveEventListener = function(type, listener)
 {
     document.removeEventListener(type, listener);
+}
+
+/**
+ * Clears all listeners for all TGE global events (tgeGameReady, tgeStageReady, tgeGameViewable, etc.)
+ */
+TGE.Game.RemoveAllListeners = function()
+{
+    // Remove all the tracked listeners
+    for (var type in TGE.Game._sEventListeners) {
+        TGE.Game._sEventListeners[type].forEach(function(listener) {
+            document.removeEventListener(type, listener);
+        });
+    }
+
+    TGE.Game._sEventListeners = {};
 }
