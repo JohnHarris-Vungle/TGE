@@ -1119,7 +1119,7 @@ TGE.DisplayObject.prototype =
 				this._mMouseDown = true;
 				this._mMouseDownX = event.x;
 				this._mMouseDownY = event.y;
-				this._mMouseDownTime = new Date();
+				this._mMouseDownTime = +new Date();
 				break;
 			case "mouseup":
 			case "mouseupoutside":
@@ -1136,7 +1136,7 @@ TGE.DisplayObject.prototype =
 			{
 				var dx = Math.abs(event.x - this._mMouseDownX) / majorAxis;
 				var dy = Math.abs(event.y - this._mMouseDownY) / majorAxis;
-				if (wasDown && new Date() - this._mMouseDownTime < TGE.CLICK_TIME * 1000 && dx < TGE.CLICK_DISTANCE_FRACTION && dy < TGE.CLICK_DISTANCE_FRACTION)
+				if (wasDown && +new Date() - this._mMouseDownTime < TGE.CLICK_TIME * 1000 && dx < TGE.CLICK_DISTANCE_FRACTION && dy < TGE.CLICK_DISTANCE_FRACTION)
 				{
 					event.type = "click";
 					this.handleEvent(event);
