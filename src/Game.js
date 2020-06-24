@@ -1108,6 +1108,12 @@ TGE.Game.prototype =
             return this.mCanvasDiv.parentNode.offsetWidth;
         }
 
+        // Applovin (note that even outside the Applovin DST we could still be in an Applovin container (ie: Lifestreet)
+        if(window.applovinMraid && applovinMraid.getMaxSize)
+        {
+            return applovinMraid.getMaxSize().width;
+        }
+
         // ironSource MRAID
         // PAN-1321 - the ironSource ad tester can often return undefined for width/height values here on iOS
         if(dst==="B0099" && window.mraid && mraid.getMaxSize && mraid.getMaxSize().width)
@@ -1124,7 +1130,7 @@ TGE.Game.prototype =
 
         if (dst==="B0119") { return document.body.clientWidth; }
         // JH: window.innerWidth/Height was returning bad values on Chrome iOS 10.3.2 (a mix of portrait innerWidth and landscape innerHeight)
-        if (window.innerWidth && (!TGE.BrowserDetect.oniOS || window.applovinMraid)) { return window.innerWidth; }
+        if (window.innerWidth && !TGE.BrowserDetect.oniOS) { return window.innerWidth; }
         if (document.documentElement && document.documentElement.clientWidth != 0) { return document.documentElement.clientWidth; }
         if (document.body) { return document.body.clientWidth; }
         return 0;
@@ -1143,6 +1149,12 @@ TGE.Game.prototype =
             return this.mCanvasDiv.parentNode.offsetHeight;
         }
 
+        // Applovin (note that even outside the Applovin DST we could still be in an Applovin container (ie: Lifestreet)
+        if(window.applovinMraid && applovinMraid.getMaxSize)
+        {
+            return applovinMraid.getMaxSize().height;
+        }
+
         // ironSource MRAID
         if(dst==="B0099" && window.mraid && mraid.getMaxSize && mraid.getMaxSize().height)
         {
@@ -1156,7 +1168,7 @@ TGE.Game.prototype =
         }
         
         if (dst==="B0119") { return document.body.clientHeight; }
-        if (window.innerWidth && (!TGE.BrowserDetect.oniOS || window.applovinMraid)) { return window.innerHeight; }
+        if (window.innerWidth && !TGE.BrowserDetect.oniOS) { return window.innerHeight; }
         if (document.documentElement && document.documentElement.clientHeight != 0) { return document.documentElement.clientHeight; }
         if (document.body) { return document.body.clientHeight; }
         return 0;
