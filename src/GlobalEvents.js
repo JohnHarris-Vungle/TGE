@@ -81,6 +81,12 @@ TGE.Game.AddEventListener = function(type, listener)
  */
 TGE.Game.RemoveEventListener = function(type, listener)
 {
+    // Sometimes undefined gets passed in by sloppy game code
+    if (!listener)
+    {
+        return;
+    }
+
     document.removeEventListener(type, listener);
 
     // Remove it from our tracked list
