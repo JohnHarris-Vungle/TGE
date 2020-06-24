@@ -51,6 +51,9 @@ TGE.Game = function()
 	this._mAdInactivityTimer = 0;
     this._mCompletionCount = 0;
 
+    // Final game score (if applicable)
+    this._mFinalScore = null;
+
     // Ensure that GameConfig and GameConfig.REMOTE_SETTINGS exist
 	window.GameConfig = window.GameConfig || {};
 	GameConfig.REMOTE_SETTINGS = GameConfig.REMOTE_SETTINGS || {};
@@ -318,6 +321,30 @@ TGE.Game.prototype =
 		// Set the language for the TGE.Text lookups
 		TGE.Text.Language = lang;
 	},
+
+    /**
+     * Sets the final score achieved by the player in the game.
+     * @param {Number} score The score achieved by the player at the end of the game.
+     */
+    setFinalScore: function(score)
+    {
+        this._mFinalScore = score;
+    },
+
+    /**
+     * Retrives the final score achieved by the player in the game (if applicable).
+     * @returns {null|Number} The final score achieved by the player, or null if none was set.
+     */
+    getFinalScore: function()
+    {
+        // If a score hasn't been formally set, see if we can find it in the PromoBuilder
+        if (this._mFinalScore === null && window.PromoBuilder && typeof PromoBuilder._sInstance.score === "number")
+        {
+            return PromoBuilder._sInstance.score;
+        }
+
+        return this._mFinalScore;
+    },
 
     /**
      * Returns the language code that TGE is using to try and fulfill any language specific text or assets.
