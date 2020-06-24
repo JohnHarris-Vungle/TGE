@@ -338,7 +338,8 @@ TGE.Game.prototype =
     getFinalScore: function()
     {
         // If a score hasn't been formally set, see if we can find it in the PromoBuilder
-        if (this._mFinalScore === null && window.PromoBuilder && typeof PromoBuilder._sInstance.score === "number")
+        if (this._mFinalScore === null && window.PromoBuilder && PromoBuilder._sInstance &&
+            typeof PromoBuilder._sInstance.score === "number")
         {
             return PromoBuilder._sInstance.score;
         }
