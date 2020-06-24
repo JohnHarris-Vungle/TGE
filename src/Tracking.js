@@ -14,8 +14,9 @@ TGE.Tracking = function()
     }
     TGE.Tracking._sTrackingInstance = this;
 
-    // Read in any tracking URLs that are handed in via the ad container
-    if(window.TreSensa)
+    // Read in any tracking URLs that are handed in via the ad container. Only use this if the ad container
+    // tracking code doesn't exist.
+    if(window.TreSensa && !TreSensa.Playable.fireTrackingUrls)
     {
         var trackingUrls = TreSensa.Playable.getSetting("trackingUrls");
         if(trackingUrls)
@@ -55,11 +56,15 @@ TGE.Tracking = function()
         }
     }
 
+    // Enable the deprecation warning now that we've processed the tracking URLs passed in by the ad container.
+    TGE.Tracking._sDeprecationEnabled = true;
+
     return this;
 }
 
 /** @ignore */
 TGE.Tracking._sTrackingInstance = null;
+TGE.Tracking._sDeprecationEnabled = false;
 
 /** @ignore */
 TGE.Tracking._sfireOnImpressionUrls = [];
@@ -78,13 +83,24 @@ TGE.Tracking._sSupportedMacroFormats = [
     {open:"[", close:"]"}
 ];
 
+/** @ignore */
+TGE.Tracking.DeprecationEnabled = function()
+{
+    if(TGE.Tracking._sDeprecationEnabled)
+    {
+        TGE.Debug.Log(TGE.Debug.LOG_WARNING, "TGE.Tracking URLs can no longer be set in game code");
+    }
+
+    return TGE.Tracking._sDeprecationEnabled;
+}
+
 /**
  * Stores the specified url (or campaignID url bundle) so that it can be called later when the Impression event happens.
  * @param {String} url The url or campaignID url bundle that should be called when the Impression event happens.
  */
 TGE.Tracking.FireOnGameViewable = function(url)
 {
-    if(typeof(url)==="string" || typeof(url)==="object")
+    if(!TGE.Tracking.DeprecationEnabled() && (typeof(url)==="string" || typeof(url)==="object"))
     {
         TGE.Tracking._sfireOnImpressionUrls.push(url);
     }
@@ -101,7 +117,7 @@ TGE.Tracking.FireOnImpression = TGE.Tracking.FireOnGameViewable;
  */
 TGE.Tracking.FireOnInteraction = function(url)
 {
-    if(typeof(url)==="string" || typeof(url)==="object")
+    if(!TGE.Tracking.DeprecationEnabled() && (typeof(url)==="string" || typeof(url)==="object"))
     {
         TGE.Tracking._sfireOnInteractionUrls.push(url);
     }
@@ -113,7 +129,7 @@ TGE.Tracking.FireOnInteraction = function(url)
  */
 TGE.Tracking.FireOnEngagement = function(url)
 {
-    if(typeof(url)==="string" || typeof(url)==="object")
+    if(!TGE.Tracking.DeprecationEnabled() && (typeof(url)==="string" || typeof(url)==="object"))
     {
         TGE.Tracking._sfireOnEngagementUrls.push(url);
     }
@@ -123,8 +139,10 @@ TGE.Tracking.FireOnEngagement = function(url)
  * Stores the specified url (or campaignID url bundle) so that it can be called later when the Completion event happens. Completion event happens on TGE.PromoScreen appear.
  * @param {String} url The url or campaignID url bundle that should be called when the Completion event happens.
  */
-TGE.Tracking.FireOnCompletion = function (url) {
-    if (typeof(url) === "string" || typeof(url) === "object") {
+TGE.Tracking.FireOnCompletion = function (url)
+{
+    if(!TGE.Tracking.DeprecationEnabled() && (typeof(url)==="string" || typeof(url)==="object"))
+    {
         TGE.Tracking._sfireOnCompletionUrls.push(url);
     }
 }
@@ -136,7 +154,7 @@ TGE.Tracking.FireOnCompletion = function (url) {
  */
 TGE.Tracking.FireOnClickThrough = function(name, url)
 {
-    if (typeof(name)==="string" && (typeof(url)==="string" || typeof(url)==="object"))
+    if(!TGE.Tracking.DeprecationEnabled() && (typeof(name)==="string" && (typeof(url)==="string" || typeof(url)==="object")))
     {
         if (!TGE.Tracking._sfireOnClickThroughUrls[name])
         {
@@ -154,7 +172,7 @@ TGE.Tracking.FireOnClickThrough = function(name, url)
  */
 TGE.Tracking.FireOnCustomEvent = function(name, url)
 {
-    if (typeof(name)==="string" && (typeof(url)==="string" || typeof(url)==="object"))
+    if(!TGE.Tracking.DeprecationEnabled() && (typeof(name)==="string" && (typeof(url)==="string" || typeof(url)==="object")))
     {
         if (!TGE.Tracking._sfireOnCustomEventUrls[name])
         {
@@ -175,6 +193,12 @@ TGE.Tracking.prototype =
      */
     trackEvent: function(category, name)
     {
+        // See if the tracking URL code is active in the ad container. If so, we're not going to use TGE.Tracking.
+        if (window.TreSensa && TreSensa.Playable.fireTrackingUrls)
+        {
+            return;
+        }
+
         var eventKey = category + (name ? (" " + name) : "");
 
         // Have we already fired tracking for this event?
