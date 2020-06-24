@@ -1821,7 +1821,7 @@ TGE.Game.prototype =
     _update: function()
     {
 	    // PAN-527 If the game is halted, do NOTHING.
-	    if(this.halt)
+	    if (this.halt)
 	    {
 		    // Still need to continue the RAF loop...
 		    requestAnimationFrame(this._update.bind(this));
@@ -1829,21 +1829,31 @@ TGE.Game.prototype =
 	    }
 
 	    // Calculate the elapsed time since the last update
-	    var elapsedTime = (this._mThisLoop = new Date) - this._mLastLoop;
+	    var elapsedTime = (this._mThisLoop = new Date().getTime()) - this._mLastLoop;
 	    this._mFrameTime += (elapsedTime - this._mFrameTime) / this._mFilterStrength;
 	    this._mLastLoop = this._mThisLoop;
 
-        if(this._mUpdateSkips>0)
-        {
-            if(this._mUpdateSkips-- > 0)
-            {
-	            requestAnimationFrame(this._update.bind(this));
-	            return;
-            }
-        }
-	    this._mUpdateSkips = this.slowMotion;
+	    if (this._mUpdateSkips < 0)
+	    {
+	    	// used for video recording, and allows for deferring the _doUpdate() call until after the video frame is ready
+	    	return;
+	    }
 
-        // Hack - intentionally slow down the framerate for testing
+	    if (this._mUpdateSkips > 0)
+	    {
+		    if (this._mUpdateSkips-- > 0)
+		    {
+			    requestAnimationFrame(this._update.bind(this));
+			    return;
+		    }
+	    }
+	    this._mUpdateSkips = this.slowMotion;
+	    this._doUpdate();
+    },
+
+	_doUpdate: function()
+	{
+		// Hack - intentionally slow down the framerate for testing
         //var start = new Date().getTime();
         //var delay = 22;
         //while (new Date().getTime() < start + delay);
