@@ -1887,10 +1887,10 @@ TGE.Game.prototype =
 		    }
 	    }
 	    this._mUpdateSkips = this.slowMotion;
-	    this._doUpdate();
+	    this._doUpdate(elapsedTime);
     },
 
-	_doUpdate: function()
+	_doUpdate: function(elapsedTime)
 	{
 		// Hack - intentionally slow down the framerate for testing
         //var start = new Date().getTime();
