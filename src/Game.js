@@ -1023,8 +1023,8 @@ TGE.Game.prototype =
                 TGE.GameViewableCallback.call();
             }
 
-            // PAN-807 ironSource doesn't have a valid viewport size until mraid viewable (Snapchat is potentially weird too)
-            if(this._mSnapchatSession)
+            // Some platforms don't have a valid viewport size until the ad is viewable
+            if(window.applovinMraid || this._mSnapchatSession)
             {
                 this._resizeViewport();
             }
@@ -1217,9 +1217,9 @@ TGE.Game.prototype =
     /** @ignore */
     mraidResized: function(width, height)
     {
-        // IronSource relies on mraid.getMaxSize() or dapi.getScreenSize() for the correct viewport size, and those
-        // values aren't set in time for the browser resize event. Instead we need to trigger it from the mraid.sizeChanged event.
-        if(getDistributionPartner()==="B0099" || getDistributionPartner()==="B0159")
+        // Some platforms work better using the MRAID sized changed event. The new dimensions aren't always
+        // available until this is fired.
+        if(window.applovinMraid || getDistributionPartner()==="B0099" || getDistributionPartner()==="B0159")
         {
             this._resizeViewport();
         }
