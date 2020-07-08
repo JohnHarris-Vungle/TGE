@@ -348,7 +348,7 @@ TGE.WebAudioAPIPlugin.SoundInstance.prototype =
 		{
 			this.pause();
 			this._mPausedAt = offset;
-			this.play();
+			this.play(this._mVolume,this._mLoop);
 		}
 	},
 
