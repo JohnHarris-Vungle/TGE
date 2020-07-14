@@ -85,6 +85,27 @@ TGE.DeepClone = function (sourceObject, keyObject)
 	}
 };
 
+/**
+ * Copy properties of one object to another, cloning all internal objects and arrays
+ * Optionally can specify a secondary object to base the top-level iteration keys from (typically, a subset of the complete object)
+ * @param {Object} sourceObject
+ * @param {Object} destObject
+ * @param {Object} [keyObject]
+ * @returns {Object}
+ */
+TGE.DeepCopy = function (sourceObject, destObject, keyObject)
+{
+	if (!keyObject) keyObject = sourceObject;
+
+	for (var key in keyObject)
+	{
+		if (keyObject.hasOwnProperty(key))
+		{
+			destObject[key] = TGE.DeepClone(sourceObject[key]);
+		}
+	}
+};
+
 //
 // stubs for lower-case named versions of static functions
 //
