@@ -43,7 +43,7 @@ TGE.NoAudio.prototype =
 };
 
 /** @ignore */
-TGE.NoAudioLoader = function(id, url, url2, tags, priority) {
+TGE.NoAudioLoader = function(id, url, url2) {
 	this.loader = null;
 	this.complete = false;
 

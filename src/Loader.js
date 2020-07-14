@@ -54,11 +54,6 @@ TGE.Loader = function(settings) {
     // add an entry to the list of resources to be loaded
     this.add = function(resource) {
 
-        // ensure priority is set
-        if (resource.priority == null) {
-            resource.priority = Infinity;
-        }
-
         entries.push({
             resource: resource,
             state: ResourceState.QUEUED

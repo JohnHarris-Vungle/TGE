@@ -50,6 +50,10 @@ TGE.AssetLoader.prototype = {
         {
             newAsset = loader.addJavascript(url, null, null);
         }
+        else if(extension === "json")
+        {
+            newAsset = loader.addJSON(url, null, null);
+        }
         else if(extension === "mp4")
         {
             newAsset = loader.addVideo(url, asset);
@@ -342,17 +346,13 @@ TGE.AssetLoader.prototype = {
  * Font Loading
  * @ignore
  */
-TGE.FontLoader = function(id, url, tags, priority)
+TGE.FontLoader = function(id, url)
 {
 	this.loader = null;
 	this.font = null;
 	this.id = id;
 	this.url = url;
 	this.pollCount = 0;
-
-	// used by the loader to categorize and prioritize
-	this.tags = tags;
-	this.priority = priority;
 
 	// called by TGE.Loader to trigger download
 	/** @ignore */
@@ -518,16 +518,12 @@ TGE.FontLoader = function(id, url, tags, priority)
  * Javascript Loading
  * @ignore
  */
-TGE.ScriptLoader = function(url, tags, priority)
+TGE.ScriptLoader = function(url)
 {
 	this.loader = null;
 	this.scriptNode = null;
 	this.url = url;
 	this.pollCount = 0;
-
-	// used by the loader to categorize and prioritize
-	this.tags = tags;
-	this.priority = priority;
 
 	this.scriptLoaded = function()
 	{
@@ -609,6 +605,86 @@ TGE.ScriptLoader = function(url, tags, priority)
 		return this.url;
 	}
 }
+/**
+ * JSON Loading
+ * @ignore
+ */
+TGE.JSONLoader = function(url)
+{
+	this.loader = null;
+	this.json = {};
+	this.url = url;
+	this.pollCount = 0;
+
+	// called to trigger download
+	this.start = function(loader)
+	{
+		// we need the loader ref so we can notify upon completion
+		this.loader = loader;
+
+		// Check if we're loading as inlined assets
+		if (window._TREJSON)
+		{
+			var parts = this.url.split("/");
+			var filename = parts[parts.length-1];
+			var json = _TREJSON[filename];
+			if (json)
+			{
+				this.jsonData(json);
+			}
+			else
+			{
+				this.loader.onError(this);
+			}
+		}
+		else
+		{
+			var self = this;
+			fetch(url)
+				.then(function(response) {
+					return response.json();
+				})
+				.then(self.jsonData.bind(self))
+				.catch(function(error) {
+					TGE.Debug.Log(TGE.Debug.LOG_ERROR, error);
+					self.loader.onError(self);
+				});
+		}
+	};
+
+	this.jsonData = function(data)
+	{
+		TGE.DeepCopy(data, this.json);
+		this.loader.onLoad(this);
+	};
+
+	// called to check status of image (fallback in case
+	// the event listeners are not triggered).
+	/** @ignore */
+	this.checkStatus = function()
+	{
+		if(this.pollCount >= 3) {
+			this.loader.onTimeout(this);
+			return;
+		}
+
+		this.pollCount++;
+	};
+
+	// called when it is no longer waiting
+	/** @ignore */
+	this.onTimeout = function() {
+		// must report a status to the loader: load, error, or timeout
+		this.loader.onTimeout(this);
+	};
+
+	// returns a name for the resource that can be used in logging
+	/** @ignore */
+	this.getName = function()
+	{
+		return this.url;
+	}
+}
 
 
 if(typeof(TGE.Loader)==="function")
@@ -623,6 +699,12 @@ if(typeof(TGE.Loader)==="function")
 		var fontLoader = new TGE.FontLoader(family);
 		this.add(fontLoader);
 		return fontLoader.font;
+	};
+
+	TGE.Loader.prototype.addJSON = function(url) {
+		var jsonLoader = new TGE.JSONLoader(url);
+		this.add(jsonLoader);
+		return jsonLoader.json;
 	};
 
 	TGE.Loader.prototype.addJavascript = function(url) {

@@ -1,14 +1,10 @@
 /** @ignore */
-TGE.WebAudioLoader = function(id, url, url2, tags, priority)
+TGE.WebAudioLoader = function(id, url, url2)
 {
 	this.loader = null;
 	this.audio = {};
 	this.id = id;
 	this.pollCount = 0;
-
-	// used by the loader to categorize and prioritize
-	this.tags = tags;
-	this.priority = priority;
 
     // PAN-1363 We always want to load the mp3 version now, so if the backup url ends in .mp3, use that instead
     if (url2 && url2.indexOf(".mp3") === url2.length - 4)
