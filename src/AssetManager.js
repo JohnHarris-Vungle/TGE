@@ -700,8 +700,10 @@ TGE.AssetManager.prototype =
 	 */
     addAssets: function(assetListName,assetArray)
     {
-        this._verifyAssetListExists(assetListName);
-        this._mAssetLists[assetListName].list = this._mAssetLists[assetListName].list.concat(assetArray);
+        for (var i = 0; i < assetArray.length; ++i)
+        {
+            this.addAsset(assetListName, assetArray[i]);
+        }
     },
 
 	/**
@@ -712,6 +714,10 @@ TGE.AssetManager.prototype =
     addAsset: function(assetListName,assetObj)
     {
 	    this._verifyAssetListExists(assetListName);
+        if (!assetObj.id && assetObj.url)
+        {
+            assetObj.id = trimmedFilename(assetObj.url);
+        }
         this._mAssetLists[assetListName].list.push(assetObj);
     },
 
