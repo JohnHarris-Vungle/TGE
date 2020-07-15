@@ -734,7 +734,8 @@ TGE.Game.prototype =
      */
     timeSinceLastInteraction: function()
     {
-        return ((new Date().getTime())-this._mLastInteraction)/1000;
+    	// PAN-1508 return 0 if there have been no interactions, and otherwise ensure a >0 result
+        return this._mNumInteractions ? Math.max(Number.MIN_VALUE, ((new Date().getTime())-this._mLastInteraction)/1000) : 0;
     },
 
     /**
