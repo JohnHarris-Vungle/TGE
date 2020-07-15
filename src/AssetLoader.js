@@ -52,6 +52,10 @@ TGE.AssetLoader.prototype = {
         }
         else if(extension === "json")
         {
+	        if (asset.id !== trimmedFilename(url))
+	        {
+		        TGE.Debug.Log(TGE.Debug.LOG_ERROR, "id field not supported for JSON asssets");
+	        }
             newAsset = loader.addJSON(url, null, null);
         }
         else if(extension === "mp4")
