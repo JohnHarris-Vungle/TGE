@@ -35,20 +35,20 @@ TGE.AssetLoader.prototype = {
         {
             if(loadAudio)
             {
-                newAsset = loader.addAudio(asset.id, url, root+asset.backup_url, null, null);
+                newAsset = loader.addAudio(asset.id, url, root+asset.backup_url);
             }
         }
         else if(asset.googleFamilies)
         {
-            newAsset = loader.addGoogleFonts(asset.googleFamilies, null, null);
+            newAsset = loader.addFont(asset.googleFamilies);
         }
         else if(asset.assetType === "font" || extension==="ttf" || extension==="woff" || extension==="woff2" || extension==="otf")
         {
-            newAsset = loader.addFont(asset.id, url, null, null);
+            newAsset = loader.addFont(asset.id, url);
         }
         else if(extension === "js")
         {
-            newAsset = loader.addJavascript(url, null, null);
+            newAsset = loader.addJavascript(url);
         }
         else if(extension === "json")
         {
@@ -56,7 +56,7 @@ TGE.AssetLoader.prototype = {
 	        {
 		        TGE.Debug.Log(TGE.Debug.LOG_ERROR, "id field not supported for JSON asssets");
 	        }
-            newAsset = loader.addJSON(url, null, null);
+            newAsset = loader.addJSON(url);
         }
         else if(extension === "mp4")
         {
@@ -695,12 +695,6 @@ if(typeof(TGE.Loader)==="function")
 {
 	TGE.Loader.prototype.addFont = function(id, url) {
 		var fontLoader = new TGE.FontLoader(id, url);
-		this.add(fontLoader);
-		return fontLoader.font;
-	};
-
-	TGE.Loader.prototype.addGoogleFonts = function(family) {
-		var fontLoader = new TGE.FontLoader(family);
 		this.add(fontLoader);
 		return fontLoader.font;
 	};
