@@ -76,7 +76,6 @@ TGE.Game = function()
     this._mFullStage = null; // The private true stage
     this.assetManager = new TGE.AssetManager();
 	if (TGE.AudioManager) this.audioManager = new TGE.AudioManager(this.assetManager);
-    this.tracking = new TGE.Tracking();
 	this._mUnmuteOnActivate = false;
 
     this.onLoad = null;
@@ -1011,9 +1010,6 @@ TGE.Game.prototype =
 
             // Fire the game viewable analytic events
             TGE.Events.logGameViewable();
-
-            // Notify TGE.Tracking that the game was made viewable
-            this.tracking.trackEvent("impression");
 
             document.dispatchEvent(new Event("tgeGameViewable"));
 

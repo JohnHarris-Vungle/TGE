@@ -37,9 +37,6 @@ TGE.Events =
             TreSensa.Playable.interaction();
         }
 
-        // Tracking pixels
-        TGE.Game.GetInstance().tracking.trackEvent("engagement", "primary");
-
         // Hack to deal with the fact that at least one game (Bud Light 2018) was relying on TGS.Analytics.engagementTime
         if(window.TGS)
         {
@@ -61,9 +58,6 @@ TGE.Events =
             {
                 TreSensa.Playable.engagement();
             }
-
-            // Tracking pixels
-            TGE.Game.GetInstance().tracking.trackEvent("engagement", "secondary");
         }
     },
 
@@ -83,12 +77,6 @@ TGE.Events =
         var game = TGE.Game.GetInstance();
 
         game._mCompletionCount++;
-
-        // Tell TGE.Tracking to fire any urls hooked to completion (only once!)
-        if (game._mCompletionCount==1)
-        {
-            game.tracking.trackEvent("completion");
-        }
 
         // TreSensa event
         if (this._notifyAdContainer())
@@ -137,9 +125,6 @@ TGE.Events =
 
 	    TGE.Debug.Log(TGE.Debug.LOG_INFO, "custom event triggered: " + name);
 
-        // Tracking pixels
-        TGE.Game.GetInstance().tracking.trackEvent("custom", name);
-
         // TreSensa event
         this._sendAdContainerEvent("custom", {
             name: name
@@ -171,17 +156,6 @@ TGE.Events =
 
     doClickthrough: function(label, url)
     {
-        // Pixel tracking
-        TGE.Game.GetInstance().tracking.trackEvent("clickthru", label);
-
-        // PAN-1428 Our default/primary click-through label is now "default", however it used to be "attribution".
-        // We will fire a tracking event for the attribution label just in case there is a legacy campaign where
-        // the label was specified as "attribution".
-        if (label==="default")
-        {
-            TGE.Game.GetInstance().tracking.trackEvent("clickthru", "attribution");
-        }
-        
         if (window.TreSensa)
         {
             // Send the click to the ad container
