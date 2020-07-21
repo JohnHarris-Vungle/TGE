@@ -700,6 +700,7 @@ TGE.AssetManager.prototype =
 	 */
     addAssets: function(assetListName,assetArray)
     {
+        this._verifyAssetListExists(assetListName);
         for (var i = 0; i < assetArray.length; ++i)
         {
             this.addAsset(assetListName, assetArray[i]);
