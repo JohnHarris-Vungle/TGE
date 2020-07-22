@@ -999,8 +999,13 @@ TGE.Game.prototype =
         {
             this._mGameViewableReceived = true;
 
-            // Fire the game viewable analytic events
-            TGE.Events.logGameViewable();
+            // The game should not be determining when to fire the game_viewable event, this should
+            // be the responsibility of the ad container. But in order to maintain a seamless fix we'll check if the
+            // ad container has the updated code, else still fire it from here.
+            if (window.TreSensa && TreSensa.Snapchat) // Ugly hack to determine what version of ad container is running
+            {
+                TGE.Events.logGameViewable();
+            }
 
             document.dispatchEvent(new Event("tgeGameViewable"));
 
@@ -1739,9 +1744,10 @@ TGE.Game.prototype =
             // Game is considered to be in a ready and user viewable state as soon as the first "required" asset list has loaded
             document.dispatchEvent(new Event("tgeGameReady"));
 
+            var inAdContainer = window.TreSensa && TreSensa.sessionID;
             if(this._mTestGameViewable > 0)
             {
-                if(window.TreSensa && TreSensa.sessionID)
+                if(inAdContainer)
                 {
                     TGE.Debug.Log(TGE.Debug.LOG_ERROR, "the testgameviewable parameter is not supported in production");
                 }
@@ -1750,10 +1756,9 @@ TGE.Game.prototype =
                     setTimeout(this.gameMadeViewable.bind(this), this._mTestGameViewable * 1000);
                 }
             }
-            // PAN-835 - if the game is not running in an MRAID ad container then the game viewable event will
-            // never fire. In order to assist in testing TGE.GameViewableCallback features like impression tracking,
-            // we'll make this callback fire now when MRAID isn't detected.
-            else if(!window.mraid && !window.dapi)
+            // Outside of the ad container environment we can safely signal viewability now, as we'll never get
+            // notification from the ad container.
+            else if(!inAdContainer)
             {
                 this.gameMadeViewable();
             }

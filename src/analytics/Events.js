@@ -196,18 +196,6 @@ TGE.Events =
 /** @ignore */
 TGE.Analytics = {};
 
-/** @ignore */
-TGE.Analytics.GameViewable = function()
-{
-    TGE.Events.logGameViewable.call(TGE.Events);
-}
-
-/** @ignore */
-TGE.Analytics.Interaction = function()
-{
-    TGE.Events.logInteraction.call(TGE.Events);
-}
-
 /**
  * Make this call when a user first definitively engages with a game.
  */
