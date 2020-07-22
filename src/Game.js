@@ -46,7 +46,6 @@ TGE.Game = function()
     this._mNumInteractions = 0;
     this._mLastInteraction = new Date().getTime();
 	this._mGameViewableReceived = false;
-    this._mGameViewablePending = false;
 	this._mAdInactivityTimeLimit = 0;
 	this._mAdInactivityTimer = 0;
     this._mCompletionCount = 0;
@@ -996,17 +995,9 @@ TGE.Game.prototype =
     /** @ignore */
     gameMadeViewable: function()
     {
-        // PAN-842 - don't consider the game viewable if the page is hidden/inactive (only on Snapchat for now)
-        if(this._mSnapchatSession && !this._mActive)
-        {
-            this._mGameViewablePending = true;
-            return;
-        }
-
         if(!this._mGameViewableReceived)
         {
             this._mGameViewableReceived = true;
-            this._mGameViewablePending = false;
 
             // Fire the game viewable analytic events
             TGE.Events.logGameViewable();
@@ -1605,12 +1596,6 @@ TGE.Game.prototype =
 
 		// Update the internal active state and send a corresponding event to the scene
 		this._active(true);
-
-        // If we had a game viewable notification that we suppressed because we were inactive, fire it now
-        if(this._mGameViewablePending)
-        {
-            this.gameMadeViewable();
-        }
 
 		// Un-mute the audio if we forced it off
 		if(this.audioManager && this._mUnmuteOnActivate)
