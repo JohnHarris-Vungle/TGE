@@ -302,7 +302,7 @@ TGE.Game.Hibernate = function(on)
 TGE.Game.prototype =
 {
 	halt: false,
-
+    _mPauseObject: null,
     _mViewportScale: 1,
 
 	/**
@@ -343,6 +343,40 @@ TGE.Game.prototype =
         }
 
         return this._mFinalScore;
+    },
+
+    pause: function()
+    {
+        if (this._mPauseObject)
+        {
+            // Already paused
+            return;
+        }
+
+        // Create an invisible update root that will suspend all game updates and video playback
+        this._mPauseObject = this._mFullStage.addChild(new TGE.DisplayObject());
+        this._mPauseObject.previousUpdateRoot = TGE.Game.GetUpdateRoot();
+        TGE.Game.SetUpdateRoot(this._mPauseObject);
+
+        // Pause any audio
+        this.audioManager.pause();
+    },
+
+    resume: function()
+    {
+        if (!this._mPauseObject)
+        {
+            // We're not paused
+            return;
+        }
+
+        // Restore the previous update root and remove the temporary pause object
+        TGE.Game.SetUpdateRoot(this._mPauseObject.previousUpdateRoot);
+        this._mPauseObject.markForRemoval();
+        this._mPauseObject = null;
+
+        // Resume any audio
+        this.audioManager.resume();
     },
 
     /**
