@@ -21,6 +21,7 @@ TGE.RemoteSettings._getDefaultAudioSetting = function ()
     var audioEnabled = false;
     switch ( getDistributionPartner () )
     {
+        case "B0119": // Vungle
         case "B0135": // Snapchat
         case "B0149": // Web links
         case "B0154": // Creative Builder
