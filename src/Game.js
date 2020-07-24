@@ -353,8 +353,12 @@ TGE.Game.prototype =
             return;
         }
 
-        // Create an invisible update root that will suspend all game updates and video playback
-        this._mPauseObject = this._mFullStage.addChild(new TGE.DisplayObject());
+        // Create an invisible update root that will suspend all game updates and video playback, and cover the screen
+        // to absorb any user input.
+        this._mPauseObject = this._mFullStage.addChild(new TGE.DisplayObject().setup({
+            layout: "match",
+            mouseEnabled: true
+        }));
         this._mPauseObject.previousUpdateRoot = TGE.Game.GetUpdateRoot();
         TGE.Game.SetUpdateRoot(this._mPauseObject);
 
