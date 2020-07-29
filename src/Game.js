@@ -1782,7 +1782,7 @@ TGE.Game.prototype =
             // Game is considered to be in a ready and user viewable state as soon as the first "required" asset list has loaded
             document.dispatchEvent(new Event("tgeGameReady"));
 
-            var inAdContainer = window.TreSensa && TreSensa.sessionID;
+            var inAdContainer = window.TreSensa && TreSensa.Playable.sessionID;
             if(this._mTestGameViewable > 0)
             {
                 if(inAdContainer)
