@@ -196,6 +196,13 @@ TGE.Events =
 /** @ignore */
 TGE.Analytics = {};
 
+/** @ignore */
+TGE.Analytics.Interaction = function()
+{
+    // There's a couple of games firing this for some reason, but they shouldn't be
+    TGE.Debug.Log(TGE.Debug.LOG_WARNING, "games should not be calling TGE.Analytics.Interaction");
+}
+
 /**
  * Make this call when a user first definitively engages with a game.
  */
