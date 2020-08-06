@@ -657,17 +657,25 @@ TGE.Game.prototype =
      */
     getAssetList: function (id)
     {
-        for (var listName in this.assetManager._mAssetLists)
-        {
-            var list = this.assetManager._mAssetLists[listName].list;
-            for (var i = 0; i < list.length; i++)
-            {
-	            if (list[i].id === id || (list[i].sheet && trimmedFilename(list[i].sheet) === id))
-                {
-                    return listName;
-                }
-            }
-        }
+    	if (id)
+	    {
+		    for (var listName in this.assetManager._mAssetLists)
+		    {
+			    var list = this.assetManager._mAssetLists[listName].list;
+			    for (var i = 0; i < list.length; i++)
+			    {
+				    if (list[i].id === id || (list[i].sheet && trimmedFilename(list[i].sheet) === id))
+				    {
+					    return listName;
+				    }
+			    }
+		    }
+	    }
+    	else
+	    {
+		    TGE.Debug.Log(TGE.Debug.LOG_WARNING, "attempting to check for a  null asset id");
+	    	return "required";
+	    }
     },
 
 	/** @ignore */
