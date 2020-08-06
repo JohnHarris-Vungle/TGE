@@ -701,9 +701,17 @@ TGE.AssetManager.prototype =
     addAssets: function(assetListName,assetArray)
     {
         this._verifyAssetListExists(assetListName);
-        for (var i = 0; i < assetArray.length; ++i)
+        if (Array.isArray(assetArray))
         {
-            this.addAsset(assetListName, assetArray[i]);
+            for (var i = 0; i < assetArray.length; ++i)
+            {
+                this.addAsset(assetListName, assetArray[i]);
+            }
+        }
+        else
+        {
+            // PAN-1518 some games used addAssets with a single asset, so just pass that through
+            this.addAsset(assetListName, assetArray);
         }
     },
 
