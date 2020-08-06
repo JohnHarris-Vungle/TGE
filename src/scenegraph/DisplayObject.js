@@ -553,12 +553,6 @@ TGE.DisplayObject.prototype =
                 this.scaleY *= (sy<0 ? -1 : 1);
             }
 
-			// Execute a custom function if provided
-			if(typeof layout.custom === "function")
-			{
-				this._executeLayoutFunction(layout.custom,event);
-			}
-
             // Match width / height
             if (typeof layout.matchWidth === "number")
             {
@@ -614,13 +608,26 @@ TGE.DisplayObject.prototype =
 	            }
 */
             }
+
+			// Execute a custom function if provided
+			if(typeof layout.custom === "function")
+			{
+				this._executeLayoutFunction(layout.custom,event);
+			}
 		}
 	},
 
 	/** @ignore */
 	_executeLayoutFunction: function(layout,event)
 	{
-		layout.call(this,event);
+		var returnedLayout = layout.call(this,event);
+/*
+		if (returnedLayout)
+		{
+			this._checkLayout(returnedLayout, "custom function");
+			this._resize(returnedLayout, event);
+		}
+*/
 	},
 
 	/** @ignore */
@@ -816,6 +823,25 @@ TGE.DisplayObject.prototype =
     },
 
 	/**
+	 * Returns true if this object is a descendant of the object specified.
+	 * @param {Object} object The object to search if descendant of.
+	 * @param {Boolean} [recursive=true] Whether or not to search children's children of the object.
+	 * @return {Boolean} Whether or not this object is a descendant of the object specified.
+	 */
+	isDescendantOf: function(object, recursive)
+	{
+		if (this === object)
+		{
+			return true;
+		}
+		if (recursive !== false && this.parent)
+		{
+			return this.parent.isDescendantOf(object, recursive);
+		}
+		return false;
+	},
+
+	/**
 	 * Returns whether the contents are currently cached.
 	 * DisplayObject has no children, and is thus never cached.
 	 * @returns {boolean}
@@ -997,8 +1023,11 @@ TGE.DisplayObject.prototype =
             }
         }
 
-	    // If we got here the listener wasn't found... log a warning
-	    TGE.Debug.Log(TGE.Debug.LOG_WARNING, "removeEventListener could not find listener specified for "+type+" event");
+	    // If we got here the listener wasn't found... log a warning, but only if outside the removal process.
+		if(!this._mMarkedForRemoval)
+		{
+			TGE.Debug.Log(TGE.Debug.LOG_WARNING, "removeEventListener could not find listener specified for "+type+" event");
+		}
     },
 
     /**
@@ -1090,7 +1119,7 @@ TGE.DisplayObject.prototype =
 				this._mMouseDown = true;
 				this._mMouseDownX = event.x;
 				this._mMouseDownY = event.y;
-				this._mMouseDownTime = new Date();
+				this._mMouseDownTime = +new Date();
 				break;
 			case "mouseup":
 			case "mouseupoutside":
@@ -1107,7 +1136,7 @@ TGE.DisplayObject.prototype =
 			{
 				var dx = Math.abs(event.x - this._mMouseDownX) / majorAxis;
 				var dy = Math.abs(event.y - this._mMouseDownY) / majorAxis;
-				if (wasDown && new Date() - this._mMouseDownTime < TGE.CLICK_TIME * 1000 && dx < TGE.CLICK_DISTANCE_FRACTION && dy < TGE.CLICK_DISTANCE_FRACTION)
+				if (wasDown && +new Date() - this._mMouseDownTime < TGE.CLICK_TIME * 1000 && dx < TGE.CLICK_DISTANCE_FRACTION && dy < TGE.CLICK_DISTANCE_FRACTION)
 				{
 					event.type = "click";
 					this.handleEvent(event);
@@ -1382,11 +1411,7 @@ TGE.DisplayObject.prototype =
 				this._mActions.splice(a,1);
 
 				// If there's no actions left, remove the listener
-				if(this._mActions.length===0 && typeof this._mActionsListener==="number")
-				{
-					this.removeEventListener("update",this._mActionsListener);
-					this._mActionsListener = null;
-				}
+				this._removeActionsListener();
 
 				return;
 			}
@@ -1414,7 +1439,17 @@ TGE.DisplayObject.prototype =
 		if(this._mActions.length > 0)
 		{
 			this._mActions = [];
-			this.removeEventListener("update", this._mActionsListener);
+			this._removeActionsListener();
+		}
+	},
+
+	/** @ignore */
+	_removeActionsListener: function()
+	{
+		// If there's no actions left, remove the listener
+		if(this._mActions.length===0 && typeof this._mActionsListener==="number")
+		{
+			this.removeEventListener("update",this._mActionsListener);
 			this._mActionsListener = null;
 		}
 	},
@@ -1581,11 +1616,7 @@ TGE.DisplayObject.prototype =
 		}
 
 		// If there's no actions left, remove the listener
-		if(this._mActions.length===0 && typeof this._mActionsListener==="number")
-		{
-			this.removeEventListener("update",this._mActionsListener);
-			this._mActionsListener = null;
-		}
+		this._removeActionsListener();
 	},
 
     /** @ignore */

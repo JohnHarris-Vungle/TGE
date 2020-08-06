@@ -5,6 +5,7 @@ TGE.GameStage = function(fullStage)
     this.stage = this;
 
     this._mFullStage = fullStage;
+    this._mRenderer = fullStage._mRenderer;
     this._mHeightRatio = 1.0; // 100%
 
     // This isn't really necessary for TGE.GameStage, but the SpineAnimation module was referencing it prior to the

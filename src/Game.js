@@ -46,10 +46,12 @@ TGE.Game = function()
     this._mNumInteractions = 0;
     this._mLastInteraction = new Date().getTime();
 	this._mGameViewableReceived = false;
-    this._mGameViewablePending = false;
 	this._mAdInactivityTimeLimit = 0;
 	this._mAdInactivityTimer = 0;
     this._mCompletionCount = 0;
+
+    // Final game score (if applicable)
+    this._mFinalScore = null;
 
     // Ensure that GameConfig and GameConfig.REMOTE_SETTINGS exist
 	window.GameConfig = window.GameConfig || {};
@@ -73,7 +75,6 @@ TGE.Game = function()
     this._mFullStage = null; // The private true stage
     this.assetManager = new TGE.AssetManager();
 	if (TGE.AudioManager) this.audioManager = new TGE.AudioManager(this.assetManager);
-    this.tracking = new TGE.Tracking();
 	this._mUnmuteOnActivate = false;
 
     this.onLoad = null;
@@ -301,7 +302,7 @@ TGE.Game.Hibernate = function(on)
 TGE.Game.prototype =
 {
 	halt: false,
-
+    _mPauseObject: null,
     _mViewportScale: 1,
 
 	/**
@@ -318,6 +319,69 @@ TGE.Game.prototype =
 		// Set the language for the TGE.Text lookups
 		TGE.Text.Language = lang;
 	},
+
+    /**
+     * Sets the final score achieved by the player in the game.
+     * @param {Number} score The score achieved by the player at the end of the game.
+     */
+    setFinalScore: function(score)
+    {
+        this._mFinalScore = score;
+    },
+
+    /**
+     * Retrives the final score achieved by the player in the game (if applicable).
+     * @returns {null|Number} The final score achieved by the player, or null if none was set.
+     */
+    getFinalScore: function()
+    {
+        // If a score hasn't been formally set, see if we can find it in the PromoBuilder
+        if (this._mFinalScore === null && window.PromoBuilder && PromoBuilder._sInstance &&
+            typeof PromoBuilder._sInstance.score === "number")
+        {
+            return PromoBuilder._sInstance.score;
+        }
+
+        return this._mFinalScore;
+    },
+
+    pause: function()
+    {
+        if (this._mPauseObject)
+        {
+            // Already paused
+            return;
+        }
+
+        // Create an invisible update root that will suspend all game updates and video playback, and cover the screen
+        // to absorb any user input.
+        this._mPauseObject = this._mFullStage.addChild(new TGE.DisplayObject().setup({
+            layout: "match",
+            mouseEnabled: true
+        }));
+        this._mPauseObject.previousUpdateRoot = TGE.Game.GetUpdateRoot();
+        TGE.Game.SetUpdateRoot(this._mPauseObject);
+
+        // Pause any audio
+        this.audioManager.pause();
+    },
+
+    resume: function()
+    {
+        if (!this._mPauseObject)
+        {
+            // We're not paused
+            return;
+        }
+
+        // Restore the previous update root and remove the temporary pause object
+        TGE.Game.SetUpdateRoot(this._mPauseObject.previousUpdateRoot);
+        this._mPauseObject.markForRemoval();
+        this._mPauseObject = null;
+
+        // Resume any audio
+        this.audioManager.resume();
+    },
 
     /**
      * Returns the language code that TGE is using to try and fulfill any language specific text or assets.
@@ -674,15 +738,6 @@ TGE.Game.prototype =
     },
 
     /**
-     * Indicates whether the game is a package build
-     * @returns {Boolean} Returns true if the game is a package build.
-     */
-    isPackageBuild: function ()
-    {
-        return window.TreSensa ? window.TreSensa.Playable.packagedBuild : false;
-    },
-
-    /**
      * Indicates whether the game is being played as an ad.
      * @returns {Boolean} Returns true if the game is being played as an ad, and false otherwise.
      */
@@ -715,7 +770,8 @@ TGE.Game.prototype =
      */
     timeSinceLastInteraction: function()
     {
-        return ((new Date().getTime())-this._mLastInteraction)/1000;
+    	// PAN-1508 return 0 if there have been no interactions, and otherwise ensure a >0 result
+        return this._mNumInteractions ? Math.max(Number.MIN_VALUE, ((new Date().getTime())-this._mLastInteraction)/1000) : 0;
     },
 
     /**
@@ -746,8 +802,6 @@ TGE.Game.prototype =
             case "mrec":    width = 300; height = 250;
                 break;
         }
-
-        this._sConfig = gameParameters;
 
         this.onLoad = typeof gameParameters.onLoad === "function" ? gameParameters.onLoad : this.onLoad;
 
@@ -967,7 +1021,10 @@ TGE.Game.prototype =
 		    }
 	    }
 
-        // Begin the asset loading process
+        // Begin the asset loading process. First we set the asset manager's root location. This is passed in
+        // by the ad container as it is platform dependent. Also note the concept of image vs audio roots is
+        // deprecated. This was only necessary years back for native packaging on CocoonJS.
+        this.assetManager._setRootLocation(gameParameters.imageRoot);
         this._beginLoad();
 
         return true;
@@ -976,23 +1033,17 @@ TGE.Game.prototype =
     /** @ignore */
     gameMadeViewable: function()
     {
-        // PAN-842 - don't consider the game viewable if the page is hidden/inactive (only on Snapchat for now)
-        if(this._mSnapchatSession && !this._mActive)
-        {
-            this._mGameViewablePending = true;
-            return;
-        }
-
         if(!this._mGameViewableReceived)
         {
             this._mGameViewableReceived = true;
-            this._mGameViewablePending = false;
 
-            // Fire the game viewable analytic events
-            TGE.Events.logGameViewable();
-
-            // Notify TGE.Tracking that the game was made viewable
-            this.tracking.trackEvent("impression");
+            // The game should not be determining when to fire the game_viewable event, this should
+            // be the responsibility of the ad container. But in order to maintain a seamless fix we'll check if the
+            // ad container has the updated code, else still fire it from here.
+            if (window.TreSensa && TreSensa.Snapchat) // Ugly hack to determine what version of ad container is running
+            {
+                TGE.Events.logGameViewable();
+            }
 
             document.dispatchEvent(new Event("tgeGameViewable"));
 
@@ -1003,8 +1054,8 @@ TGE.Game.prototype =
                 TGE.GameViewableCallback.call();
             }
 
-            // PAN-807 ironSource doesn't have a valid viewport size until mraid viewable (Snapchat is potentially weird too)
-            if(this._mSnapchatSession)
+            // Some platforms don't have a valid viewport size until the ad is viewable
+            if(window.applovinMraid || this._mSnapchatSession)
             {
                 this._resizeViewport();
             }
@@ -1116,6 +1167,12 @@ TGE.Game.prototype =
             return this.mCanvasDiv.parentNode.offsetWidth;
         }
 
+        // Applovin (note that even outside the Applovin DST we could still be in an Applovin container (ie: Lifestreet)
+        if(window.applovinMraid && applovinMraid.getMaxSize)
+        {
+            return applovinMraid.getMaxSize().width;
+        }
+
         // ironSource MRAID
         // PAN-1321 - the ironSource ad tester can often return undefined for width/height values here on iOS
         if(dst==="B0099" && window.mraid && mraid.getMaxSize && mraid.getMaxSize().width)
@@ -1132,7 +1189,7 @@ TGE.Game.prototype =
 
         if (dst==="B0119") { return document.body.clientWidth; }
         // JH: window.innerWidth/Height was returning bad values on Chrome iOS 10.3.2 (a mix of portrait innerWidth and landscape innerHeight)
-        if (window.innerWidth && (!TGE.BrowserDetect.oniOS || window.applovinMraid)) { return window.innerWidth; }
+        if (window.innerWidth && !TGE.BrowserDetect.oniOS) { return window.innerWidth; }
         if (document.documentElement && document.documentElement.clientWidth != 0) { return document.documentElement.clientWidth; }
         if (document.body) { return document.body.clientWidth; }
         return 0;
@@ -1151,6 +1208,12 @@ TGE.Game.prototype =
             return this.mCanvasDiv.parentNode.offsetHeight;
         }
 
+        // Applovin (note that even outside the Applovin DST we could still be in an Applovin container (ie: Lifestreet)
+        if(window.applovinMraid && applovinMraid.getMaxSize)
+        {
+            return applovinMraid.getMaxSize().height;
+        }
+
         // ironSource MRAID
         if(dst==="B0099" && window.mraid && mraid.getMaxSize && mraid.getMaxSize().height)
         {
@@ -1164,7 +1227,7 @@ TGE.Game.prototype =
         }
         
         if (dst==="B0119") { return document.body.clientHeight; }
-        if (window.innerWidth && (!TGE.BrowserDetect.oniOS || window.applovinMraid)) { return window.innerHeight; }
+        if (window.innerWidth && !TGE.BrowserDetect.oniOS) { return window.innerHeight; }
         if (document.documentElement && document.documentElement.clientHeight != 0) { return document.documentElement.clientHeight; }
         if (document.body) { return document.body.clientHeight; }
         return 0;
@@ -1185,9 +1248,9 @@ TGE.Game.prototype =
     /** @ignore */
     mraidResized: function(width, height)
     {
-        // IronSource relies on mraid.getMaxSize() or dapi.getScreenSize() for the correct viewport size, and those
-        // values aren't set in time for the browser resize event. Instead we need to trigger it from the mraid.sizeChanged event.
-        if(getDistributionPartner()==="B0099" || getDistributionPartner()==="B0159")
+        // Some platforms work better using the MRAID sized changed event. The new dimensions aren't always
+        // available until this is fired.
+        if(window.applovinMraid || getDistributionPartner()==="B0099" || getDistributionPartner()==="B0159")
         {
             this._resizeViewport();
         }
@@ -1577,12 +1640,6 @@ TGE.Game.prototype =
 		// Update the internal active state and send a corresponding event to the scene
 		this._active(true);
 
-        // If we had a game viewable notification that we suppressed because we were inactive, fire it now
-        if(this._mGameViewablePending)
-        {
-            this.gameMadeViewable();
-        }
-
 		// Un-mute the audio if we forced it off
 		if(this.audioManager && this._mUnmuteOnActivate)
 		{
@@ -1725,14 +1782,21 @@ TGE.Game.prototype =
             // Game is considered to be in a ready and user viewable state as soon as the first "required" asset list has loaded
             document.dispatchEvent(new Event("tgeGameReady"));
 
+            var inAdContainer = window.TreSensa && TreSensa.Playable.sessionID;
             if(this._mTestGameViewable > 0)
             {
-                setTimeout(this.gameMadeViewable.bind(this), this._mTestGameViewable * 1000);
+                if(inAdContainer)
+                {
+                    TGE.Debug.Log(TGE.Debug.LOG_ERROR, "the testgameviewable parameter is not supported in production");
+                }
+                else
+                {
+                    setTimeout(this.gameMadeViewable.bind(this), this._mTestGameViewable * 1000);
+                }
             }
-            // PAN-835 - if the game is not running in an MRAID ad container then the game viewable event will
-            // never fire. In order to assist in testing TGE.GameViewableCallback features like impression tracking,
-            // we'll make this callback fire now when MRAID isn't detected.
-            else if(!window.mraid && !window.dapi)
+            // Outside of the ad container environment we can safely signal viewability now, as we'll never get
+            // notification from the ad container.
+            else if(!inAdContainer)
             {
                 this.gameMadeViewable();
             }
@@ -1822,7 +1886,7 @@ TGE.Game.prototype =
     _update: function()
     {
 	    // PAN-527 If the game is halted, do NOTHING.
-	    if(this.halt)
+	    if (this.halt)
 	    {
 		    // Still need to continue the RAF loop...
 		    requestAnimationFrame(this._update.bind(this));
@@ -1830,21 +1894,31 @@ TGE.Game.prototype =
 	    }
 
 	    // Calculate the elapsed time since the last update
-	    var elapsedTime = (this._mThisLoop = new Date) - this._mLastLoop;
+	    var elapsedTime = (this._mThisLoop = new Date().getTime()) - this._mLastLoop;
 	    this._mFrameTime += (elapsedTime - this._mFrameTime) / this._mFilterStrength;
 	    this._mLastLoop = this._mThisLoop;
 
-        if(this._mUpdateSkips>0)
-        {
-            if(this._mUpdateSkips-- > 0)
-            {
-	            requestAnimationFrame(this._update.bind(this));
-	            return;
-            }
-        }
-	    this._mUpdateSkips = this.slowMotion;
+	    if (this._mUpdateSkips < 0)
+	    {
+	    	// used for video recording, and allows for deferring the _doUpdate() call until after the video frame is ready
+	    	return;
+	    }
 
-        // Hack - intentionally slow down the framerate for testing
+	    if (this._mUpdateSkips > 0)
+	    {
+		    if (this._mUpdateSkips-- > 0)
+		    {
+			    requestAnimationFrame(this._update.bind(this));
+			    return;
+		    }
+	    }
+	    this._mUpdateSkips = this.slowMotion;
+	    this._doUpdate(elapsedTime);
+    },
+
+	_doUpdate: function(elapsedTime)
+	{
+		// Hack - intentionally slow down the framerate for testing
         //var start = new Date().getTime();
         //var delay = 22;
         //while (new Date().getTime() < start + delay);
@@ -2560,7 +2634,7 @@ TGE.Completion = function(reason)
 }
 
 /** @ignore */
-TGE._DefaultTimeBetweenClicks = 3;
+TGE._DefaultTimeBetweenClicks = 1;
 
 /** @ignore */
 TGE._ReadyForNextClick = {};

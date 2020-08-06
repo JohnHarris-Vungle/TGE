@@ -1,14 +1,10 @@
 /** @ignore */
-TGE.WebAudioLoader = function(id, url, url2, tags, priority)
+TGE.WebAudioLoader = function(id, url, url2)
 {
 	this.loader = null;
 	this.audio = {};
 	this.id = id;
 	this.pollCount = 0;
-
-	// used by the loader to categorize and prioritize
-	this.tags = tags;
-	this.priority = priority;
 
     // PAN-1363 We always want to load the mp3 version now, so if the backup url ends in .mp3, use that instead
     if (url2 && url2.indexOf(".mp3") === url2.length - 4)
@@ -51,37 +47,27 @@ TGE.WebAudioLoader = function(id, url, url2, tags, priority)
             that.loader.onError(that);
         };
 
-        // Are audio assets packaged?
-        if (window._TREAUDIO)
-        {
-            var parts = this.url.split("/");
-            var filename = parts[parts.length-1];
+		var url = this.url;
 
-	        var base64Str = _TREAUDIO[filename];
+		// Are audio assets packaged?
+		if (window._TREAUDIO)
+		{
+			var parts = url.split("/");
+			var filename = parts[parts.length - 1];
 
-            fetch(base64Str)
-                .then(function(response) {
-                    return response.arrayBuffer();
-                })
-                .then(function(arrayBuffer) {
-                    TGE.AudioManager.GetInstance()._mPlugin._mContext.decodeAudioData(arrayBuffer, onDecodeSuccess, onDecodeError);
-                })
-                .catch(function(error) {
-                    onDecodeError();
-                });
-        }
-        else
-        {
-            var request = new XMLHttpRequest();
-            request.open('GET', this.url, true);
-            request.responseType = 'arraybuffer';
+			url = _TREAUDIO[filename];
+		}
 
-            // Decode asynchronously
-            request.onload = function() {
-                TGE.AudioManager.GetInstance()._mPlugin._mContext.decodeAudioData(request.response, onDecodeSuccess, onDecodeError);
-            };
-            request.send();
-        }
+		fetch(url)
+			.then(function(response) {
+				return response.arrayBuffer();
+			})
+			.then(function(arrayBuffer) {
+				TGE.AudioManager.GetInstance()._mPlugin._mContext.decodeAudioData(arrayBuffer, onDecodeSuccess, onDecodeError);
+			})
+			.catch(function(error) {
+				onDecodeError();
+			});
 	};
 
 	/** @ignore */

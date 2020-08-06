@@ -264,35 +264,6 @@ TGE.DisplayObjectContainer.prototype =
     },
 
     /**
-     * Returns true if this object is a descendant of the object specified.
-     * @param {Object} object The object to search if descendant of.
-     * @param {Boolean} [recursive=false] Whether or not to search children's children of the object.
-     * @return {Boolean} Whether or not this object is a descendant of the object specified.
-     */
-    isDescendantOf: function(object, recursive)
-    {
-	    recursive = recursive === true;
-
-        var p = this.parent;
-        while (p)
-        {
-            if (p == object)
-            {
-                return true;
-            }
-
-            if (recursive)
-            {
-                p = p.parent;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    },
-
-    /**
      * (documented in superclass)
      * @ignore
      */

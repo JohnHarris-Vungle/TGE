@@ -21,12 +21,14 @@ TGE.RemoteSettings._getDefaultAudioSetting = function ()
     var audioEnabled = false;
     switch ( getDistributionPartner () )
     {
+        case "B0119": // Vungle
         case "B0135": // Snapchat
         case "B0149": // Web links
         case "B0154": // Creative Builder
             audioEnabled = true;
             break;
-        case "B0003": // Facebook
+        case "B0003": // Facebook html
+        case "B0158": // Facebook zip
             {
                 // We use the FetchAPI to load inlined audio, but this was only supported from iOS 10.3 on. Facebook
                 // makes this test difficult because they wrap the native window.fetch function.

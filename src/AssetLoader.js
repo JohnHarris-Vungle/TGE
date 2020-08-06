@@ -35,20 +35,28 @@ TGE.AssetLoader.prototype = {
         {
             if(loadAudio)
             {
-                newAsset = loader.addAudio(asset.id, url, root+asset.backup_url, null, null);
+                newAsset = loader.addAudio(asset.id, url, root+asset.backup_url);
             }
         }
         else if(asset.googleFamilies)
         {
-            newAsset = loader.addGoogleFonts(asset.googleFamilies, null, null);
+            newAsset = loader.addFont(asset.googleFamilies);
         }
         else if(asset.assetType === "font" || extension==="ttf" || extension==="woff" || extension==="woff2" || extension==="otf")
         {
-            newAsset = loader.addFont(asset.id, url, null, null);
+            newAsset = loader.addFont(asset.id, url);
         }
         else if(extension === "js")
         {
-            newAsset = loader.addJavascript(url, null, null);
+            newAsset = loader.addJavascript(url);
+        }
+        else if(extension === "json")
+        {
+	        if (asset.id !== trimmedFilename(url))
+	        {
+		        TGE.Debug.Log(TGE.Debug.LOG_ERROR, "id field not supported for JSON asssets");
+	        }
+            newAsset = loader.addJSON(url);
         }
         else if(extension === "mp4")
         {
@@ -111,6 +119,21 @@ TGE.AssetLoader.prototype = {
     /** @ignore */
     loadAssetList: function(assetManager, assetList, rootLocation, languagesFolder, language, updateCallback, completeCallback)
     {
+		rootLocation = rootLocation || assetManager._mRootLocation;
+
+		// Check if this is being called too early. We can't load assets until TGE.Game.launch() has been called, as this
+		// specifies the root location, which is often dependent on the distribution platform.
+		if (rootLocation === null)
+		{
+			TGE.Debug.Log(TGE.Debug.LOG_WARNING, "asset list manually loaded before game launch, will be deferred until after all required assets have loaded");
+
+			// Cue this up for after all other assets have loaded
+			TGE.Game.AddEventListener("tgeAssetListsLoaded", this.loadAssetList.bind(this, assetManager, assetList,
+				rootLocation, languagesFolder, language, updateCallback, completeCallback));
+
+			return;
+		}
+
 	    var wereErrors = assetList.errors===true;
 
 	    assetList.errors = false;
@@ -132,7 +155,7 @@ TGE.AssetLoader.prototype = {
             return;
         }
 		
-		// Make sure the root location parameter is valid (this is used as back if imageRoot/audioRoot are not passed to game launch()
+		// Make sure the root location parameter is valid (not sure this is necessary...)
         rootLocation = _validPath(rootLocation, "");
 
 	    // Make sure the languageFolder parameter is valid
@@ -141,31 +164,11 @@ TGE.AssetLoader.prototype = {
 	    // Append the current language folder
 	    languagesFolder += language + "/";
 
-        var game = TGE.Game.GetInstance();
-	    if(!game._sConfig)
-	    {
-		    // TGD-523
-		    TGE.Debug.Log(TGE.Debug.LOG_WARNING, "attempting to call TGE.AssetLoader.loadAssets before game is launched - could cause problems with native builds");
-	    }
-        var imageRoot = game._sConfig && game._sConfig.imageRoot || rootLocation;
-        var audioRoot = game._sConfig && game._sConfig.audioRoot || rootLocation;
-
         this.mAssetList = assetList;
         this.mUpdateCallback = updateCallback;
         this.mCompleteCallback = completeCallback;
 
         var loader = new TGE.Loader({statusInterval:3000});
-
-        // Loading audio hangs the HTC One (RAB-223)
-        var isHTCOne = TGE.BrowserDetect.onAndroid &&
-            ( (navigator.userAgent.toString()).indexOf("HTC_PN07120")!==-1 || (navigator.userAgent.toString()).indexOf("HTC One")!==-1 );
-        var loadAudio = assetManager.loadAudio && !isHTCOne;
-
-        if(isHTCOne)
-        {
-            TGE.Debug.Log(TGE.Debug.LOG_WARNING, "ignoring audio assets on HTC One");
-        }
-
 	    var loadingNewAsset = false;
 
         for(var i=0; i<assetList.list.length; i++)
@@ -181,9 +184,9 @@ TGE.AssetLoader.prototype = {
 
             var extension = asset.url ? asset.url.split('.').pop().toLowerCase() : null;
             var isAudio = asset.assetType === "audio" || extension==="ogg" || extension==="mp3";
-            var url = (asset.url ? this.getAssetURL(asset, isAudio ? audioRoot : imageRoot, languagesFolder) : null);
+            var url = (asset.url ? this.getAssetURL(asset, rootLocation, languagesFolder) : null);
 
-            this.loadAssetFromAssetList(assetManager, loader, asset, url, wereErrors, loadAudio);
+            this.loadAssetFromAssetList(assetManager, loader, asset, url, wereErrors, assetManager.loadAudio);
 
             loadingNewAsset = true;
         }
@@ -347,17 +350,13 @@ TGE.AssetLoader.prototype = {
  * Font Loading
  * @ignore
  */
-TGE.FontLoader = function(id, url, tags, priority)
+TGE.FontLoader = function(id, url)
 {
 	this.loader = null;
 	this.font = null;
 	this.id = id;
 	this.url = url;
 	this.pollCount = 0;
-
-	// used by the loader to categorize and prioritize
-	this.tags = tags;
-	this.priority = priority;
 
 	// called by TGE.Loader to trigger download
 	/** @ignore */
@@ -523,16 +522,12 @@ TGE.FontLoader = function(id, url, tags, priority)
  * Javascript Loading
  * @ignore
  */
-TGE.ScriptLoader = function(url, tags, priority)
+TGE.ScriptLoader = function(url)
 {
 	this.loader = null;
 	this.scriptNode = null;
 	this.url = url;
 	this.pollCount = 0;
-
-	// used by the loader to categorize and prioritize
-	this.tags = tags;
-	this.priority = priority;
 
 	this.scriptLoaded = function()
 	{
@@ -614,6 +609,86 @@ TGE.ScriptLoader = function(url, tags, priority)
 		return this.url;
 	}
 }
+/**
+ * JSON Loading
+ * @ignore
+ */
+TGE.JSONLoader = function(url)
+{
+	this.loader = null;
+	this.json = {};
+	this.url = url;
+	this.pollCount = 0;
+
+	// called to trigger download
+	this.start = function(loader)
+	{
+		// we need the loader ref so we can notify upon completion
+		this.loader = loader;
+
+		// Check if we're loading as inlined assets
+		if (window._TREJSON)
+		{
+			var parts = this.url.split("/");
+			var filename = parts[parts.length-1];
+			var json = _TREJSON[filename];
+			if (json)
+			{
+				this.jsonData(json);
+			}
+			else
+			{
+				this.loader.onError(this);
+			}
+		}
+		else
+		{
+			var self = this;
+			fetch(url)
+				.then(function(response) {
+					return response.json();
+				})
+				.then(self.jsonData.bind(self))
+				.catch(function(error) {
+					TGE.Debug.Log(TGE.Debug.LOG_ERROR, error);
+					self.loader.onError(self);
+				});
+		}
+	};
+
+	this.jsonData = function(data)
+	{
+		TGE.DeepCopy(data, this.json);
+		this.loader.onLoad(this);
+	};
+
+	// called to check status of image (fallback in case
+	// the event listeners are not triggered).
+	/** @ignore */
+	this.checkStatus = function()
+	{
+		if(this.pollCount >= 3) {
+			this.loader.onTimeout(this);
+			return;
+		}
+
+		this.pollCount++;
+	};
+
+	// called when it is no longer waiting
+	/** @ignore */
+	this.onTimeout = function() {
+		// must report a status to the loader: load, error, or timeout
+		this.loader.onTimeout(this);
+	};
+
+	// returns a name for the resource that can be used in logging
+	/** @ignore */
+	this.getName = function()
+	{
+		return this.url;
+	}
+}
 
 
 if(typeof(TGE.Loader)==="function")
@@ -624,10 +699,10 @@ if(typeof(TGE.Loader)==="function")
 		return fontLoader.font;
 	};
 
-	TGE.Loader.prototype.addGoogleFonts = function(family) {
-		var fontLoader = new TGE.FontLoader(family);
-		this.add(fontLoader);
-		return fontLoader.font;
+	TGE.Loader.prototype.addJSON = function(url) {
+		var jsonLoader = new TGE.JSONLoader(url);
+		this.add(jsonLoader);
+		return jsonLoader.json;
 	};
 
 	TGE.Loader.prototype.addJavascript = function(url) {

@@ -190,12 +190,6 @@ TGE.Text.prototype =
 		this.cacheBitmapScale = typeof(params.cacheBitmapScale)==="number" ? params.cacheBitmapScale : TGE.Text.DefaultBitmapScale;
 		Array.isArray(params.fontFallbacks) ? this.fontFallbacks = params.fontFallbacks : null;
 
-		// Check if textDef is valid
-		if (typeof(params.textDef)==="string" && (!GameConfig.TEXT_DEFS || !GameConfig.TEXT_DEFS[params.textDef]))
-		{
-			TGE.Debug.Log(TGE.Debug.LOG_ERROR, "GameConfig.TEXT_DEFS is missing entry for: " + params.textDef);
-		}
-
 		// Check if fontWeight is valid input
 		if (typeof(params.fontWeight)==="string" && (params.fontWeight==="bold" || params.fontWeight==="bolder"
 			|| params.fontWeight==="lighter" || params.fontWeight==="normal"))
@@ -219,6 +213,20 @@ TGE.Text.prototype =
 		if (typeof(params.font)==="string")
 		{
 			this._splitUpFont(params.font);
+		}
+
+		// Check if textDef is valid
+		if (typeof(params.textDef)==="string")
+		{
+			if (GameConfig.TEXT_DEFS && GameConfig.TEXT_DEFS[params.textDef])
+			{
+				// PAN-1483 apply the textDef before initial call to _textChanged()
+				this._applyTextDef(params.textDef);
+			}
+			else
+			{
+				TGE.Debug.Log(TGE.Debug.LOG_ERROR, "GameConfig.TEXT_DEFS is missing entry for: " + params.textDef);
+			}
 		}
 
 		// Caching?
