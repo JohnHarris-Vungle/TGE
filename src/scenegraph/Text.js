@@ -660,7 +660,7 @@ TGE.Text.prototype =
 
 			canvasContext.textBaseline = "alphabetic";
 
-				// Load the text properties
+			// Load the text properties
 			canvasContext.font = this.font!==null ? this.font : "Arial";
 			canvasContext.fillStyle = this.textColor!==null ? this.textColor : "#000";
 
@@ -729,7 +729,7 @@ TGE.Text.prototype =
 		var metrics = canvasContext.measureText(text);
 
 		// Test whether we have everything we need
-		if (false)//text !== "Play again")//typeof metrics.actualBoundingBoxAscent === "number" && typeof metrics.actualBoundingBoxDescent === "number")
+		if (typeof metrics.actualBoundingBoxAscent === "number" && typeof metrics.actualBoundingBoxDescent === "number")
 		{
 			return metrics;
 		}
