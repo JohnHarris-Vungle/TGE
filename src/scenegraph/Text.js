@@ -308,6 +308,7 @@ TGE.Text.prototype =
 			this.width = this.wrapWidth;
 			var wrapWidth = this.wrapWidth>0 ? this.wrapWidth : Number.MAX_VALUE;
 
+			var newLine = "";
 			var lines = this.text.split("\n");
 			for(var l=0; l<lines.length; ++l)
 			{
@@ -317,7 +318,7 @@ TGE.Text.prototype =
 				var textDimensions;
 				for(var w=1; w<words.length; w++)
 				{
-					var newLine = line + (asian ? "" : " ") + words[w];
+					newLine = line + (asian ? "" : " ") + words[w];
 					textDimensions = canvasContext.measureText(newLine);
 					if(textDimensions.width>wrapWidth)
 					{
