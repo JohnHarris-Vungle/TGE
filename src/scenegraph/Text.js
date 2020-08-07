@@ -583,7 +583,7 @@ TGE.Text.prototype =
 		}
 
 		// Check for property changes that require the dimensions to be recalculated
-		if(this._mPreviousText!==this.text || this._mPreviousTextID!==this.textID || this._mPreviousLineSpacing!==this.lineSpacing ||
+		if(this._mPreviousText!==this._getText() || this._mPreviousTextID!==this.textID || this._mPreviousLineSpacing!==this.lineSpacing ||
 			this._mPreviousFont!==this.font || this._mPreviousWrapWidth!==this.wrapWidth)
 		{
 			this._mPreviousTextID = this.textID;
