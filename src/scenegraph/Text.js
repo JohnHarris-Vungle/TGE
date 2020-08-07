@@ -50,6 +50,7 @@ TGE.Text = function()
 	this._mLineSpace = 0;
 	this._mCachePadding = 0;
     this._mFontFallbacks = [];
+    this._mFirstDraw = true;
 
     // Cached keyboard image
 	this._mOffscreenCanvas = null;
@@ -582,10 +583,22 @@ TGE.Text.prototype =
 			return;
 		}
 
+		// PAN- The Chromium browser (observed in desktop Chrome, Edge, and mobile Android) has a bug where the
+		// measureText call ends up using the default or fallback font if called in the same stack that was triggered
+		// by the font asset loaded callback. Waiting until the next frame to use measureText seems to be sufficient
+		// to get around the problem.
+		var firstDraw = this._mFirstDraw;
+
 		// Check for property changes that require the dimensions to be recalculated
 		if(this._mPreviousText!==this._getText() || this._mPreviousTextID!==this.textID || this._mPreviousLineSpacing!==this.lineSpacing ||
-			this._mPreviousFont!==this.font || this._mPreviousWrapWidth!==this.wrapWidth)
+			this._mPreviousFont!==this.font || this._mPreviousWrapWidth!==this.wrapWidth || firstDraw)
 		{
+			this._mFirstDraw = false;
+			if (firstDraw)
+			{
+				return;
+			}
+
 			this._mPreviousTextID = this.textID;
 			this._mPreviousText = this.text = this._getText();
 			this._mPreviousLineSpacing = this.lineSpacing;
