@@ -51,6 +51,7 @@ TGE.Text = function()
 	this._mCachePadding = 0;
     this._mFontFallbacks = [];
     this._mFirstDraw = true;
+	this._mVerticalPosition = 0;
 
     // Cached keyboard image
 	this._mOffscreenCanvas = null;
@@ -349,6 +350,28 @@ TGE.Text.prototype =
 		this.registrationY = this.vAlign===null || this.vAlign==="middle" ? 0.5 : (this.vAlign==="top" ? 0 : 1);
 		this._mLocalTransformDirty = true;
 
+		// Determine where to begin vertically
+		this._mVerticalPosition = 0;
+
+		if(this.vAlign==="top")
+		{
+			var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[0]);
+			this._mVerticalPosition = textMetrics.actualBoundingBoxAscent;
+		}
+		else if(this.vAlign==="middle")
+		{
+			var height = (this._mLines.length - 1) * this._mLineHeight;
+			var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[this._mLines.length - 1]);
+			this._mVerticalPosition = (-height / 2) + textMetrics.actualBoundingBoxAscent / 2;
+		}
+		else if(this.vAlign==="bottom")
+		{
+			var height = (this._mLines.length - 1) * this._mLineHeight;
+			var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[this._mLines.length - 1]);
+			height += textMetrics.actualBoundingBoxDescent;
+			this._mVerticalPosition = -height;
+		}
+
 		canvasContext.restore();
 
 		// Update the bitmap cache
@@ -639,25 +662,22 @@ TGE.Text.prototype =
 			// by the text alignment settings)
 			if(offscreenContext)
 			{
-				var yHack = this._mLineHeight*this.cacheBitmapScale*0.1;
-				if(this._mLines.length>1 || TGE.BrowserDetect.browser==="Firefox")
-				{
-					yHack = 0;
-				}
-
-				canvasContext.textAlign = "left";
-				canvasContext.textBaseline = "top";
-				var y = this._mCachePadding*this.cacheBitmapScale - yHack;
-				canvasContext.setTransform(this.cacheBitmapScale, 0, 0, this.cacheBitmapScale, this._mCachePadding*this.cacheBitmapScale, y);
+				var x = this.hAlign === "center" ? this.width / 2 : (this.hAlign==="justify" || this.hAlign==="left" ? 0 : this.width);
+				x += this._mCachePadding;
+				x *= this.cacheBitmapScale;
+				var y = (this.height / 2 + this._mCachePadding) * this.cacheBitmapScale;
+				canvasContext.setTransform(this.cacheBitmapScale, 0, 0, this.cacheBitmapScale, x, y);
 			}
 			else
 			{
 				var stageScale = (this._mFullStage!==null && this._mFullStage._mScale!==1) ? this._mFullStage._mScale : 1;
 				renderer.setWorldTransform(this._mWorldTransformNoReg,stageScale);
-				canvasContext.textAlign = this.hAlign!==null ? (this.hAlign==="justify" ? "left" : this.hAlign) : "center";
-				canvasContext.textBaseline = this.vAlign!==null ? this.vAlign : "middle";
 			}
 
+			// Set the horizontal alignment
+			canvasContext.textAlign = this.hAlign!==null ? (this.hAlign==="justify" ? "left" : this.hAlign) : "center";
+
+			// We're always going to use alphabetic baseline, because it is the most consistent between browsers/platforms
 			canvasContext.textBaseline = "alphabetic";
 
 			// Load the text properties
@@ -672,29 +692,8 @@ TGE.Text.prototype =
 				canvasContext.lineJoin = "round"; // PAN-602 Eliminate the crazy spikes when the stroke is large
 			}
 
-			// Determine where to begin vertically
-			var y = 0;
-
-			if(this.vAlign==="top")
-			{
-				var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[0]);
-				y = textMetrics.actualBoundingBoxAscent;
-			}
-			else if(this.vAlign==="middle")
-			{
-				var height = (this._mLines.length - 1) * this._mLineHeight;
-				var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[this._mLines.length - 1]);
-				y = (-height / 2) + textMetrics.actualBoundingBoxAscent / 2;
-			}
-			else if(this.vAlign==="bottom")
-			{
-				var height = (this._mLines.length - 1) * this._mLineHeight;
-				var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[this._mLines.length - 1]);
-				height += textMetrics.actualBoundingBoxDescent;
-				y = -height;
-			}
-
 			// Draw the text
+			var y = this._mVerticalPosition;
 			for(var i=0; i<this._mLines.length; i++)
 			{
 				// PAN-602 It looks better to call fill after stroke, otherwise the stroke overlays the letters
