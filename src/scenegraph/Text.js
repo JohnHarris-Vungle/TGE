@@ -50,6 +50,8 @@ TGE.Text = function()
 	this._mLineSpace = 0;
 	this._mCachePadding = 0;
     this._mFontFallbacks = [];
+    this._mFirstDraw = true;
+	this._mVerticalPosition = 0;
 
     // Cached keyboard image
 	this._mOffscreenCanvas = null;
@@ -308,6 +310,7 @@ TGE.Text.prototype =
 			this.width = this.wrapWidth;
 			var wrapWidth = this.wrapWidth>0 ? this.wrapWidth : Number.MAX_VALUE;
 
+			var newLine = "";
 			var lines = this.text.split("\n");
 			for(var l=0; l<lines.length; ++l)
 			{
@@ -317,7 +320,7 @@ TGE.Text.prototype =
 				var textDimensions;
 				for(var w=1; w<words.length; w++)
 				{
-					var newLine = line + (asian ? "" : " ") + words[w];
+					newLine = line + (asian ? "" : " ") + words[w];
 					textDimensions = canvasContext.measureText(newLine);
 					if(textDimensions.width>wrapWidth)
 					{
@@ -346,6 +349,28 @@ TGE.Text.prototype =
 		this.registrationX = this.hAlign===null || this.hAlign==="center" ? 0.5 : (this.hAlign==="left" || this.hAlign==="justify" ? 0 : 1);
 		this.registrationY = this.vAlign===null || this.vAlign==="middle" ? 0.5 : (this.vAlign==="top" ? 0 : 1);
 		this._mLocalTransformDirty = true;
+
+		// Determine where to begin vertically
+		this._mVerticalPosition = 0;
+
+		if(this.vAlign==="top")
+		{
+			var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[0]);
+			this._mVerticalPosition = textMetrics.actualBoundingBoxAscent;
+		}
+		else if(this.vAlign==="middle")
+		{
+			var height = (this._mLines.length - 1) * this._mLineHeight;
+			var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[this._mLines.length - 1]);
+			this._mVerticalPosition = (-height / 2) + textMetrics.actualBoundingBoxAscent / 2;
+		}
+		else if(this.vAlign==="bottom")
+		{
+			var height = (this._mLines.length - 1) * this._mLineHeight;
+			var textMetrics = this.measureTextAdvanced(canvasContext, this._mLines[this._mLines.length - 1]);
+			height += textMetrics.actualBoundingBoxDescent;
+			this._mVerticalPosition = -height;
+		}
 
 		canvasContext.restore();
 
@@ -581,10 +606,22 @@ TGE.Text.prototype =
 			return;
 		}
 
+		// PAN- The Chromium browser (observed in desktop Chrome, Edge, and mobile Android) has a bug where the
+		// measureText call ends up using the default or fallback font if called in the same stack that was triggered
+		// by the font asset loaded callback. Waiting until the next frame to use measureText seems to be sufficient
+		// to get around the problem.
+		var firstDraw = this._mFirstDraw;
+
 		// Check for property changes that require the dimensions to be recalculated
-		if(this._mPreviousText!==this.text || this._mPreviousTextID!==this.textID || this._mPreviousLineSpacing!==this.lineSpacing ||
-			this._mPreviousFont!==this.font || this._mPreviousWrapWidth!==this.wrapWidth)
+		if(this._mPreviousText!==this._getText() || this._mPreviousTextID!==this.textID || this._mPreviousLineSpacing!==this.lineSpacing ||
+			this._mPreviousFont!==this.font || this._mPreviousWrapWidth!==this.wrapWidth || firstDraw)
 		{
+			this._mFirstDraw = false;
+			if (firstDraw)
+			{
+				return;
+			}
+
 			this._mPreviousTextID = this.textID;
 			this._mPreviousText = this.text = this._getText();
 			this._mPreviousLineSpacing = this.lineSpacing;
@@ -625,24 +662,23 @@ TGE.Text.prototype =
 			// by the text alignment settings)
 			if(offscreenContext)
 			{
-				var yHack = this._mLineHeight*this.cacheBitmapScale*0.1;
-				if(this._mLines.length>1 || TGE.BrowserDetect.browser==="Firefox")
-				{
-					yHack = 0;
-				}
-
-				canvasContext.textAlign = "left";
-				canvasContext.textBaseline = "top";
-				var y = this._mCachePadding*this.cacheBitmapScale - yHack;
-				canvasContext.setTransform(this.cacheBitmapScale, 0, 0, this.cacheBitmapScale, this._mCachePadding*this.cacheBitmapScale, y);
+				var x = this.hAlign === "center" ? this.width / 2 : (this.hAlign==="justify" || this.hAlign==="left" ? 0 : this.width);
+				x += this._mCachePadding;
+				x *= this.cacheBitmapScale;
+				var y = (this.height / 2 + this._mCachePadding) * this.cacheBitmapScale;
+				canvasContext.setTransform(this.cacheBitmapScale, 0, 0, this.cacheBitmapScale, x, y);
 			}
 			else
 			{
 				var stageScale = (this._mFullStage!==null && this._mFullStage._mScale!==1) ? this._mFullStage._mScale : 1;
 				renderer.setWorldTransform(this._mWorldTransformNoReg,stageScale);
-				canvasContext.textAlign = this.hAlign!==null ? (this.hAlign==="justify" ? "left" : this.hAlign) : "center";
-				canvasContext.textBaseline = this.vAlign!==null ? this.vAlign : "middle";
 			}
+
+			// Set the horizontal alignment
+			canvasContext.textAlign = this.hAlign!==null ? (this.hAlign==="justify" ? "left" : this.hAlign) : "center";
+
+			// We're always going to use alphabetic baseline, because it is the most consistent between browsers/platforms
+			canvasContext.textBaseline = "alphabetic";
 
 			// Load the text properties
 			canvasContext.font = this.font!==null ? this.font : "Arial";
@@ -656,44 +692,8 @@ TGE.Text.prototype =
 				canvasContext.lineJoin = "round"; // PAN-602 Eliminate the crazy spikes when the stroke is large
 			}
 
-			// Determine where to begin vertically
-			var y = 0;
-
-			if(this._mLines.length>1 && !offscreenContext)
-			{
-				y = this.vAlign==="top" ? 0 : (this.vAlign==="middle" ? (-this.height/2 + (this._mLineHeight-this._mLineSpace)/2) : (-this.height + (this._mLineHeight-this._mLineSpace)/1));
-			}
-
-			// apply vertical font offsets, if enabled and present
-			if (GameConfig.USE_FONT_OFFSETS && window._TREFONTS && _TREFONTS[this.fontFamily])
-			{
-				// get platform string for font offset lookup
-				var platform = TGE.BrowserDetect.platform;
-				if (platform.indexOf("iP") === 0)
-				{
-					platform = "iOS";
-				}
-				else if (platform.indexOf("Win") === 0)
-				{
-					platform = "windows";
-				}
-				else
-				{
-					platform = platform.toLowerCase();
-				}
-
-				var verticalOffsets = _TREFONTS[this.fontFamily].verticalOffsets;
-				if (verticalOffsets[platform] === undefined)
-				{
-					// use "default" if there's no offset specified for this platform
-					platform = "default";
-				}
-
-				// apply offset
-				y += (verticalOffsets[platform] || 0) * this.fontSize;
-			}
-
 			// Draw the text
+			var y = this._mVerticalPosition;
 			for(var i=0; i<this._mLines.length; i++)
 			{
 				// PAN-602 It looks better to call fill after stroke, otherwise the stroke overlays the letters
@@ -717,6 +717,80 @@ TGE.Text.prototype =
 				canvasContext.lineJoin = "miter";
 			}
 		}
+	},
+
+	/** @ignore */
+	measureTextAdvanced: function(canvasContext, text)
+	{
+		// We use this function when we need actualBoundingBoxAscent and actualBoundingBoxDescent
+
+		// See if we get it natively, that's the best case
+		var metrics = canvasContext.measureText(text);
+
+		// Test whether we have everything we need
+		if (typeof metrics.actualBoundingBoxAscent === "number" && typeof metrics.actualBoundingBoxDescent === "number")
+		{
+			return metrics;
+		}
+
+		// We're going to need to calculate them manually...
+		var canvasWidth = Math.ceil(metrics.width);
+		var canvasHeight = this._mLineHeight * 2;
+
+		// Setup a canvas for rendering the characters to
+		var canvas = document.createElement("canvas");
+
+		canvas.width = canvasWidth;
+		canvas.height = canvasHeight;
+		var ctx = canvas.getContext('2d');
+
+		// Fill the canvas with white
+		ctx.beginPath();
+		ctx.rect(0, 0, canvasWidth, canvasHeight);
+		ctx.fillStyle = "white";
+		ctx.fill();
+
+		var drawX = Math.floor(canvasWidth / 2);
+		var drawY = Math.floor(canvasHeight / 2);
+		ctx.font = this.font;
+		ctx.fillStyle = "black";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "alphabetic";
+		ctx.fillText(text, drawX, drawY);
+
+		// Find the top and bottom of the text (instances of black as we scan top-down)
+		var top = drawX;
+		var bottom = drawY;
+
+		var imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+		for (var y = 0; y < canvasHeight; y++)
+		{
+			for (var x = 0; x < canvasWidth; x++)
+			{
+				var redIndex = y * (canvasWidth * 4) + x * 4;
+				if ((imageData.data[redIndex]) <= 100) // is black
+				{
+					// See if we extended any of our ranges
+					if (y < top)
+					{
+						top = y;
+					}
+					if (y > bottom)
+					{
+						bottom = y;
+					}
+				}
+			}
+		}
+
+		// Create a new object to return
+		var newMetrics = {
+			width: metrics.width,
+			actualBoundingBoxAscent: drawY - top,
+			actualBoundingBoxDescent: bottom - drawY
+		};
+
+		return newMetrics;
 	},
 
 	/** @ignore */
