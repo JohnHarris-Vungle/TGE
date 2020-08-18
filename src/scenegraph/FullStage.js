@@ -394,12 +394,10 @@ TGE.FullStage.prototype =
     /** @ignore */
     _emptyTrash: function()
     {
-        len = this._mObjectTrash.length;
-        for(i=0; i<len; i++)
-        {
-            this._mObjectTrash[i].removeFromScene();
-        }
-        this._mObjectTrash = [];
+	    while (this._mObjectTrash.length)
+	    {
+		    this._mObjectTrash.pop().removeFromScene();
+	    }
     },
 
 	/**
