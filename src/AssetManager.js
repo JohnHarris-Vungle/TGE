@@ -145,7 +145,7 @@ TGE.AssetManager.GetLoadedAssets = function(callback)
 };
 
 /** @ignore */
-TGE.AssetManager.LoadFontScript = function(family)
+TGE.AssetManager.LoadFontScript = function(family, preloaded, loadCallback)
 {
 	// The font needs to exist in the _TREFONTS global object
 	if (!window._TREFONTS || !_TREFONTS[family])
@@ -161,7 +161,9 @@ TGE.AssetManager.LoadFontScript = function(family)
 	// If the data parameter is a string then this is a single base64 font. If it's an object then it's a dictionary of weights.
 	if (typeof(fontObj.data)==="string")
 	{
-		TGE.AssetManager.LoadFontData(family, fontObj.data);
+        preloaded ?
+            TGE.AssetManager.WaitForFont(family, null, loadCallback) :
+		    TGE.AssetManager.LoadFontData(family, fontObj.data);
 	}
 	else if (typeof(fontObj.data)==="object")
 	{
@@ -169,7 +171,9 @@ TGE.AssetManager.LoadFontScript = function(family)
 		{
 			if (fontObj.data.hasOwnProperty(weight)) 
 			{
-				TGE.AssetManager.LoadFontData(family, fontObj.data[weight], weight);
+			    preloaded ?
+                    TGE.AssetManager.WaitForFont(family, weight, loadCallback) :
+				    TGE.AssetManager.LoadFontData(family, fontObj.data[weight], weight);
 			}
 		}
 	}
@@ -186,20 +190,27 @@ TGE.AssetManager.LoadFontData = function(family, url, weight, loadCallback)
 	styleNode.appendChild(document.createTextNode("@font-face {font-family: '" + family + "'; " + weightStr + " src: url('" + url + "');}"));
 
 	// Setup the observer to notify us when the load is complete
-	var weightObj = weight ? { weight: weight } : null;
-	var font = new FontFaceObserver(family, weightObj);
-	var softTimeout = 1000;
-	font.load(null, softTimeout).then(
-		function() { loadCallback ? loadCallback() : null; },
-		function() { 
-				// We'll treat the FontFaceObserver's aggressive timeout as a warning. 
-				// The AssetLoader's more linient 3s timeout will produce an error.
-				TGE.Debug.Log(TGE.Debug.LOG_WARNING, "could not load '" + family + (weight ? (":" + weight) : "") + "' font within " + softTimeout + "ms, is it too big?");
-			}
-		);
+    TGE.AssetManager.WaitForFont(family, weight, loadCallback);
 
 	// Kick it off
 	document.head.appendChild(styleNode);
+};
+
+/** @ignore */
+TGE.AssetManager.WaitForFont = function(family, weight, loadCallback)
+{
+    // Setup the observer to notify us when the load is complete
+    var weightObj = weight ? { weight: weight } : null;
+    var font = new FontFaceObserver(family, weightObj);
+    var softTimeout = 1000;
+    font.load(null, softTimeout).then(
+        function() { loadCallback ? loadCallback() : null; },
+        function() {
+            // We'll treat the FontFaceObserver's aggressive timeout as a warning.
+            // The AssetLoader's more linient 3s timeout will produce an error.
+            TGE.Debug.Log(TGE.Debug.LOG_WARNING, "could not load '" + family + (weight ? (":" + weight) : "") + "' font within " + softTimeout + "ms, is it too big?");
+        }
+    );
 };
 
 
