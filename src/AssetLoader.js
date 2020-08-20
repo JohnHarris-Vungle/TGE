@@ -572,7 +572,7 @@ TGE.ScriptLoader = function(url)
 					// Execute the script. Use window.Function instead of eval() based on recommendations here:
 					// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
 					window.Function ?
-						Function('"use strict";return (' + script + ')')() :
+						Function('return (' + script + ')')() :
 						eval(script);
 
 					this.scriptLoaded();
