@@ -581,9 +581,10 @@ TGE.AdFooter.prototype =
     {
         return this.style === "promo" ?
             ((window.TreSensa && typeof TreSensa.Playable.promoScreenShowing === "boolean") ?
-                TreSensa.Playable.promoScreenShowing :
-                (TGE.RemoteSettings.HasSetting("state") && TGE.RemoteSettings("state") === "promo")) :
-            true;
+                TreSensa.Playable.promoScreenShowing : // In production use the ad container's promoScreenShowing flag
+                ((TGE.RemoteSettings.HasSetting("state") && TGE.RemoteSettings("state") === "promo") // In the CB we can check if the state was forced to "promo"
+                || !!(window.PromoBuilder && PromoBuilder._sInstance)) // Or if the PromoBuilder instance exists
+            ) : true; // If this isn't the promo style, then always show the footer
     },
 
     _updateFooterVisibility: function()
