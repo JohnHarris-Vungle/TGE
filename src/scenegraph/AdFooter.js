@@ -12,6 +12,7 @@ TGE.AdFooter = function()
     TGE.AdFooter.superclass.constructor.call(this);
 
     this.instanceName = "tge_isi_text";
+    this.style = "none";
     this.expandable = false;
     this.expanded = false;
     this.previousUpdateRoot = TGE.Game.GetUpdateRoot();
@@ -139,8 +140,10 @@ TGE.AdFooter.prototype =
 {
     setup: function(params)
     {
+        this.style = params.style;
+
         // Initialize members and settings based on the style
-        switch(params.style)
+        switch(this.style)
         {
             case "isiPanel":
             {
@@ -155,6 +158,7 @@ TGE.AdFooter.prototype =
             break;
 
             case "simple":
+            case "promo":
             default:
             {
                 this.expandable = false;
@@ -286,6 +290,12 @@ TGE.AdFooter.prototype =
                     this.wrapWidth = (this.parent.width * 0.96) * (1/s);
                 }
             }));
+
+            if (this.style === "promo")
+            {
+                this.visible = this._footerShouldBeVisible();
+                this.addEventListener("update", this._updateFooterVisibility);
+            }
         }
 
         TGE.AdFooter.superclass.setup.call(this, params);
@@ -565,6 +575,20 @@ TGE.AdFooter.prototype =
         {
             this.panelHeaderText.textColor = this._headerColor();
         }
+    },
+
+    _footerShouldBeVisible: function()
+    {
+        return this.style === "promo" ?
+            ((window.TreSensa && typeof TreSensa.Playable.promoScreenShowing === "boolean") ?
+                TreSensa.Playable.promoScreenShowing :
+                (TGE.RemoteSettings.HasSetting("state") && TGE.RemoteSettings("state") === "promo")) :
+            true;
+    },
+
+    _updateFooterVisibility: function()
+    {
+        this.visible = this._footerShouldBeVisible();
     },
 
     _portraitTablet: function()
