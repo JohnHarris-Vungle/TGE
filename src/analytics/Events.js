@@ -12,21 +12,6 @@ TGE.Events =
         return typeof(window.TreSensa)!=="undefined";
     },
 
-    // This is a bit of a runaround. Ideally game_viewable would be fired directly from
-    // the ad container, but we can't do that yet because we need to send to Mixpanel too.
-    logGameViewable: function()
-    {
-        TGE.Debug.Log(TGE.Debug.LOG_INFO, "game is now considered viewable to the user");
-
-        // TreSensa event
-        if (this._notifyAdContainer())
-        {
-            this._sendAdContainerEvent("game_viewable", {
-                level: TGE.GameViewableParameter===null ? null : TGE.GameViewableParameter.toString()
-            });
-        }
-    },
-
     logInteraction: function()
     {
         TGE.Debug.Log(TGE.Debug.LOG_INFO, "first user interaction");

@@ -1045,14 +1045,6 @@ TGE.Game.prototype =
         {
             this._mGameViewableReceived = true;
 
-            // The game should not be determining when to fire the game_viewable event, this should
-            // be the responsibility of the ad container. But in order to maintain a seamless fix we'll check if the
-            // ad container has the updated code, else still fire it from here.
-            if (window.TreSensa && TreSensa.Snapchat) // Ugly hack to determine what version of ad container is running
-            {
-                TGE.Events.logGameViewable();
-            }
-
             document.dispatchEvent(new Event("tgeGameViewable"));
 
             // Fire the callback if one was set
