@@ -157,6 +157,13 @@ TGE.WebAudioAPIPlugin.prototype =
 			return;
 		}
 
+		// PAN-1531 some browsers, like Firefox, unlock the audio by themselves
+		if (this._mContext.state === "running")
+		{
+			this.unlockAudio();
+			return;
+		}
+
 		if (TGE.BrowserDetect.oniOS)
 		{
 			// create empty buffer and play it
