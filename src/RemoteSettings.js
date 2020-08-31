@@ -21,10 +21,14 @@ TGE.RemoteSettings._getDefaultAudioSetting = function ()
     var audioEnabled = false;
     switch ( getDistributionPartner () )
     {
+        case "B0039": // AppLovin
+        case "B0113": // Liftoff
         case "B0119": // Vungle
+        case "B0134": // Unity
         case "B0135": // Snapchat
         case "B0149": // Web links
         case "B0154": // Creative Builder
+        case "B0159": // ironSource DAPI
             audioEnabled = true;
             break;
         case "B0003": // Facebook html
