@@ -309,23 +309,23 @@ TGE.Text.prototype =
 			this.width = this.wrapWidth;
 			var wrapWidth = this.wrapWidth>0 ? this.wrapWidth : Number.MAX_VALUE;
 
-			var newLine = "";
 			var lines = this.text.split("\n");
 			for(var l=0; l<lines.length; ++l)
 			{
 				var words = this._splitLine(lines[l]);
 				var line = words[0];
-				var lineWidth = canvasContext.measureText(newLine).width;
+				var lineWidth = canvasContext.measureText(line).width;
 				var textDimensions;
 				for(var w=1; w<words.length; w++)
 				{
-					newLine = line + (asian ? "" : " ") + words[w];
+					var newLine = line + (asian ? "" : " ") + words[w];
 					textDimensions = canvasContext.measureText(newLine);
 					if(textDimensions.width>wrapWidth)
 					{
 						// New line
 						this._addLine(line,lineWidth,whitespaceWidth,false);
 						line = words[w];
+						lineWidth = canvasContext.measureText(line).width;
 					}
 					else
 					{
