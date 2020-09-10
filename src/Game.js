@@ -657,17 +657,25 @@ TGE.Game.prototype =
      */
     getAssetList: function (id)
     {
-        for (var listName in this.assetManager._mAssetLists)
-        {
-            var list = this.assetManager._mAssetLists[listName].list;
-            for (var i = 0; i < list.length; i++)
-            {
-	            if (list[i].id === id || (list[i].sheet && trimmedFilename(list[i].sheet) === id))
-                {
-                    return listName;
-                }
-            }
-        }
+    	if (id)
+	    {
+		    for (var listName in this.assetManager._mAssetLists)
+		    {
+			    var list = this.assetManager._mAssetLists[listName].list;
+			    for (var i = 0; i < list.length; i++)
+			    {
+				    if (list[i].id === id || (list[i].sheet && trimmedFilename(list[i].sheet) === id))
+				    {
+					    return listName;
+				    }
+			    }
+		    }
+	    }
+    	else
+	    {
+		    TGE.Debug.Log(TGE.Debug.LOG_WARNING, "attempting to check for a  null asset id");
+	    	return "required";
+	    }
     },
 
 	/** @ignore */
@@ -1036,14 +1044,6 @@ TGE.Game.prototype =
         if(!this._mGameViewableReceived)
         {
             this._mGameViewableReceived = true;
-
-            // The game should not be determining when to fire the game_viewable event, this should
-            // be the responsibility of the ad container. But in order to maintain a seamless fix we'll check if the
-            // ad container has the updated code, else still fire it from here.
-            if (window.TreSensa && TreSensa.Snapchat) // Ugly hack to determine what version of ad container is running
-            {
-                TGE.Events.logGameViewable();
-            }
 
             document.dispatchEvent(new Event("tgeGameViewable"));
 
