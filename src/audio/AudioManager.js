@@ -114,7 +114,7 @@ TGE.AudioManager.prototype =
         //PAN-964
         volume = typeof volume === "number" ? volume : 1;
         
-		var instance = this._mPlugin.playSound(id,this._mMuted ? 0 : volume,looping);
+		var instance = this._mPlugin.playSound(id, volume, looping);
 
 		return instance;
 	},

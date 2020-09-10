@@ -473,7 +473,7 @@ TGE.FontLoader = function(id, url)
 					url = _TREFONTS[filename];
 				}
 
-				TGE.AssetManager.LoadFontData(this.id, url, null, that.loader.onLoad(that));
+				TGE.AssetManager.LoadFontData(this.id, url, null, that.loader.onLoad.bind(that.loader, that));
             }
             catch(e)
             {
@@ -535,6 +535,18 @@ TGE.ScriptLoader = function(url)
 		{
 			this.scriptNode.onreadystatechange = null;
 			this.scriptNode.onload = null;
+
+			// Is this actually a font asset?
+			if (this.url.indexOf("assets/fonts/") !== -1)
+			{
+				// Get the family name from the url as well
+				var family = this.url.match(/([^\/]+)(?=\.\w+$)/)[0];
+
+				// We don't want to fire onLoad here, because we don't actually know if the font has been made
+				// available to the browser yet. Use our typical font loading path and pass in this callback.
+				TGE.AssetManager.LoadFontScript(family, true, this.loader.onLoad.bind(this.loader, this));
+				return;
+			}
 		}		
 		this.loader.onLoad(this);
 	};
@@ -557,7 +569,12 @@ TGE.ScriptLoader = function(url)
 			{
 				try
 				{
-					eval(script);
+					// Execute the script. Use window.Function instead of eval() based on recommendations here:
+					// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval
+					window.Function ?
+						Function('return (' + script + ')')() :
+						eval(script);
+
 					this.scriptLoaded();
 				}
 				catch(e)

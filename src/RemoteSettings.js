@@ -292,6 +292,9 @@ TGE.Game.prototype.validateSettingValue = function (value, config)
             case "Array":
                 value = [];
                 break;
+            case "object":
+                value = {};
+                break;
 
             // NOTE: if we want to support additional types here, we also need to change _convertStringToType
         }
@@ -382,6 +385,7 @@ TGE.Game.prototype._convertStringToType = function (string, type)
                 newVar = false;
             }
             break;
+        case "object":
         case "Array":
             try {
                 newVar = JSON.parse(string);

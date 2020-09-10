@@ -198,11 +198,10 @@ TGE.DisplayObjectContainer.prototype =
      */
     removeChildren: function()
     {
-        for(var i=this._mChildren.length; --i>=0; )
+        while (this._mChildren.length)
         {
-            this._mChildren[i].removeFromScene();
+            this._mChildren.pop().removeFromScene();
         }
-        this._mChildren = [];
     },
 
     /**

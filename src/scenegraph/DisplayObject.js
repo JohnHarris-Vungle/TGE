@@ -752,8 +752,11 @@ TGE.DisplayObject.prototype =
      */
     markForRemoval: function()
     {
-        this._mMarkedForRemoval = true;
-        this._mFullStage._trashObject(this);
+        if (!this._mMarkedForRemoval)
+        {
+            this._mMarkedForRemoval = true;
+            this._mFullStage._trashObject(this);
+        }
     },
 
     /**
