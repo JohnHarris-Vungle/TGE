@@ -308,6 +308,7 @@ TGE.Text.prototype =
 
 			this.width = this.wrapWidth;
 			var wrapWidth = this.wrapWidth>0 ? this.wrapWidth : Number.MAX_VALUE;
+			this.textWidth = 0;
 
 			var lines = this.text.split("\n");
 			for(var l=0; l<lines.length; ++l)
@@ -340,7 +341,7 @@ TGE.Text.prototype =
 		{
 			this._mLines.push(this.text);
 			var textDimensions = canvasContext.measureText(this.text);
-			this.width = textDimensions.width;
+			this.textWidth = this.width = textDimensions.width;
 		}
 		this.height = this._mLineHeight*this._mLines.length - this._mLineSpace; // PAN-505
 
@@ -544,6 +545,7 @@ TGE.Text.prototype =
 
 		this._mLines.push(line);
 		this.width = Math.max(this.width,lineWidth);
+		this.textWidth = Math.max(this.textWidth,lineWidth);
 	},
 
 	_applyTextDef: function(textDef)
