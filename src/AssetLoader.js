@@ -542,6 +542,9 @@ TGE.ScriptLoader = function(url)
 				// Get the family name from the url as well
 				var family = this.url.match(/([^\/]+)(?=\.\w+$)/)[0];
 
+				// Transform underscores to whitespaces
+				family = family.replace(/_/g, " ");
+
 				// We don't want to fire onLoad here, because we don't actually know if the font has been made
 				// available to the browser yet. Use our typical font loading path and pass in this callback.
 				TGE.AssetManager.LoadFontScript(family, true, this.loader.onLoad.bind(this.loader, this));
