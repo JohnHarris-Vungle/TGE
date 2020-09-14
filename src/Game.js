@@ -133,8 +133,6 @@ TGE.Game = function()
 
     // Snapchat needs a lot of special handling
     this._mSnapchatSession = getDistributionPartner()==="B0135";
-    this._mSnapchatImmersive = this._mSnapchatSession && window.TreSensa && window.TreSensa.Playable.getSetting &&
-        window.TreSensa.Playable.getSetting("snapchatImmersive")===true;
 
 	// PAN-435 Windows Phone 8 doesn't support devicePixelRatio
 	if(TGE.BrowserDetect.onWindowsMobile)
@@ -1011,8 +1009,7 @@ TGE.Game.prototype =
 	    // window.addEventListener("orientationchange", this._onOrientationChanged.bind(this));
 
 	    // Prevent page scroll. If we're in an ad container this will have been done already. If not, take care of it now.
-        // Note, do not trap native gestures on Snapchat.
-	    if(!window.TreSensa && (!this._mSnapchatSession || this._mSnapchatImmersive))
+	    if(!window.TreSensa)
 	    {
 		    var _onReady = function () {
 			    document.addEventListener('touchmove', function (event) {
@@ -2119,12 +2116,8 @@ TGE.Game.prototype =
 
     _preventBehavior: function(e)
     {
-        // Do not trap native gestures on Snapchat
-        if(!this._mSnapchatSession || this._mSnapchatImmersive)
-        {
-            e.stopPropagation();
-            e.preventDefault();
-        }
+        e.stopPropagation();
+        e.preventDefault();
     },
 
     _handleMouseEvent: function(type, e)
