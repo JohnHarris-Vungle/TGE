@@ -150,8 +150,15 @@ TGE.AssetManager.LoadFontScript = function(family, preloaded, loadCallback)
 	// The font needs to exist in the _TREFONTS global object
 	if (!window._TREFONTS || !_TREFONTS[family])
 	{
-		TGE.Debug.Log(TGE.Debug.LOG_ERROR, "inlined font '" + family + "' was not found");
-		return;
+	    // Special case we need to check for here where the font family name actually had underscores in it
+        var usName = family.replace(/ /g, "_");
+        if (!window._TREFONTS || !_TREFONTS[usName])
+        {
+            TGE.Debug.Log(TGE.Debug.LOG_ERROR, "inlined font '" + family + "' was not found");
+            return;
+        }
+
+		family = usName;
 	}
 
 	var fontObj = _TREFONTS[family];
