@@ -174,12 +174,23 @@ TGE.AssetManager.LoadFontScript = function(family, preloaded, loadCallback)
 	}
 	else if (typeof(fontObj.data)==="object")
 	{
+	    // For preloaded fonts where we need to fire a callback, we have to wait for all the weights to
+        // be loaded, and not fire the callback for each weight.
+        var numLoaded = 0;
+        var numRequired = Object.keys(fontObj.data).length;
+
 		for (var weight in fontObj.data)
 		{
 			if (fontObj.data.hasOwnProperty(weight)) 
 			{
 			    preloaded ?
-                    TGE.AssetManager.WaitForFont(family, weight, loadCallback) :
+                    TGE.AssetManager.WaitForFont(family, weight, function() {
+                        numLoaded++;
+                        if (numLoaded === numRequired)
+                        {
+                            loadCallback();
+                        }
+                    }) :
 				    TGE.AssetManager.LoadFontData(family, fontObj.data[weight], weight);
 			}
 		}
