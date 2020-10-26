@@ -30,7 +30,6 @@ TGE.Game = function()
 
     // Document div's
 	this.mCanvasDiv = null;
-    this.mReorientationDiv = null;
 
     // Loading & Assets
     this.mLoadingScreen = null;
@@ -157,9 +156,6 @@ TGE.Game = function()
     this._mCustomLoader = parseInt(queryParams["customloader"]) || 0;
     this._mTestGameViewable = parseInt(queryParams["testgameviewable"]) || 0;
     this._mPortraitGame = null; // Determined on first viewport resize
-    this._ignoreOrientation = queryParams["ignoreOrientation"] === "true" || // querystring override
-        this._mPreviewMode===1 || // banner ads
-        (window.GameConfig && !(GameConfig.ORIENTATION==="portrait" || GameConfig.ORIENTATION==="landscape" || GameConfig.ORIENTATION==="initial")); // via GameConfig
 
     // Determine the desired language
     this.setLanguage(this.preferredLanguage());
@@ -784,8 +780,6 @@ TGE.Game.prototype =
      * Launching point for the entire game. Calling this function will initialize the game environment and begin downloading required assets.
      * @param {Object} gameParameters Information about how the game should be setup.
      * @param {String} gameParameters.gameDiv ID of the game canvas div element.
-     * @param {String} [gameParameters.orientation="unspecified"] The orientation the game is meant to be played in. Can be "portrait", "landscape", or "unspecified".
-     * @param {String} [gameParameters.reorientDiv] ID of the div element to display if a users rotates their device to an orientation not intended for gameplay.
      * @param {Number} [gameParameters.width] An optional parameter to specify the desired width of the game canvas. If unspecified, the current gameDiv dimensions will be used.
      * @param {Number} [gameParameters.height] An optional parameter to specify the desired height of the game canvas. If unspecified, the current gameDiv dimensions will be used.
      * @return {Boolean} False if the game canvas could not be found.
@@ -794,12 +788,10 @@ TGE.Game.prototype =
     {
 		// Read in the setup parameters
         var gameDiv = typeof gameParameters.gameDiv === "string" ? gameParameters.gameDiv : null;
-        var reorientDiv = typeof gameParameters.reorientDiv === "string" ? gameParameters.reorientDiv : null;
         var width = typeof gameParameters.width === "number" ? gameParameters.width : -1;
         var height = typeof gameParameters.height === "number" ? gameParameters.height : -1;
         var initialWidth = typeof gameParameters.initialWidth === "number" ? parseInt(gameParameters.initialWidth) : -1;
         var initialHeight = typeof gameParameters.initialHeight === "number" ? parseInt(gameParameters.initialHeight) : -1;
-        var resizeForNative = typeof gameParameters.resizeForNative === "undefined" ? false : gameParameters.resizeForNative;
 
         // Check if there's a request to simulate a banner size
         var simulateBanner = getQueryString()["simulateBanner"];
@@ -834,9 +826,6 @@ TGE.Game.prototype =
 
         this.canvasWidth = this.mCanvasDiv.clientWidth;
         this.canvasHeight = this.mCanvasDiv.clientHeight;
-
-        // Get the div to show when the orientation is wrong
-        this.mReorientationDiv = document.getElementById(reorientDiv);
 
         // Add the resize event for orientation and screen size changes
         window.addEventListener('resize', this._onResize.bind(this), false);
