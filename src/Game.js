@@ -1410,8 +1410,16 @@ TGE.Game.prototype =
 			    // Need to tell the game...
 			    if(this._mFullStage)
 			    {
-			        // Calling this function on the full stage will automatically dispatch a resize event
-				    this._mFullStage.setSize(gameWidth,gameHeight);
+                    // See if there is a preferred orientation, and lock to it if necessary
+                    var preferredOrientation = TGE.RemoteSettings("orientation");
+                    var currentOrientation = screenHeight < screenWidth ? "landscape" : "portrait";
+
+                    // Do we need to lock to the opposite orientation?
+                    this._mFullStage.forceOrientationLock(preferredOrientation !== "responsive"
+                        && currentOrientation !== preferredOrientation);
+
+                    // Calling this function on the full stage will automatically dispatch a resize event
+                    this._mFullStage.setSize(gameWidth,gameHeight);
 			    }
 		    }
             else

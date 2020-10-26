@@ -7,6 +7,7 @@ TGE.GameStage = function(fullStage)
     this._mFullStage = fullStage;
     this._mRenderer = fullStage._mRenderer;
     this._mHeightRatio = 1.0; // 100%
+    this._mForceOrientationLock = false;
 
     // This isn't really necessary for TGE.GameStage, but the SpineAnimation module was referencing it prior to the
     // FullStage/GameStage re-architecture. As well, seems like TGE.FullStage doesn't even use this member anymore.
@@ -89,6 +90,11 @@ TGE.GameStage.prototype =
         this.dispatchEvent(TGE._ResizeEvent);
     },
 
+    forceOrientationLock: function(on)
+    {
+        this._mForceOrientationLock = on;
+    },
+
     /** @ignore */
     getHeight: function()
     {
@@ -110,6 +116,19 @@ TGE.GameStage.prototype =
      * */
     _layoutFunction: function()
     {
+        if (this._mForceOrientationLock)
+        {
+            TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "locking orientation to opposite direction");
+
+            this.width = this.parent.height;
+            this.height = this.parent.width;
+            this.rotation = -90;
+            this.y = this.parent.height;
+
+            return;
+        }
+        this.rotation = 0;
+
         this.x = this.parent.percentageOfWidth(this.registrationX);
         this.y = this.parent.percentageOfHeight(this.registrationY);
         this.width = this.parent.width;
