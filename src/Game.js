@@ -1348,34 +1348,6 @@ TGE.Game.prototype =
         this._mOldScreenWidth = screenWidth;
         this._mOldScreenHeight = screenHeight;
 
-        // What orientation is the device currently in?
-        var portraitOrientation = screenWidth<=screenHeight;
-
-        // Determine whether this game prefers to be played in portrait or landscape
-        if(typeof(this._mPortraitGame)!="boolean")
-        {
-            if(window.GameConfig)
-            {
-                switch(GameConfig.ORIENTATION)
-                {
-                    case "landscape": this._mPortraitGame = false;
-                        break;
-                    case "initial": this._mPortraitGame = portraitOrientation; // Prefer whatever the current device orientation is
-                        break;
-                    case "portrait":
-                    default: this._mPortraitGame = true;
-                        break;
-                }
-            }
-            else
-            {
-                this._mPortraitGame = true;
-            }
-        }
-
-        // Are we in the correct orientation?
-        var correctOrientation = portraitOrientation===this._mPortraitGame;
-
 	    // Do we want the canvas to be resized to fill the entire available viewport?
 	    if(this._mResizeCanvasToFit)
 	    {
@@ -1496,9 +1468,6 @@ TGE.Game.prototype =
                 this._centerCanvasDiv(gameWidth,gameHeight);
             }
         }
-
-        // Handle device orientation
-        this._handleOrientation(correctOrientation);
     },
 
     /** @ignore */
@@ -1531,44 +1500,6 @@ TGE.Game.prototype =
 
         return finalScale;
     },
-
-	/** @ignore */
-	_handleOrientation: function(correctOrientation)
-	{
-		if(this.mReorientationDiv!==null)
-		{
-			if(this._ignoreOrientation || !TGE.BrowserDetect.isMobileDevice || correctOrientation)
-			{
-				// Hide the reorientation div and show the game div
-				this.mReorientationDiv.style.display = 'none';
-				this.mCanvasDiv.style.display = 'block';
-
-                // PAN-842 don't force the game into an active state if it's currently inactive due to being hidden.
-                // We'll restrict this logic to only Snapchat for now...
-                if(this._mSnapchatSession)
-                {
-                    if(!(document.hidden || document.mozHidden || document.msHidden || document.webkitHidden))
-                    {
-                        this._active(true);
-                    }
-                }
-                else
-                {
-                    // The game is returning to an active state
-                    this._active(true);
-                }
-			}
-			else
-			{
-				// Hide the game div and show the reorientation div
-				this.mCanvasDiv.style.display = 'none';
-				this.mReorientationDiv.style.display = 'block';
-
-				// The game is going into a deactivated state
-				this._active(false);
-			}
-		}
-	},
 
 	/**
 	 * Change the game state to active or deactivated and send corresponding events
