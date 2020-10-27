@@ -124,16 +124,16 @@ TGE.GameStage.prototype =
             this.height = this.parent.width;
             this.rotation = -90;
             this.y = this.parent.height;
-
-            return;
         }
-        this.rotation = 0;
-
-        this.x = this.parent.percentageOfWidth(this.registrationX);
-        this.y = this.parent.percentageOfHeight(this.registrationY);
-        this.width = this.parent.width;
-        this.height = this.parent.height * this._mHeightRatio;
-        this.scale = 1;
+        else
+        {
+            this.rotation = 0;
+            this.x = this.parent.percentageOfWidth(this.registrationX);
+            this.y = this.parent.percentageOfHeight(this.registrationY);
+            this.width = this.parent.width;
+            this.height = this.parent.height * this._mHeightRatio;
+            this.scale = 1;
+        }
     },
 
     /**
