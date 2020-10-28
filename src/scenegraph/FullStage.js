@@ -162,6 +162,11 @@ TGE.FullStage.prototype =
 		this.gameStage.setHeight(height);
 	},
 
+	forceOrientationLock: function(on)
+	{
+		this.gameStage.forceOrientationLock(on);
+	},
+
 	/**
      * Tells the stage to draw all of its visible children. The background will only be cleared if the backgroundColor property has been set to a color.
      */
