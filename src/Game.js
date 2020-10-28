@@ -2037,12 +2037,23 @@ TGE.Game.prototype =
         this._mPointerX = x;
         this._mPointerY = y;
 
-        // If our orientation lock is active, we need to adjust the stage relative mouse position so that
+        // If our orientation lock is active, we need to adjust the stage-relative mouse position so that
         // it isn't relative to the true stage, but instead the rotated game stage.
         if (TGE.GameStage._sOrientationLock.active)
         {
-            this._mPointerX = TGE.GameStage._sOrientationLock.gameWidth * this._mViewportScale - y;
-            this._mPointerY = x;
+            var lockObj = TGE.GameStage._sOrientationLock;
+            if (lockObj.gameHeight < lockObj.gameWidth)
+            {
+                // Game is locked to landscape
+                this._mPointerX = y;
+                this._mPointerY = lockObj.gameHeight * this._mViewportScale - x;
+            }
+            else
+            {
+                // Game is locked to portrait
+                this._mPointerX = lockObj.gameWidth * this._mViewportScale - y;
+                this._mPointerY = x;
+            }
         }
 
         this._mPointerX /= this._mViewportScale;

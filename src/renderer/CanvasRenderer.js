@@ -69,8 +69,19 @@ TGE.CanvasRenderer.prototype =
 			var m = orientationLockAdjustment._internal;
 
 			// Apply the translation and rotation to fit the game stage into the full stage
-			m[5] = TGE.GameStage._sOrientationLock.gameWidth;
-			orientationLockAdjustment.rotate(-90);
+			var lockObj = TGE.GameStage._sOrientationLock;
+			if (lockObj.gameHeight < lockObj.gameWidth)
+			{
+				// Game is locked to landscape
+				m[2] = lockObj.gameHeight;
+				orientationLockAdjustment.rotate(90);
+			}
+			else
+			{
+				// Game is locked to portrait
+				m[5] = lockObj.gameWidth;
+				orientationLockAdjustment.rotate(-90);
+			}
 
 			// Apply this to the transformation we're supposed to apply
 			orientationLockAdjustment.concat(transform);
