@@ -35,7 +35,6 @@ TGE.AudioManager = function()
     });	
 
     // Private members
-	this._mMuted = false;
 	this._mPlugin = null;
 
 	this._initPlugin();
@@ -66,6 +65,7 @@ TGE.AudioManager = function()
 
 
 TGE.AudioManager._sInstance = null;
+TGE.AudioManager._sMuted = false;
 
 /**
  * Returns the single instance of the TGE.AudioManager object. The audio manager is created automatically by the TGE.Game class.
@@ -82,23 +82,23 @@ TGE.AudioManager.prototype =
 {
 	mute: function(on)
 	{
-		if(on===this._mMuted)
+		if(on===this.isMuted())
 		{
 			return;
 		}
 
-		this._mMuted = on;
+		TGE.AudioManager._sMuted = on;
 		this._mPlugin.mute(on,this.volume);
 	},
 
 	toggleMute: function()
 	{
-		this.mute(!this._mMuted);
+		this.mute(!this.isMuted());
 	},
 
 	isMuted: function()
 	{
-		return this._mMuted;
+		return TGE.AudioManager._sMuted;
 	},
 
 	playSound: function(id,looping,volume)
