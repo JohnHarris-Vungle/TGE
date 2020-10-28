@@ -2037,6 +2037,14 @@ TGE.Game.prototype =
         this._mPointerX = x;
         this._mPointerY = y;
 
+        // If our orientation lock is active, we need to adjust the stage relative mouse position so that
+        // it isn't relative to the true stage, but instead the rotated game stage.
+        if (TGE.GameStage._sOrientationLock.active)
+        {
+            this._mPointerX = TGE.GameStage._sOrientationLock.gameWidth * this._mViewportScale - y;
+            this._mPointerY = x;
+        }
+
         this._mPointerX /= this._mViewportScale;
         this._mPointerY /= this._mViewportScale;
     },

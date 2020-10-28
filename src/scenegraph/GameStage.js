@@ -7,7 +7,6 @@ TGE.GameStage = function(fullStage)
     this._mFullStage = fullStage;
     this._mRenderer = fullStage._mRenderer;
     this._mHeightRatio = 1.0; // 100%
-    this._mForceOrientationLock = false;
 
     // This isn't really necessary for TGE.GameStage, but the SpineAnimation module was referencing it prior to the
     // FullStage/GameStage re-architecture. As well, seems like TGE.FullStage doesn't even use this member anymore.
@@ -19,6 +18,19 @@ TGE.GameStage = function(fullStage)
 
     return this;
 }
+
+/** @ignore */
+TGE.GameStage._sOrientationLock = {
+
+    // When active it means we're sizing the game stage to match the opposite dimensions of the full stage,
+    // and then rotating it to fit properly (on a 90 degree angle).
+    active: false,
+
+    // The game dimensions stored here represent the width/height that the game thinks it is using while locked.
+    // This will actually be width/height of the full stage swapped.
+    gameWidth: 1,
+    gameHeight: 1
+};
 
 TGE.GameStage.prototype =
 {
@@ -92,7 +104,9 @@ TGE.GameStage.prototype =
 
     forceOrientationLock: function(on)
     {
-        this._mForceOrientationLock = on;
+        TGE.GameStage._sOrientationLock.active = on;
+
+        // Width/height will be set when the layout is updated...
     },
 
     /** @ignore */
@@ -116,18 +130,20 @@ TGE.GameStage.prototype =
      * */
     _layoutFunction: function()
     {
-        if (this._mForceOrientationLock)
+        if (TGE.GameStage._sOrientationLock.active)
         {
-            TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "locking orientation to opposite direction");
+            TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "orientation lock is being applied");
 
-            this.width = this.parent.height;
-            this.height = this.parent.width;
-            this.rotation = -90;
-            this.y = this.parent.height;
+            // We need to exchange the width and height of the full stage. The 90 degree rotation
+            // to fit it within the full stage will happen "secretly" in the CanvasRenderer. This
+            // is so we don't confuse the game code with the the rotation in the world transformation stack.
+            this.width = TGE.GameStage._sOrientationLock.gameWidth = this.parent.height;
+            this.height = TGE.GameStage._sOrientationLock.gameHeight = this.parent.width;
         }
         else
         {
-            this.rotation = 0;
+            // The application of the height ratio is to support the ISI panel. For now we have to
+            // assume the ISI panel isn't compatible with orientation lock.
             this.x = this.parent.percentageOfWidth(this.registrationX);
             this.y = this.parent.percentageOfHeight(this.registrationY);
             this.width = this.parent.width;

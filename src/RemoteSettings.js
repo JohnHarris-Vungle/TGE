@@ -62,7 +62,7 @@ TGE.RemoteSettings._initPersistentSettings = function()
     TGE.RemoteSettings._persistentSettings = {
         "audio": {type: "boolean", default: TGE.RemoteSettings._getDefaultAudioSetting(), description: "enable audio", persistent: true},
         "lang": {type: "string", default: "en", description: "game language", options: ["en"], persistent: true},
-        "orientation": {type: "string", default: "landscape", description: "orientation settings", options: ["responsive", "portrait", "landscape"], persistent: true}
+        "orientation": {type: "string", default: "responsive", description: "orientation settings", options: ["responsive", "portrait", "landscape"], persistent: true}
     };
 };
 
