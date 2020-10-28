@@ -62,7 +62,7 @@ TGE.RemoteSettings._initPersistentSettings = function()
     TGE.RemoteSettings._persistentSettings = {
         "audio": {type: "boolean", default: TGE.RemoteSettings._getDefaultAudioSetting(), description: "enable audio", persistent: true},
         "lang": {type: "string", default: "en", description: "game language", options: ["en"], persistent: true},
-        "orientation": {type: "string", default: "responsive", description: "orientation settings", options: ["responsive", "portrait", "landscape"], persistent: true}
+        "orientationLock": {type: "string", default: "responsive", description: "orientation settings", options: ["responsive", "portrait", "landscape"], persistent: true}
     };
 };
 
@@ -256,7 +256,7 @@ TGE.Game.prototype._initRemoteSetting = function (settingName, settingObject)
 TGE.Game.prototype._errorHandleRemoteSettings = function (config)
 {
     // Check for a duplicate of a persistent setting name, but allow certain ones to be overwritten in GameConfig
-    if (config.name!=="lang" && config.name!=="orientation" &&
+    if (config.name!=="lang" && config.name!=="orientationLock" &&
         !config.persistent && TGE.RemoteSettings._persistentSettings[config.name])
     {
         TGE.Debug.Log(TGE.Debug.LOG_ERROR, 'remote setting "' + config.name + '" is reserved as a persistent TGE setting');

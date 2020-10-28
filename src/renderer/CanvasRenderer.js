@@ -85,7 +85,6 @@ TGE.CanvasRenderer.prototype =
 
 			// Apply this to the transformation we're supposed to apply
 			orientationLockAdjustment.concat(transform);
-			m = orientationLockAdjustment._internal;
 		}
 
 		if(stageScale!==1)

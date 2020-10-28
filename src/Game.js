@@ -1411,7 +1411,7 @@ TGE.Game.prototype =
 			    if(this._mFullStage)
 			    {
                     // See if there is a preferred orientation, and lock to it if necessary
-                    var preferredOrientation = TGE.RemoteSettings("orientation");
+                    var preferredOrientation = TGE.RemoteSettings("orientationLock");
                     var currentOrientation = screenHeight < screenWidth ? "landscape" : "portrait";
 
                     // Do we need to lock to the opposite orientation?
