@@ -1410,8 +1410,16 @@ TGE.Game.prototype =
 			    // Need to tell the game...
 			    if(this._mFullStage)
 			    {
-			        // Calling this function on the full stage will automatically dispatch a resize event
-				    this._mFullStage.setSize(gameWidth,gameHeight);
+                    // See if there is a preferred orientation, and lock to it if necessary
+                    var preferredOrientation = TGE.RemoteSettings("orientation");
+                    var currentOrientation = screenHeight < screenWidth ? "landscape" : "portrait";
+
+                    // Do we need to lock to the opposite orientation?
+                    this._mFullStage.forceOrientationLock(preferredOrientation !== "responsive"
+                        && currentOrientation !== preferredOrientation);
+
+                    // Calling this function on the full stage will automatically dispatch a resize event
+                    this._mFullStage.setSize(gameWidth,gameHeight);
 			    }
 		    }
             else
@@ -2028,6 +2036,14 @@ TGE.Game.prototype =
     {
         this._mPointerX = x;
         this._mPointerY = y;
+
+        // If our orientation lock is active, we need to adjust the stage relative mouse position so that
+        // it isn't relative to the true stage, but instead the rotated game stage.
+        if (TGE.GameStage._sOrientationLock.active)
+        {
+            this._mPointerX = TGE.GameStage._sOrientationLock.gameWidth * this._mViewportScale - y;
+            this._mPointerY = x;
+        }
 
         this._mPointerX /= this._mViewportScale;
         this._mPointerY /= this._mViewportScale;

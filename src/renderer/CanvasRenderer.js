@@ -54,6 +54,29 @@ TGE.CanvasRenderer.prototype =
 	{
 		// Apply the transformation to the canvas context
 		var m = transform._internal;
+
+		// If an orientation lock is being applied, it means we exchanged the width and height of the game stage.
+		// To fit the game stage into the full stage it needs to be rotated 90 degrees and translated into place.
+		// If this is done using the standard rotation/x/y properties of the GameStage, it will introduce those
+		// transformations into the world transform stack and confuse game code that does anything related to stage
+		// coordinates (in particular transforming between local to stage and vise versa).
+		//
+		// To get around this problem we will "secretly" apply the necessary transformations here in the CanvasRenderer
+		// when the world transformation is applied for rendering.
+		if (TGE.GameStage._sOrientationLock.active)
+		{
+			var orientationLockAdjustment = new TGE.Matrix();
+			var m = orientationLockAdjustment._internal;
+
+			// Apply the translation and rotation to fit the game stage into the full stage
+			m[5] = TGE.GameStage._sOrientationLock.gameWidth;
+			orientationLockAdjustment.rotate(-90);
+
+			// Apply this to the transformation we're supposed to apply
+			orientationLockAdjustment.concat(transform);
+			m = orientationLockAdjustment._internal;
+		}
+
 		if(stageScale!==1)
 		{
 			this._mCanvasContext.setTransform(m[0]*stageScale, m[3]*stageScale, m[1]*stageScale, m[4]*stageScale, m[2]*stageScale, m[5]*stageScale);
