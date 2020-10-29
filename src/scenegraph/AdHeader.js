@@ -61,41 +61,10 @@ TGE.AdHeader.Create = function(callback,closeButtonVisible)
         width: 125,
         height: 125,
         layout: function() {
-            // When we lock orientation we still want the close button (and ad header) to behave as if it's NOT
-            // orientation locked, ie: if the device is in portrait, the close button should always be in the
-            // upper right, even if the game is locked to landscape.
-            if (TGE.GameStage._sOrientationLock.active)
-            {
-                // We're going to use the full stage here, because this layout update can happen
-                // before the GameStage layout update where we update the _sOrientationLock object's dimensions
-                var fullStage = TGE.Game.GetInstance()._mFullStage;
-
-                this.width = fullStage.width;
-                this.height = fullStage.height;
-
-                var lockObj = TGE.GameStage._sOrientationLock;
-                if (fullStage.height < fullStage.width)
-                {
-                    // Game is locked to portrait
-                    this.rotation = 90;
-                    this.x = this.height;
-                    this.y = 0;
-                }
-                else
-                {
-                    // Game is locked to landscape
-                    this.rotation = -90;
-                    this.y = this.width;
-                    this.x = 0;
-                }
-            }
-            else
-            {
-                this.rotation = 0;
-                this.x = this.y = 0;
-                this.width = this.stage.width;
-                this.height = this.stage.height;
-            }
+            this.rotation = 0;
+            this.x = this.y = 0;
+            this.width = this.stage.width;
+            this.height = this.stage.height;
         }
     }));
 

@@ -9,6 +9,7 @@ TGE.Renderer = function(canvas)
     return this;
 }
 
+TGE.Renderer._sIgnoreOrientationLock = false;
 
 TGE.Renderer.prototype =
 {

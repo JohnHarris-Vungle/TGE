@@ -63,7 +63,7 @@ TGE.CanvasRenderer.prototype =
 		//
 		// To get around this problem we will "secretly" apply the necessary transformations here in the CanvasRenderer
 		// when the world transformation is applied for rendering.
-		if (TGE.GameStage._sOrientationLock.active)
+		if (TGE.GameStage._sOrientationLock.active && TGE.Renderer._sIgnoreOrientationLock !== true)
 		{
 			var orientationLockAdjustment = new TGE.Matrix();
 			var m = orientationLockAdjustment._internal;

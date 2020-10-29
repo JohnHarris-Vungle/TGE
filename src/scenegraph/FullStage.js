@@ -172,6 +172,11 @@ TGE.FullStage.prototype =
      */
     draw: function()
     {
+		// If we've locked orientation, we only want the GameStage to respect the lock. Everything else on the
+		// FullStage should be ignoring the lock (legal footer, ad header/close button, etc). The GameStage
+		// will turn the lock on in its _draw call.
+		TGE.Renderer._sIgnoreOrientationLock = true;
+
         // We'll gather objects that need to be tested against mouse events. They'll get added to the
         // array in bottom to top order. Hidden objects cannot be mouse targets.
         this._mMouseTargets = [];

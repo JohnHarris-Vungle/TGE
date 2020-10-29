@@ -124,6 +124,16 @@ TGE.GameStage.prototype =
         this.dispatchResize();
     },
 
+    /** @ignore */
+    _draw: function(renderer)
+    {
+        // If we've locked orientation, we only want the GameStage to respect the lock. Everything else on the
+        // FullStage should be ignoring the lock (legal footer, ad header/close button, etc).
+        TGE.Renderer._sIgnoreOrientationLock = false;
+        TGE.GameStage.superclass._draw.call(this, renderer);
+        TGE.Renderer._sIgnoreOrientationLock = true;
+    },
+
     /** @ignore
      * It's critical that this function not rely on the event object passed in. The dimensions used in TGE._ResizeEvent
      * are set within this class itself (dispatchResize) and will not be valid here yet.
