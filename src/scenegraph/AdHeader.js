@@ -66,21 +66,27 @@ TGE.AdHeader.Create = function(callback,closeButtonVisible)
             // upper right, even if the game is locked to landscape.
             if (TGE.GameStage._sOrientationLock.active)
             {
-                this.width = this.stage.width;
-                this.height = this.stage.height;
+                // We're going to use the full stage here, because this layout update can happen
+                // before the GameStage layout update where we update the _sOrientationLock object's dimensions
+                var fullStage = TGE.Game.GetInstance()._mFullStage;
+
+                this.width = fullStage.width;
+                this.height = fullStage.height;
 
                 var lockObj = TGE.GameStage._sOrientationLock;
-                if (lockObj.gameHeight < lockObj.gameWidth)
-                {
-                    // Game is locked to landscape
-                    this.rotation = -90;
-                    this.y = this.stage.width;
-                }
-                else
+                if (fullStage.height < fullStage.width)
                 {
                     // Game is locked to portrait
                     this.rotation = 90;
-                    this.x = this.stage.height;
+                    this.x = this.height;
+                    this.y = 0;
+                }
+                else
+                {
+                    // Game is locked to landscape
+                    this.rotation = -90;
+                    this.y = this.width;
+                    this.x = 0;
                 }
             }
             else
