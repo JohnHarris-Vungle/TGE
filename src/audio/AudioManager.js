@@ -39,6 +39,8 @@ TGE.AudioManager = function()
 
 	this._initPlugin();
 
+	this._mPlugin.mute(this.isMuted(), this.volume);
+
 	// Setup the audio loading plugin to be used by TGE.Loader (if it exists!)
 	if(typeof(TGE.Loader)==="function")
 	{
