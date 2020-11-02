@@ -77,6 +77,11 @@ TGE.Renderer.prototype =
 
 	},
 
+	resetTransform: function()
+	{
+		this.setWorldTransform(TGE.IDENTITY, 1);
+	},
+
 	setWorldTransform: function(transform,stageScale)
 	{
 
