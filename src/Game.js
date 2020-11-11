@@ -1065,7 +1065,7 @@ TGE.Game.prototype =
         // See if the exact language code is supported. If not, see if the core language is supported. Otherwise take the first supported language.
 	    var res = "en";
         var coreLang = firstPick.split("-")[0];
-        var supportedLanguages = TGE.RemoteSettings.GetSettings()["lang"].options || ["en"];
+        var supportedLanguages = TGE.RemoteSettings.GetSettings()["lang"].options || [];
         if(supportedLanguages.indexOf(firstPick) !== -1)
         {
             res = firstPick;
@@ -1074,9 +1074,9 @@ TGE.Game.prototype =
         {
             res = coreLang;
         }
-        else if(supportedLanguages.length > 0)
+        else
         {
-            res = supportedLanguages[0];
+            res = TGE.RemoteSettings("lang");
         }
 
         res = res.toLowerCase();
