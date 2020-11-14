@@ -596,7 +596,7 @@ TGE.ScriptLoader = function(url)
 			var h = document.getElementsByTagName("head")[0];
 			this.scriptNode = document.createElement("script");
 			this.scriptNode.type = "text/javascript";
-			this.scriptNode.src = this.url;
+			this.scriptNode.src = TGE.AssetManager._sFullPathTransformation(this.url);
 			this.scriptNode.onreadystatechange = this.scriptLoaded.bind(this);
 			this.scriptNode.onload = this.scriptLoaded.bind(this);
 			h.appendChild(this.scriptNode);
@@ -665,7 +665,7 @@ TGE.JSONLoader = function(url)
 		else
 		{
 			var self = this;
-			fetch(url)
+			fetch(TGE.AssetManager._sFullPathTransformation(url))
 				.then(function(response) {
 					return response.json();
 				})

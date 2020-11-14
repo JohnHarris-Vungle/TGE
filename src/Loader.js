@@ -472,7 +472,7 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 		}
 		else
 		{
-			self.el.src = url;
+			self.el.src = TGE.AssetManager._sFullPathTransformation(url);
 		}        
     };
 

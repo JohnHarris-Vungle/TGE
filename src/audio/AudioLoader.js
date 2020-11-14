@@ -57,6 +57,10 @@ TGE.WebAudioLoader = function(id, url, url2)
 
 			url = _TREAUDIO[filename];
 		}
+		else
+		{
+			url = TGE.AssetManager._sFullPathTransformation(url);
+		}
 
 		fetch(url)
 			.then(function(response) {

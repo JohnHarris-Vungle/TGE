@@ -90,6 +90,21 @@ TGE.AssetManager._sTotalAssetsOverFootprintLimit = 0;
 /** @ignore */
 TGE.AssetManager._sLargestImageDimension = 0;
 
+/** @ignore */
+TGE.AssetManager._sFullPathTransformation = function(str)
+{
+    return str;
+}
+
+/**
+ * Set a function that will be applied to an asset's full path right before it is fetched.
+ * @param {Function } func The function should accept a string (the full path) as an argument, and return the transformed path.
+ */
+TGE.AssetManager.SetFullPathTransformation = function(func)
+{
+    TGE.AssetManager._sFullPathTransformation = func;
+}
+
 /**
  * @deprecated - use Get instead (same function, more appropriate name)
  * @ignore
