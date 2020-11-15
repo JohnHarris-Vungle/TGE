@@ -336,6 +336,11 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 	        this.el.setAttribute("playsinline", "");         // for iOS 10+
         }
 
+        // PAN-1550 need to set muted property on "canplay" event, due to Chrome bug
+	    this.bind("canplay", function(e) {
+		    this.muted = TGE.AudioManager._sMuted;
+	    });
+
 	    // add any additional attributes passed in
 	    if (attributes)
 	    {
