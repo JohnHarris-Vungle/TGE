@@ -483,7 +483,8 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 		else
 		{
 		    // Don't even attempt a remote load if this is supposed to be an inlined package
-            if (window.TreSensa && window.TreSensa.Playable.inlinedAssets)
+            if (window.TreSensa && window.TreSensa.Playable.inlinedAssets &&
+                getQueryString()["inlinedAssets"] !== "false") // Check for our QA override
             {
                 onError();
                 return;
