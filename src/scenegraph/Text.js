@@ -555,8 +555,9 @@ TGE.Text.prototype =
 		{
 			if (GameConfig.TEXT_DEFS)
 			{
-				var localizedDef = textDef + "_" + TGE.RemoteSettings("lang");
-				def = GameConfig.TEXT_DEFS[localizedDef] || GameConfig.TEXT_DEFS[textDef];
+				var localizedDef = GameConfig.TEXT_DEFS[textDef + "_" + TGE.RemoteSettings("lang")];
+				// make sure we don't generate an infinite recursion, which happened with orbitvenice (using the same naming convention, but in a different way)
+				def = (localizedDef && localizedDef.textDef !== textDef) ? localizedDef : GameConfig.TEXT_DEFS[textDef];
 			}
 			else
 			{
@@ -592,11 +593,7 @@ TGE.Text.prototype =
             {
 	            for (var prop in def)
 	            {
-		            if (prop === "fontOffsetY")
-		            {
-			            this.y += def[prop];
-		            }
-		            else if (prop !== "textDef" && def[prop] !== null)
+		            if (prop !== "textDef" && def[prop] !== null)
 		            {
 			            this[prop] = def[prop];
 		            }
