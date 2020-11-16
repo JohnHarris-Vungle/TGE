@@ -325,6 +325,11 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 		}
 	};
 
+	var startMuted = function(e) {
+		self.unbind("canplay", startMuted);
+		this.muted = TGE.AudioManager._sMuted;
+	};
+
 	if (type == "video")
     {
 	    loadEvent = (preload === "auto") ? "canplaythrough" : "loadstart";
@@ -337,9 +342,7 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
         }
 
         // PAN-1550 need to set muted property on "canplay" event, due to Chrome bug
-	    this.bind("canplay", function(e) {
-		    this.muted = TGE.AudioManager._sMuted;
-	    });
+	    this.bind("canplay", startMuted);
 
 	    // add any additional attributes passed in
 	    if (attributes)
