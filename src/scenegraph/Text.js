@@ -550,7 +550,19 @@ TGE.Text.prototype =
 
 	_applyTextDef: function(textDef)
 	{
-		var def = (typeof textDef === "object") ? textDef : (GameConfig.TEXT_DEFS ? GameConfig.TEXT_DEFS[textDef] : null);
+		var def = textDef;
+		if (typeof textDef === "string")
+		{
+			if (GameConfig.TEXT_DEFS)
+			{
+				var localizedDef = textDef + "_" + TGE.RemoteSettings("lang");
+				def = GameConfig.TEXT_DEFS[localizedDef] || GameConfig.TEXT_DEFS[textDef];
+			}
+			else
+			{
+				def = null;
+			}
+		}
 
         if (def)
         {
