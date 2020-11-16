@@ -463,6 +463,10 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 		{
 			self.el.crossOrigin = "anonymous";
 		}
+
+		// Get the filename so we can see if it has been inlined
+        var parts = url.split("/");
+        var filename = parts[parts.length-1];
 		
 		// Does the element already have the asset loaded? (ie: Facebook .zip format)
         if (self.el.width)
@@ -470,16 +474,22 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
             // Don't do anything, el is already loaded
             onLoad();
         }
-        // For packaged builds that require inlined assets (Facebook, Vungle), we will check for the existence of a global
-        // dictionary of asset names to base64 strings
-        else if (window._TREIMAGES)
+        // For packaged builds that require inlined assets (Facebook, Vungle), we will check for the existence of
+        // a global dictionary of asset names to base64 strings.
+        else if (window._TREIMAGES && _TREIMAGES[filename])
 		{
-            var parts = url.split("/");
-            var filename = parts[parts.length-1];
 			self.el.src = _TREIMAGES[filename];
 		}
 		else
 		{
+		    // Don't even attempt a remote load if this is supposed to be an inlined package
+            if (window.TreSensa && window.TreSensa.Playable.inlinedAssets &&
+                getQueryString()["inlinedAssets"] !== "false") // Check for our QA override
+            {
+                onError();
+                return;
+            }
+
 			self.el.src = TGE.AssetManager._sFullPathTransformation(url);
 		}        
     };
