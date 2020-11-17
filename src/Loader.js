@@ -484,7 +484,10 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 		{
 		    // Don't even attempt a remote load if this is supposed to be an inlined package
             if (window.TreSensa && window.TreSensa.Playable.inlinedAssets &&
-                getQueryString()["inlinedAssets"] !== "false") // Check for our QA override
+                getQueryString()["inlinedAssets"] !== "false")  // This getQueryString check was a hack necessary due to a bug
+                                                                // with the TreSensa.Playable.inlinedAssets flag being
+                                                                // incorrectly set when inlinedAssets=false was used in the
+                                                                // querystring. We can remove this hack after Nov 20th 2020.
             {
                 onError();
                 return;
