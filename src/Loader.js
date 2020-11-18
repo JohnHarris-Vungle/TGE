@@ -327,7 +327,8 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 
 	var startMuted = function(e) {
 		self.unbind("canplay", startMuted);
-		this.muted = TGE.AudioManager._sMuted;
+		var game = TGE.Game.GetInstance();
+        this.muted = TGE.AudioManager._sMuted || (TGE.InCreativeBuilder() && game && !game.timeSinceLastInteraction());
 	};
 
 	if (type == "video")
