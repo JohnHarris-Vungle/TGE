@@ -333,7 +333,8 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 
 	if (type == "video")
     {
-	    loadEvent = (preload === "auto") ? "canplaythrough" : "loadstart";
+	    loadEvent = (preload === "none" || preload === "metadata") ? "loadstart" :
+		    ((preload === "auto") ? "canplaythrough" : preload);
 
 	    // add playsinline, unless specified not to
         if (!attributes || attributes.playsinline !== "false")
@@ -350,7 +351,14 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 	    {
 		    for (var a in attributes)
 		    {
-			    this.el.setAttribute(a, attributes[a]);
+		    	var val = attributes[a];
+		    	if (a === "preload" && val !== "none" && val !== "metadata")
+			    {
+			    	// Any preload value other than none/metadata is forced to "auto".
+				    // This lets us use preload values like "canplaythrough" to control the load event, while keeping the media attribute in "auto".
+			    	val = "auto";
+			    }
+			    this.el.setAttribute(a, val);
 		    }
 	    }
 
