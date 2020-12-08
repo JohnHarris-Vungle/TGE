@@ -56,8 +56,8 @@ TGE.Game = function()
 	window.GameConfig = window.GameConfig || {};
 	GameConfig.REMOTE_SETTINGS = GameConfig.REMOTE_SETTINGS || {};
 
-    // Deal with deprecated TGS.Languages supported languages array
-    if(TGS.Language.SupportedLanguages)
+    // Deal with deprecated TGS.Languages supported languages array (but only if languages haven't already been define in GameConfig)
+    if(TGS.Language.SupportedLanguages && !GameConfig.REMOTE_SETTINGS["lang"])
     {
         // We have to create a remote setting that specifies a "lang" setting with this list as the available options
         GameConfig.REMOTE_SETTINGS["lang"] = {
