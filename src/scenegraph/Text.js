@@ -77,10 +77,6 @@ TGE.Text.CachePaddingPercent = 0.4; // Percent of line height
 TGE.Text.LoggedFontDeprecated = false;
 
 /** @ignore */
-// Not documenting this - we'd prefer devs to use TGE.Game.setLanguage()
-TGE.Text.Language = "en";
-
-/** @ignore */
 TGE.Text._sAsianLanguages = ["ja","zh","tw","ko","th"];
 
 /** @ignore */
@@ -142,7 +138,7 @@ TGE.Text.GetString = function(textID)
     }
     else
     {
-        return translations[TGE.Text.Language] || translations["en"] || "";
+        return translations[TGE.Game.GetInstance().getLanguage()] || translations["en"] || "";
     }
 }
 
@@ -438,12 +434,12 @@ TGE.Text.prototype =
 	/** @ignore */
 	_rtlLanguage: function()
 	{
-		return TGE.Text._sRightToLeftLangages.indexOf(TGE.Text.Language)!==-1 && this._endPunctuation();
+		return TGE.Text._sRightToLeftLangages.indexOf(TGE.Game.GetInstance().getLanguage())!==-1 && this._endPunctuation();
 	},
 	/** @ignore */
 	_asianLanguage: function()
 	{
-	    var coreLang = TGE.Text.Language.split("-")[0];
+	    var coreLang = TGE.Game.GetInstance().getLanguage().split("-")[0];
 		return TGE.Text._sAsianLanguages.indexOf(coreLang)!==-1;
 	},
 	/** @ignore */
@@ -558,7 +554,7 @@ TGE.Text.prototype =
 			if (GameConfig.TEXT_DEFS)
 			{
 				def = GameConfig.TEXT_DEFS[textDef];
-				localizedDef = GameConfig.TEXT_DEFS[textDef + "_" + TGE.Text.Language];
+				localizedDef = GameConfig.TEXT_DEFS[textDef + "_" + TGE.Game.GetInstance().getLanguage()];
 				// make sure we don't generate an infinite recursion, which happened with orbitvenice (using the same naming convention, but in a different way)
 				if (localizedDef && localizedDef.textDef === textDef)
 				{

@@ -39,7 +39,6 @@ TGE.Game = function()
 	this._mShowBuffering = false;
 	this._mBufferingScreen = null;
     this._mBufferingOccurrences = {};
-    this._mLanguage = "en";
 
 	// User engagement for playable ad games
     this._mNumInteractions = 0;
@@ -305,14 +304,17 @@ TGE.Game.prototype =
 	 */
 	setLanguage: function(lang)
 	{
-		this._mLanguage = lang;
-
-		// Set the language in the asset manager
-		this.assetManager.currentLanguage = lang;
-
-		// Set the language for the TGE.Text lookups
-		TGE.Text.Language = lang;
+	    TGE.RemoteSettings.GetSettings()["lang"].value = lang;
 	},
+
+    /**
+     * Returns the language code that TGE is using to try and fulfill any language specific text or assets.
+     * @returns {String} A two-character ISO-639-1 language code.
+     */
+    getLanguage: function()
+    {
+        return TGE.RemoteSettings("lang");
+    },
 
     /**
      * Sets the final score achieved by the player in the game.
@@ -375,15 +377,6 @@ TGE.Game.prototype =
 
         // Resume any audio
         this.audioManager.resume();
-    },
-
-    /**
-     * Returns the language code that TGE is using to try and fulfill any language specific text or assets.
-     * @returns {String} A two-character ISO-639-1 language code.
-     */
-    getLanguage: function()
-    {
-        return this._mLanguage;
     },
 
     /**

@@ -29,7 +29,6 @@ TGE.AssetManager = function(loadAudio)
 
 	// PAN-466 Allow games to specify where the languages folder is
 	this.languagesFolder = "languages";
-	this.currentLanguage = "en"; // Not documenting this - devs should use TGE.Game.setLanguage() instead
 
     // Private members
     this._mSpriteSheets = {};
@@ -1148,6 +1147,8 @@ TGE.AssetManager.prototype =
 		}
 		else
 		{
+            var currentLanguage = TGE.Game.GetInstance().getLanguage();
+
 			// (deprecated) PAN-594 If the list contains any localized sheets we need to reassign their layout files
 			if(assetList.localizedSheets)
 			{
@@ -1155,7 +1156,7 @@ TGE.AssetManager.prototype =
 				{
 					var sheetURL = assetList.localizedSheets[al];
 					var trimmedName = trimmedFilename(sheetURL);
-					var localizedTrimmedName = trimmedName + (this.currentLanguage!=="en" ?  ("_" + this.currentLanguage) : "");
+					var localizedTrimmedName = trimmedName + (currentLanguage!=="en" ?  ("_" + currentLanguage) : "");
 					var localizedLayout = TGE.AssetManager.SpriteSheets[localizedTrimmedName];
 					if(localizedLayout)
 					{
@@ -1206,7 +1207,7 @@ TGE.AssetManager.prototype =
 			{
 				// Load all the assets in the list
 				var assetLoader = new TGE.AssetLoader();
-				assetLoader.loadAssetList(this,assetList,this._mRootLocation,this.languagesFolder,this.currentLanguage,updateCallback,completeCallback);
+				assetLoader.loadAssetList(this,assetList,this._mRootLocation,this.languagesFolder,currentLanguage,updateCallback,completeCallback);
 			}
 		}
 
@@ -1244,12 +1245,13 @@ TGE.AssetManager.prototype =
 			this._addSheetImagesToAssetList(assetList, entry.sheetURL, entry.localized);
 		}
 
+        var game = TGE.Game.GetInstance();
+
 		// Now finally load the asset list
 		var assetLoader = new TGE.AssetLoader();
-		assetLoader.loadAssetList(this,assetList,this._mRootLocation,this.languagesFolder,this.currentLanguage,updateCallback,completeCallback);
+		assetLoader.loadAssetList(this,assetList,this._mRootLocation,this.languagesFolder,game.getLanguage(),updateCallback,completeCallback);
 
 		// When testbuffering, if we still have unresolved _mWaitingForAssets, we need to queue up the next assetList load
-		var game = TGE.Game.GetInstance();
 		if (game._mTestBuffering === 1 && game._mWaitingForAssets.length)
 		{
 			game._loadNextAssetList();
