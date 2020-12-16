@@ -524,7 +524,13 @@ TGE.AdFooter.prototype =
 
     _panelText: function()
     {
-        return GameConfig.TEXT_DEFS && GameConfig.TEXT_DEFS["tge_isi_text"] ? GameConfig.TEXT_DEFS["tge_isi_text"].text : "";
+        var id = "tge_isi_text";
+        if (GameConfig.TEXT_DEFS && GameConfig.TEXT_DEFS[id])
+        {
+            var localizedId = id + "_" + TGE.RemoteSettings("lang");
+            return GameConfig.TEXT_DEFS[localizedId] ? GameConfig.TEXT_DEFS[localizedId].text : GameConfig.TEXT_DEFS[id].text;
+        }
+        return "";
     },
 
     _uiScalingDimension: function()
