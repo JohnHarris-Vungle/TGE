@@ -558,7 +558,7 @@ TGE.Text.prototype =
 			if (GameConfig.TEXT_DEFS)
 			{
 				def = GameConfig.TEXT_DEFS[textDef];
-				localizedDef = GameConfig.TEXT_DEFS[textDef + "_" + TGE.RemoteSettings("lang")];
+				localizedDef = GameConfig.TEXT_DEFS[textDef + "_" + TGE.Text.Language];
 				// make sure we don't generate an infinite recursion, which happened with orbitvenice (using the same naming convention, but in a different way)
 				if (localizedDef && localizedDef.textDef === textDef)
 				{
