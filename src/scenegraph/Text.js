@@ -595,12 +595,22 @@ TGE.Text.prototype =
             {
 	            for (var prop in def)
 	            {
-	            	var val = (localizedDef && localizedDef[prop] != null) ? localizedDef[prop] : def[prop];
-		            if (prop !== "textDef" && val != null)
+		            if (prop !== "textDef" && def[prop] != null)
 		            {
-			            this[prop] = val;
+			            this[prop] = def[prop];
 		            }
 	            }
+	            // also apply localized props
+				if (localizedDef)
+				{
+					for (prop in localizedDef)
+					{
+						if (prop !== "textDef" && localizedDef[prop] != null)
+						{
+							this[prop] = localizedDef[prop];
+						}
+					}
+				}
             }
         }
     },
@@ -901,3 +911,6 @@ Object.defineProperty(TGE.Text.prototype, 'fontFallbacks', {
 		this._mFontFallbacks = fallbacks;
 	}
 });
+
+// NOTE: if we add any additional setters here, be advised that _applyTextDef() can result
+// in properties being set twice, as it applies base and localized textDefs in sequence
