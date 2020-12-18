@@ -28,6 +28,9 @@ TGE.Game = function()
         TGE.SetupTGSProxy();
     }
 
+    // HACK - let's get rid of this after ADS-1453 (also in setLanguage)
+    this._mLanguage = "en";
+
     // Document div's
 	this.mCanvasDiv = null;
 
@@ -308,6 +311,9 @@ TGE.Game.prototype =
 
 	    // Deprecated, but we're keeping this around just in case an old game references it
         TGE.Text.Language = lang;
+
+        // HACK - let's get rid of this after ADS-1453 (also in constructor)
+        this._mLanguage = lang;
 	},
 
     /**
