@@ -1147,7 +1147,7 @@ TGE.AssetManager.prototype =
 		}
 		else
 		{
-            var currentLanguage = TGE.Game.GetInstance().getLanguage();
+            var currentLanguage = TGE.RemoteSettings("lang");
 
 			// (deprecated) PAN-594 If the list contains any localized sheets we need to reassign their layout files
 			if(assetList.localizedSheets)
@@ -1245,14 +1245,13 @@ TGE.AssetManager.prototype =
 			this._addSheetImagesToAssetList(assetList, entry.sheetURL, entry.localized);
 		}
 
-        var game = TGE.Game.GetInstance();
-
-		// Now finally load the asset list
+        // Now finally load the asset list
 		var assetLoader = new TGE.AssetLoader();
-		assetLoader.loadAssetList(this,assetList,this._mRootLocation,this.languagesFolder,game.getLanguage(),updateCallback,completeCallback);
+		assetLoader.loadAssetList(this,assetList,this._mRootLocation,this.languagesFolder,TGE.RemoteSettings("lang"),updateCallback,completeCallback);
 
 		// When testbuffering, if we still have unresolved _mWaitingForAssets, we need to queue up the next assetList load
-		if (game._mTestBuffering === 1 && game._mWaitingForAssets.length)
+        var game = TGE.Game.GetInstance();
+        if (game._mTestBuffering === 1 && game._mWaitingForAssets.length)
 		{
 			game._loadNextAssetList();
 		}

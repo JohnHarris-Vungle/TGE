@@ -88,6 +88,9 @@ TGE.Text._sRightToLeftLangages =  ["ar", "he", "he-il", "ar-ae", "ar-bh", "ar-dz
  */
 TGE.Text.TextIDs = null;
 
+/** @ignore deprecated, but we're keeping this around just in case an old game references it */
+TGE.Text.Language = "en";
+
 /**
  * TGE.Text.TextIDs replaced TGE.Text.LocalizedStrings
  * @ignore
@@ -138,7 +141,7 @@ TGE.Text.GetString = function(textID)
     }
     else
     {
-        return translations[TGE.Game.GetInstance().getLanguage()] || translations["en"] || "";
+        return translations[TGE.RemoteSettings("lang")] || translations["en"] || "";
     }
 }
 
@@ -434,12 +437,12 @@ TGE.Text.prototype =
 	/** @ignore */
 	_rtlLanguage: function()
 	{
-		return TGE.Text._sRightToLeftLangages.indexOf(TGE.Game.GetInstance().getLanguage())!==-1 && this._endPunctuation();
+		return TGE.Text._sRightToLeftLangages.indexOf(TGE.RemoteSettings("lang"))!==-1 && this._endPunctuation();
 	},
 	/** @ignore */
 	_asianLanguage: function()
 	{
-	    var coreLang = TGE.Game.GetInstance().getLanguage().split("-")[0];
+	    var coreLang = TGE.RemoteSettings("lang").split("-")[0];
 		return TGE.Text._sAsianLanguages.indexOf(coreLang)!==-1;
 	},
 	/** @ignore */
@@ -554,7 +557,7 @@ TGE.Text.prototype =
 			if (GameConfig.TEXT_DEFS)
 			{
 				def = GameConfig.TEXT_DEFS[textDef];
-				localizedDef = GameConfig.TEXT_DEFS[textDef + "_" + TGE.Game.GetInstance().getLanguage()];
+				localizedDef = GameConfig.TEXT_DEFS[textDef + "_" + TGE.RemoteSettings("lang")];
 				// make sure we don't generate an infinite recursion, which happened with orbitvenice (using the same naming convention, but in a different way)
 				if (localizedDef && localizedDef.textDef === textDef)
 				{

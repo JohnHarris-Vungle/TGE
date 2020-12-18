@@ -305,6 +305,9 @@ TGE.Game.prototype =
 	setLanguage: function(lang)
 	{
 	    TGE.RemoteSettings.GetSettings()["lang"].value = lang;
+
+	    // Deprecated, but we're keeping this around just in case an old game references it
+        TGE.Text.Language = lang;
 	},
 
     /**
