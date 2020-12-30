@@ -779,6 +779,15 @@ TGE.Game.prototype =
     },
 
     /**
+     * Provides information on where keyframes should be inserted when encoding video assets used by the creative.
+     * @returns {Object} An object where the keys are video asset IDs, and the values are arrays of numeric keyframe locations.
+     */
+    getVideoKeyframes: function()
+    {
+        return {};
+    },
+
+    /**
      * Launching point for the entire game. Calling this function will initialize the game environment and begin downloading required assets.
      * @param {Object} gameParameters Information about how the game should be setup.
      * @param {String} gameParameters.gameDiv ID of the game canvas div element.
