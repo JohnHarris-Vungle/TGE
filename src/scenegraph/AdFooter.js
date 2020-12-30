@@ -149,7 +149,6 @@ TGE.AdFooter.prototype =
             {
                 this.expandable = true;
                 this.panelSettings = {
-                    headerBar: true,
                     expandedSize: 0.92, // in percent (leave some clearance so the ad close button isn't confused with panel close)
                     padding: 4, // css percent. This is the padding around the text in the panel.
                     toggleButtonRadius: 0.03
@@ -191,32 +190,31 @@ TGE.AdFooter.prototype =
             };
 
             // Header background
-            if(this.panelSettings.headerBar)
+            var barParams = {
+                registrationX: 0,
+                registrationY: 0,
+                layout: function() {
+                    this.x = this.y = 0;
+                    this.width = this.parent.width;
+                    this.height = this.parent._headerBarSize();
+                }
+            };
+            if(GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_header"])
             {
-                var barParams = {
-                    registrationX: 0,
-                    registrationY: 0,
-                    layout: function() {
-                        this.x = this.y = 0;
-                        this.width = this.parent.width;
-                        this.height = this.parent._headerBarSize();
-                    }
-                };
-                if(GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_header"])
-                {
-                    barParams.colorDef = "tge_isi_header";
-                }
-                else
-                {
-                    barParams.backgroundColor = "#dadada";
-                }
-                this.addChild(new TGE.DisplayObjectContainer().setup(barParams));
+                barParams.colorDef = "tge_isi_header";
             }
+            else
+            {
+                barParams.backgroundColor = "#dadada";
+            }
+            this.addChild(new TGE.DisplayObjectContainer().setup(barParams));
 
             // Important Safety Information text
             this.panelHeaderText = this.addChild(new TGE.Text().setup({
                 text: "IMPORTANT SAFETY INFORMATION",
-                textColor: this.panelSettings.headerBar ? "#000000" : this._headerColor(),
+                textColor: this._headerTextColor(),
+                // NOTE: both text and textColor will get overwritten by the textDef, if it exists
+                textDef: (GameConfig.TEXT_DEFS && GameConfig.TEXT_DEFS["tge_isi_header"]) ? "tge_isi_header" : undefined,
                 fontSize: 11,
                 fontWeight: "bold",
                 hAlign: "left",
@@ -250,12 +248,6 @@ TGE.AdFooter.prototype =
 
             // A resize listener is necessary since responsive css behavior doesn't align with TGE responsive behavior
             this.addEventListener("resize", this._onResize);
-
-            // If we're in the CB editor, apply the header colorDef every frame
-            if(TGE.InCreativeBuilder())
-            {
-                this.addEventListener("update", this._updateHeaderColor);
-            }
         }
         else
         {
@@ -471,11 +463,11 @@ TGE.AdFooter.prototype =
 
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = footer.panelSettings.headerBar ? "#000000" : footer._headerColor();
+        ctx.fillStyle = footer._headerTextColor();
         ctx.fill();
 
         ctx.beginPath();
-        ctx.strokeStyle = footer.panelSettings.headerBar ? footer._headerColor() : footer._backgroundColor();
+        ctx.strokeStyle = footer._headerColor();
         ctx.lineWidth = Math.round(1.75 * window.devicePixelRatio);
         ctx.lineCap = "round";
         ctx.moveTo(centerX - lineLength, centerY);
@@ -575,12 +567,10 @@ TGE.AdFooter.prototype =
         return (GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS["tge_isi_header"]) || "#dadada";
     },
 
-    _updateHeaderColor: function()
+    _headerTextColor: function()
     {
-        if(!this.panelSettings.headerBar)
-        {
-            this.panelHeaderText.textColor = this._headerColor();
-        }
+        var textDef = GameConfig.TEXT_DEFS && GameConfig.TEXT_DEFS["tge_isi_header"];
+        return textDef ? textDef.textColor : "#000";
     },
 
     _footerShouldBeVisible: function()
