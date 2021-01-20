@@ -157,6 +157,8 @@ TGE.Game = function()
     this._mTestAdHeader = parseInt(queryParams["testadheader"]) || 0;
     this._mCustomLoader = parseInt(queryParams["customloader"]) || 0;
     this._mTestGameViewable = parseInt(queryParams["testgameviewable"]) || 0;
+    this._mPoliteLoadingLevel = parseInt(queryParams["politeload"]) || 0;
+    this._mPoliteLoadCallback = null;
     this._mPortraitGame = null; // Determined on first viewport resize
 
     // Determine the desired language
@@ -323,6 +325,17 @@ TGE.Game.prototype =
     getLanguage: function()
     {
         return TGE.RemoteSettings("lang");
+    },
+
+    /**
+     * Enabling polite loading will limit the number of asset lists that are loaded before a user interaction. A value
+     * of 1 will allow one asset list to load before waiting for interaction, 2 will allow two lists to load, etc.
+     * Setting to a value of zero (0) will disable polite loading and allow all asset lists to load without interaction.
+     * @param {Number} level A number indicating how aggressive the polite loading should be.
+     */
+    setPoliteLoading: function(level)
+    {
+        this._mPoliteLoadingLevel = level;
     },
 
     /**
@@ -1752,9 +1765,18 @@ TGE.Game.prototype =
         var nextList = listNumber+1;
         if(nextList < this.assetManager._mLoadingOrder.length)
         {
+            var nextLoad = this._loadRequiredAssetList.bind(this, nextList);
+
+            if (this._mPoliteLoadingLevel !== 0 && listNumber >= this._mPoliteLoadingLevel && this._mNumInteractions < 1)
+            {
+                TGE.Debug.Log(TGE.Debug.LOG_INFO,"waiting for user interaction before loading more assets");
+                this._mPoliteLoadCallback = nextLoad;
+                return;
+            }
+
             if(!this._mTestBuffering)
             {
-                this._loadRequiredAssetList(nextList);
+                nextLoad.call();
             }
         }
         else
@@ -2214,10 +2236,17 @@ TGE.Game.prototype =
         // For firing primary engagement
 		if(this._mNumInteractions===1)
 		{
-			// Send an event to our own scenegraph
+			// Send an event to our own scenegraph (likely deprecated)
 			this._mFullStage.dispatchEvent({type:"engagement",name:"primary"});
 
 			TGE.Events.logInteraction();
+
+			// If polite loading is enabled, we may need to unpause the asset loading process
+            if (this._mPoliteLoadCallback)
+            {
+                this._mPoliteLoadCallback.call();
+                this._mPoliteLoadCallback = null;
+            }
 		}
 	}
 }
