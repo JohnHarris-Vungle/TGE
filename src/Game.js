@@ -1767,7 +1767,8 @@ TGE.Game.prototype =
         {
             var nextLoad = this._loadRequiredAssetList.bind(this, nextList);
 
-            if (this._mPoliteLoadingLevel !== 0 && listNumber >= this._mPoliteLoadingLevel && this._mNumInteractions < 1)
+            if (this._mPoliteLoadingLevel !== 0 && this._mNumInteractions === 0 &&
+                nextList === this._mPoliteLoadingLevel)
             {
                 TGE.Debug.Log(TGE.Debug.LOG_INFO,"waiting for user interaction before loading more assets");
                 this._mPoliteLoadCallback = nextLoad;
