@@ -485,7 +485,10 @@ TGE.Text.prototype =
 		// characters which cannot be on the beginning or end of a line. See:
 		// https://msdn.microsoft.com/en-us/goglobal/bb688158.aspx
 		// https://en.wikipedia.org/wiki/Line_breaking_rules_in_East_Asian_languages
-		return this._asianLanguage() ? line : line.split(" ");
+
+		// PAN-1571 for empty strings in Asian languages, we need to return [""]
+		// to avoid getting 'undefined' when accessing words[0]
+		return this._asianLanguage() ? line || [""] : line.split(" ");
 	},
 
 	/** @ignore */
