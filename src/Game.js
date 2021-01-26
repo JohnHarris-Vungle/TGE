@@ -330,12 +330,17 @@ TGE.Game.prototype =
     /**
      * Enabling polite loading will limit the number of asset lists that are loaded before a user interaction. A value
      * of 1 will allow one asset list to load before waiting for interaction, 2 will allow two lists to load, etc.
-     * Setting to a value of zero (0) will disable polite loading and allow all asset lists to load without interaction.
+     * Setting to a value of zero (0) will disable polite loading and allow all asset lists to load without interaction,
+     * and setting a value of -1 will disable polite loading permanently (subsequent setPoliteLoading calls will be ignored).
      * @param {Number} level A number indicating how aggressive the polite loading should be.
      */
     setPoliteLoading: function(level)
     {
-        this._mPoliteLoadingLevel = level;
+        // If the polite loading level was set to -1, this means it can never be enabled
+        if (this._mPoliteLoadingLevel !== -1)
+        {
+            this._mPoliteLoadingLevel = level;
+        }
     },
 
     /**
@@ -1767,7 +1772,7 @@ TGE.Game.prototype =
         {
             var nextLoad = this._loadRequiredAssetList.bind(this, nextList);
 
-            if (this._mPoliteLoadingLevel !== 0 && this._mNumInteractions === 0 &&
+            if (this._mPoliteLoadingLevel > 0 && this._mNumInteractions === 0 &&
                 nextList === this._mPoliteLoadingLevel)
             {
                 TGE.Debug.Log(TGE.Debug.LOG_INFO,"waiting for user interaction before loading more assets");
