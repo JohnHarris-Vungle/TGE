@@ -2253,6 +2253,7 @@ TGE.Game.prototype =
     {
         if (this._mPoliteLoadCallback)
         {
+            TGE.Debug.Log(TGE.Debug.LOG_INFO,"resuming asset loading...");
             this._mPoliteLoadCallback.call();
             this._mPoliteLoadCallback = null;
         }
