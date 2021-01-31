@@ -44,6 +44,10 @@ TGE.Events =
                 TreSensa.Playable.engagement();
             }
         }
+
+        // If polite loading has paused, resume it. For some video based creatives we'll automatically fire
+        // engagement without a physical interaction.
+        TGE.Game.GetInstance()._checkOnPoliteLoading();
     },
 
     logCompletion: function(reason)

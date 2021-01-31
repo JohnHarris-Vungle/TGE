@@ -700,6 +700,9 @@ TGE.Game.prototype =
             return;
         }
 
+        // If polite loading has paused, resume it
+        this._checkOnPoliteLoading();
+
         this._mBufferingScreen = this.stage.addChild(new TGE.DisplayObjectContainer().setup({
             layout: "match",
             registrationX: 0,
@@ -2203,7 +2206,6 @@ TGE.Game.prototype =
 	    }
     },
 
-
     _keyUp: function(e)
     {
 	    if (!this.blockTGEKeys)
@@ -2247,14 +2249,20 @@ TGE.Game.prototype =
 
 			TGE.Events.logInteraction();
 
-			// If polite loading is enabled, we may need to unpause the asset loading process
-            if (this._mPoliteLoadCallback)
-            {
-                this._mPoliteLoadCallback.call();
-                this._mPoliteLoadCallback = null;
-            }
+			// If polite loading has paused, resume it
+            this._checkOnPoliteLoading();
 		}
-	}
+	},
+
+    /** @ignore */
+    _checkOnPoliteLoading: function()
+    {
+        if (this._mPoliteLoadCallback)
+        {
+            this._mPoliteLoadCallback.call();
+            this._mPoliteLoadCallback = null;
+        }
+    }
 }
 
 
