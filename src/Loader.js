@@ -393,7 +393,21 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
     var _preloadVideo = function() {
 	    // console.log("---calling _preloadVideo now: " + Date.now()/1000);
 	    TGE.Game.GetInstance()._mFullStage.removeEventListener("mouseup", _preloadVideo);
-    	var video = self.el;
+	    var video = self.el;
+
+        if (window.VideoPlayerGlobals)
+        {
+            for (var key in VideoPlayerGlobals)
+            {
+                var v = VideoPlayerGlobals[key];
+                if (typeof v === "object" && v._video === video)
+                {
+                    // we alerady have a VP instance controlling this asset, so exit without doing anything
+                    return;
+                }
+            }
+        }
+
 	    video.muted = true;
 	    var promise = video.play();
 	    if (promise)
