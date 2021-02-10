@@ -400,7 +400,7 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
             for (var key in VideoPlayerGlobals)
             {
                 var v = VideoPlayerGlobals[key];
-                if (typeof v === "object" && v._video === video)
+                if (v && typeof v === "object" && v._video === video)
                 {
                     // we alerady have a VP instance controlling this asset, so exit without doing anything
                     return;
