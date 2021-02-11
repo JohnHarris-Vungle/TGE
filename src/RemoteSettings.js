@@ -29,6 +29,7 @@ TGE.RemoteSettings._getDefaultAudioSetting = function ()
         case "B0149": // Web links
         case "B0154": // Creative Builder
         case "B0159": // ironSource DAPI
+        case "B0172": // Appreciate
             audioEnabled = true;
             break;
         case "B0003": // Facebook html
