@@ -1715,7 +1715,8 @@ TGE.DisplayObject.prototype =
 		    }
 		    else
 		    {
-			    this._mBackgroundGradient = def;
+			    this._mBackgroundGradient = TGE.DeepClone(def);
+			    this._mBackgroundGradient.colorDef = this.colorDef;
 		    }
 	    }
 
@@ -1723,7 +1724,7 @@ TGE.DisplayObject.prototype =
         if (this._mBackgroundGradient)
         {
 			var bg = this._mBackgroundGradient;
-			renderer.gradientFill(bg.direction,bg.color1,bg.color2,bg.transitionPoint,this.width,this.height);
+			renderer.gradientFill(bg.direction,bg.color1,bg.color2,bg.transitionPoint,this.width,this.height, bg.colorDef);
         }
         else if(this.backgroundColor)
         {
