@@ -14,6 +14,7 @@
  * @property {Object} buttonText A javascript object that should define the characteristics of the buttonText object that will be attached to the button.  If an 'image' param is passed into this object, a TGE.Sprite object will be created and any other params inside the object will be passed directly in to that TGE.Sprite.  Otherwise a TGE.DisplayObjectContainer will be created and any parameters passed into the object will be passed directly into that TGE.DisplayObjectContainer.
  * @property {Object} popupText A javascript object that should define the characteristics of the popupText object that will be attached to the popup.  If an 'image' param is passed into this object, a TGE.Sprite object will be created and any other params inside the object will be passed directly in to that TGE.Sprite.  Otherwise a TGE.DisplayObjectContainer will be created and any parameters passed into the object will be passed directly into that TGE.DisplayObjectContainer.
  * @constructor
+ * @ignore
  */
 TGE.PromoScreen = function(oldWindow)
 {

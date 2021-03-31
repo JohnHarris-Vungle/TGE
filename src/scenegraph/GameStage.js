@@ -1,3 +1,11 @@
+/**
+ <p>The GameStage class represents the main drawing area for the game.
+ It inherits from {@link TGE.DisplayObjectContainer}, which allows you to add child objects using the addChild method.</p>
+ <p>If your game is built off of the {@link TGE.Game} class you do not need to manually manage or draw a stage object as this is done for you by {@link TGE.Game}.</p>
+ * @class
+ * @extends TGE.DisplayObjectContainer
+ * @constructor
+ */
 TGE.GameStage = function(fullStage)
 {
     TGE.GameStage.superclass.constructor.call(this);
@@ -134,10 +142,11 @@ TGE.GameStage.prototype =
         TGE.Renderer._sIgnoreOrientationLock = true;
     },
 
-    /** @ignore
+    /**
      * It's critical that this function not rely on the event object passed in. The dimensions used in TGE._ResizeEvent
      * are set within this class itself (dispatchResize) and will not be valid here yet.
-     * */
+     * @ignore
+     */
     _layoutFunction: function()
     {
         if (TGE.GameStage._sOrientationLock.active)

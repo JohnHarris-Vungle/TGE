@@ -68,9 +68,11 @@ TGE.RectMask.prototype =
 		context.restore();
 	},
 
-    /** @ignore */
-    /** override _updateAABB in order to only define its bounds as its own width/height, ignoring children*/
-    _updateAABB: function()
+    /**
+	 * Override _updateAABB in order to only define its bounds as its own width/height, ignoring children
+	 * @ignore
+	 */
+	_updateAABB: function()
     {
         TGE.DisplayObject.prototype._updateAABB.call(this);
     }

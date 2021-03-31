@@ -112,7 +112,7 @@ TGE.CameraShake.prototype =
 		this._mFinished = true;
 	},
 
-	/** ignore */
+	/** @ignore */
 	_update: function(elapsedTime)
 	{
 		if (this._mFinished)
@@ -172,6 +172,7 @@ TGE.CameraShake.prototype =
  * @property {Array} exclusionList A list of cameraShakeTags that will be used to exclude appropriately tagged children of the display from the effect.
  * @property {Function} onComplete An optional callback function that will be fired when the shake is complete.
  * @constructor
+ * @ignore
  */
 TGE.NoiseShake = function()
 {
@@ -299,6 +300,7 @@ extend(TGE.NoiseShake, TGE.CameraShake);
  * @property {Array} exclusionList A list of cameraShakeTags that will be used to exclude appropriately tagged children of the display from the effect.
  * @property {Function} onComplete An optional callback function that will be fired when the shake is complete.
  * @constructor
+ * @ignore
  */
 TGE.SpringShake = function()
 {

@@ -1,6 +1,6 @@
 /**
+ * @class
  * Placeholder for the static TGE.Math class.
- * @ignore
  */
 TGE.Math = {}
 
@@ -122,9 +122,8 @@ TGE.Math.GetAngleDifference = function (fromAngle, toAngle)
 
 /**
  * Sorts the array passed in. Will modify the original array.
- * @param array, the array that needs to be sorted
- * @param compareFunction, the way in which the array is sorted. OPTIONAL
- * @constructor
+ * @param {Array} array - The array that needs to be sorted
+ * @param {Function} [compareFunction] - The way in which the array is sorted
  */
 TGE.Math.Sort = function(array, compareFunction, low, high)
 {
@@ -175,52 +174,61 @@ TGE.Math.Sort = function(array, compareFunction, low, high)
  * Constant: Pi (π).
  * @constant
  */
-TGE.PI = Math.PI;
+TGE.Math.PI = Math.PI;
+TGE.PI = TGE.Math.PI;
 
 /**
  * Constant: Tau (τ) or 2 Pi (2π)
  * @constant
  */
-TGE.TWO_PI = TGE.TAU = 6.2831853072;
+TGE.Math.TWO_PI = 6.2831853072;
+TGE.TWO_PI = TGE.TAU = TGE.Math.TWO_PI;
 
 /**
  * Constant: Radians to Degrees conversion (57.2957795).
  * @constant
  */
-TGE.RAD2DEG = 57.2957795;
+TGE.Math.RAD2DEG = 57.2957795;
+TGE.RAD2DEG = TGE.Math.RAD2DEG;
 
 /**
  * Constant: Degrees to Radians conversion (0.0174532925).
  * @constant
  */
-TGE.DEG2RAD = 0.0174532925;
+TGE.Math.DEG2RAD = 0.0174532925;
+TGE.DEG2RAD = TGE.Math.DEG2RAD;
 
 /**
  * Constant: TGE.Matrix().
  * @constant
  */
-TGE.IDENTITY = new TGE.Matrix();
+TGE.Math.IDENTITY = new TGE.Matrix();
+TGE.IDENTITY = TGE.Math.IDENTITY;
 
 /**
  * Constant: TGE.Vector2(1,0).
  * @constant
  */
-TGE.POSITIVE_X_VECTOR = new TGE.Vector2(1, 0);
+TGE.Math.POSITIVE_X_VECTOR = new TGE.Vector2(1, 0);
+TGE.POSITIVE_X_VECTOR = TGE.Math.POSITIVE_X_VECTOR;
 
 /**
  * Constant: TGE.Vector2(-1,0).
  * @constant
  */
-TGE.NEGATIVE_X_VECTOR = new TGE.Vector2(-1, 0);
+TGE.Math.NEGATIVE_X_VECTOR = new TGE.Vector2(-1, 0);
+TGE.NEGATIVE_X_VECTOR = TGE.Math.NEGATIVE_X_VECTOR;
 
 /**
  * Constant: TGE.Vector2(0,1).
  * @constant
  */
-TGE.POSITIVE_Y_VECTOR = new TGE.Vector2(0, 1);
+TGE.Math.POSITIVE_Y_VECTOR = new TGE.Vector2(0, 1);
+TGE.POSITIVE_Y_VECTOR = TGE.Math.POSITIVE_Y_VECTOR;
 
 /**
  * Constant: TGE.Vector2(0,-1).
  * @constant
  */
-TGE.NEGATIVE_Y_VECTOR = new TGE.Vector2(0, -1);
+TGE.Math.NEGATIVE_Y_VECTOR = new TGE.Vector2(0, -1);
+TGE.NEGATIVE_Y_VECTOR = TGE.Math.NEGATIVE_Y_VECTOR;

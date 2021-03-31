@@ -1,0 +1,25 @@
+{
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "opts": {
+    "destination": "./docs/gen",
+    "template": "./node_modules/foodoc/template"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+
+    "systemName": "TGE API",
+    "systemColor": "#FF4451",
+    "inlineNav": false,
+
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "search": true,
+    "default": {
+      "outputSourceFiles": false
+    }
+  }
+}

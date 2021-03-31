@@ -3,6 +3,7 @@
  * @class
  * @extends TGE.DisplayObjectContainer
  * @constructor
+ * @ignore
  */
 TGE.AdFooter = function()
 {
@@ -425,16 +426,18 @@ TGE.AdFooter.prototype =
         this._removeIFrame();
     },
 
-    /** @ignore
+    /**
      * Claim this object is cached so that the Creative Builder will request a re-cache on changes like text updates.
+     * @ignore
      */
     isCached: function()
     {
         return true;
     },
 
-    /** @ignore
+    /**
      * This prompts the html panel to update.
+     * @ignore
      */
     cache: function(obj)
     {

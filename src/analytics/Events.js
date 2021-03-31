@@ -182,7 +182,7 @@ TGE.Events =
 
 // Static wrappers
 
-/** @ignore */
+/** @class */
 TGE.Analytics = {};
 
 /** @ignore */
@@ -230,11 +230,11 @@ TGE.Analytics.CustomEvent = function(name, mixpanelParam)
 }
 
 /**
- * Sets how oftn a counted event fires.
+ * Sets how often a counted custom event fires.
  * This will automatically set subsequent calls to logCustomEvent to increment a counter.
  * The event will only fire when the counter reaches the specified interval.
- * @param name
- * @param [interval] if not specified, it will reset to the previously-defined value
+ * @param {String} name - The name of the custom event to apply the interval to
+ * @param {Number} [interval] - If not specified, it will reset to the previously-defined value
  */
 TGE.Analytics.SetEventInterval = function(name, interval)
 {

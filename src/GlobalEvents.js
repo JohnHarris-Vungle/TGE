@@ -3,6 +3,7 @@
  * loading and instead fire this callback function. If this callback is set, you must manually call TGE.Game.GetInstance().StartGame()
  * to launch the game, as it will no longer happen automatically.
  * @deprecated
+ * @ignore
  */
 TGE.GameReadyCallback = null;
 
@@ -10,6 +11,7 @@ TGE.GameReadyCallback = null;
  * The optional TGE.GameViewableCallback callback, if set, will fire the specified callback function when the ad container
  * indicates that the game is in a user viewable state.
  * @deprecated
+ * @ignore
  */
 TGE.GameViewableCallback = null;
 
@@ -19,17 +21,20 @@ TGE.GameViewableCallback = null;
  * container believing that the session has been abandoned. The callback will contain a single argument which is a true or
  * false value indicating whether the session was considered abandoned.
  * @deprecated
+ * @ignore
  */
 TGE.SessionEndedCallback = null;
 
 /**
  * The optional TGE.StageReady callback, if set, will call the specified function as soon as the game's TGE.GameStage instance is created.
  * @deprecated
+ * @ignore
  */
 TGE.StageReady = null;
 
 /**
- * @ignore Track all the event listeners so we can do a remove all
+ * Track all the event listeners so we can do a remove all
+ * @ignore
  */
 TGE.Game._sEventListeners = {};
 

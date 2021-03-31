@@ -1,7 +1,9 @@
 /** @ignore */
 TGE.Game.prototype._mRemoteSettings = null;
 
+
 /**
+ * @class
  * Returns the value of a remote setting.
  * This is a wrapper for the actual remote settings functionality in TGE.Game.
  * If the remote setting was overwritten with a query string or by a placement variant, it will return that value, otherwise will return default.

@@ -166,13 +166,14 @@ TGE.Game = function()
  * The TGE.LoadingWindow static variable defines the window that will be used during the initial asset loading phase.
  * The TGE.LoadingWindow must be a subclass of TGE.Window. If no value is set, no loading screen will be displayed.
  * @constant
+ * @ignore
  */
 TGE.LoadingWindow = null;
 
 /**
  * The TGE.FirstGameWindow static variable defines the window that will be launched once the initial asset loading phase is complete.
- * The TGE.FirstGameWindow must be a subclass of TGE.Window. The most common example would be a main menu class, however during
- * development it could be set to launch directly to a game screen to facilitate development.
+ * The TGE.FirstGameWindow must be a subclass of TGE.Window. This would typically be the first view in the game, however during
+ * development it could be set to launch directly a different screen to facilitate development.
  * @constant
  */
 TGE.FirstGameWindow = null;
@@ -181,18 +182,20 @@ TGE.FirstGameWindow = null;
  * Used to specify an optional parameter into the game viewable/visible event. The most common use case for this would be for
  * indicating a level parameter when the game can start with different/random levels.
  * @constant
+ * @ignore
  */
 TGE.GameViewableParameter = null;
 
 /**
- * Time window for detecting a down/up mouse event sequence on the same object as a "click"
- * @constant {number}
+ * @constant {number} Time window for detecting a down/up mouse event sequence on the same object as a "click"
+ * @ignore
  */
 TGE.CLICK_TIME = 1;
 
 /**
  * Distance threshold for detecting a "click" event, the up/down events must be within this distance
  * @constant {number} percentage of the stage major axis
+ * @ignore
  */
 TGE.CLICK_DISTANCE_FRACTION = 0.025;
 
@@ -229,6 +232,7 @@ TGE.Game.GetInstance = function()
 
 /**
  * @deprecated
+ * @ignore
  */
 TGE.Game.OpenURL = function(url)
 {
@@ -408,6 +412,7 @@ TGE.Game.prototype =
      * @param {Boolean} [showBuffering=true] In the case where the specified asset list has not finished loading yet, the wait parameter indicates whether to freeze gameplay and display a buffering screen until the requested list is available (defaults to true).
      * @returns {Boolean} Whether or not the specified required asset list has completed loading.
      * @deprecated
+     * @ignore
      */
     requiredAssetsAvailable: function(listNumber, callback, showBuffering)
     {
@@ -430,6 +435,7 @@ TGE.Game.prototype =
 	 * @param {Boolean} [showBuffering=true] In the case where the specified asset list has not finished loading yet, the wait parameter indicates whether to freeze gameplay and display a buffering screen until the requested list is available (defaults to true).
 	 * @returns {Boolean} Whether or not the specified asset list has completed loading.
 	 * @deprecated
+     * @ignore
 	 */
 	assetListAvailable: function(listName, callback, showBuffering)
     {
@@ -509,6 +515,7 @@ TGE.Game.prototype =
 	 * @param {Boolean} [showBuffering=true] In the case where the specified asset list has not finished loading yet, the wait parameter indicates whether to freeze gameplay and display a buffering screen until the requested list is available (defaults to true).
 	 * @returns {Boolean} Whether or not the specified asset list has completed loading.
 	 * @deprecated
+     * @ignore
 	 */
 	assetAvailable: function(id, callback, showBuffering)
     {
@@ -2262,31 +2269,30 @@ TGE.Game.prototype =
 
 
 /**
- * Constant: Javascript character code for left arrow (37).
+ * @member
  * @constant
+ * Javascript character code for left arrow (37).
  */
 TGE.KEY_ARROW_LEFT = 37;
 
 /**
- * Constant: Javascript character code for right arrow (39).
- * @constant
+ * @member
+ * Javascript character code for right arrow (39).
  */
 TGE.KEY_ARROW_RIGHT = 39;
 
 /**
- * Constant: Javascript character code for up arrow (38).
- * @constant
+ * Javascript character code for up arrow (38).
  */
 TGE.KEY_ARROW_UP = 38;
 
 /**
- *Constant: Javascript character code for down arrow (40).
+ * Javascript character code for down arrow (40).
  */
 TGE.KEY_ARROW_DOWN = 40;
 
 /**
- * Constant: Javascript character code for space bar (32).
- * @constant
+ * Javascript character code for space bar (32).
  */
 TGE.KEY_SPACEBAR = 32;
 
@@ -2615,6 +2621,8 @@ TGE.TestPlayableAdRequirements = function(returnType)
 /**
  * TGE.Completion should be called when the game reaches an end state that is typically associated with the game being finished and accompanied by the option to click-through.
  * @param {String} reason The reason parameter is used in analytics calls to indicate what triggered the completion state. For example, reason could be either "won" or "lost" on an end game screen.
+ * @deprecated Use TGE.Analytics.Completion(reason)
+ * @ignore
  */
 TGE.Completion = function(reason)
 {

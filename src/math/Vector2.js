@@ -275,6 +275,7 @@ TGE.Vector2.prototype =
 /**
  * Original class for points
  * @deprecated
+ * @ignore
  */
 TGE.Point = function(x, y)
 {
@@ -285,6 +286,7 @@ extend(TGE.Point, TGE.Vector2);
 /**
  * Original class for vector math, was a subclass of Point
  * @deprecated
+ * @ignore
  */
 TGE.Vector2D = function(x, y)
 {

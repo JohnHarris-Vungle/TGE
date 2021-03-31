@@ -10,6 +10,7 @@
  * @param {Number} [initialHeight] If a initialHeight value is specified, the stage will be considered to be this height, regardless of the actual size of the canvasDiv.
  * @extends TGE.DisplayObjectContainer
  * @constructor
+ * @ignore
  */
 TGE.FullStage = function(canvasDiv,initialWidth,initialHeight)
 {

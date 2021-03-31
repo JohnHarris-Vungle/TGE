@@ -248,8 +248,9 @@ TGE.AssetManager.WaitForFont = function(family, weight, loadCallback)
 
 TGE.AssetManager.prototype =
 {
-    /** @ignore
+    /**
      * The game will set the root path for the asset manager as soon as the ad container informs it of what it is.
+     * @ignore
      */
     _setRootLocation: function(path)
     {
@@ -324,7 +325,7 @@ TGE.AssetManager.prototype =
      * @param {String} assetName name of asset you want to add properties to
              * assetName is usually just the file name (Ex. background)
              * assetName can also be defined explicitly inside the asset object.  If this is the case, this name takes precedence over the file name
-     * @param {Object} an object filled with any new properties you want to add to the asset object
+     * @param {Object} obj an object filled with any new properties you want to add to the asset object
      */
     addAssetSettings: function (assetName, newAssetSettings)
     {
@@ -379,8 +380,8 @@ TGE.AssetManager.prototype =
     },
 
     /**
-     * @ignore
      * Part of the deprecated asset manager: reads the GameConfig.ASSET object
+     * @ignore
      */
     _parseAssets: function ()
     {
@@ -458,8 +459,8 @@ TGE.AssetManager.prototype =
     },
 
     /**
-     * @ignore
      * Part of the deprecated asset manager: returns the file type of an asset url based on common known file extensions
+     * @ignore
      */
     _getFileTypeFromAssetConfig: function (assetConfig)
     {
@@ -496,8 +497,8 @@ TGE.AssetManager.prototype =
     },
 
     /**
-     * @ignore
      * Part of the deprecated asset manager: print debug for new asset manager.  To turn on, use querystring assetLoaderDebug=true
+     * @ignore
      */
     _printAssetManagerDebug: function ()
     {
@@ -535,8 +536,8 @@ TGE.AssetManager.prototype =
     },
 
     /**
-     * @ignore
      * Part of the deprecated asset manager: finds the remote settings in an asset url and replaces them with the remote setting values
+     * @ignore
      */
     _doRemoteSettingStringReplace: function (url)
     {
@@ -570,9 +571,9 @@ TGE.AssetManager.prototype =
     },
 
     /**
-     * @ignore
      * Part of the deprecated asset manager: finds the first remote setting in a url and returns its name
      * remote settings are contained within the '[' and ']' characters
+     * @ignore
      */
     _getNextRemoteSettingToStringReplace: function (url)
     {
@@ -589,8 +590,8 @@ TGE.AssetManager.prototype =
     },
 
     /**
-     * @ignore
      * Part of the deprecated asset manager: reformats data passed into loadAssets.  Removes all asset groups that aren't utilized by any assets in GameConfig.ASSETS
+     * @ignore
      */
     _cleanAssetGroupArray: function (assetGroupArray)
     {
@@ -639,8 +640,8 @@ TGE.AssetManager.prototype =
     },
 
     /**
-     * @ignore
      * Part of the deprecated asset manager: hook up all asset groups to be associated with an asset list and vice versa, so that they know about each other and can be accessed later
+     * @ignore
      */
     _buildAssetGroupListAssociations: function (assetGroupArray)
     {
@@ -665,8 +666,8 @@ TGE.AssetManager.prototype =
     },
 
     /**
-     * @ignore
      * Part of the deprecated asset manager: make an asset group associated with an asset list and vice versa, so that they know about each other and can be accessed later
+     * @ignore
      */
     _buildAssetGroupListAssociation: function (groupName, listName)
     {
@@ -691,8 +692,9 @@ TGE.AssetManager.prototype =
 		}
 	},
 
-    /** @ignore
+    /**
      * Used to create a list of unique assets required by the game for packaging.
+     * @ignore
      */
     _recordAsset: function(assetLocation)
     {
@@ -727,8 +729,8 @@ TGE.AssetManager.prototype =
     },
 
 	/**
-	 * @ignore
 	 * @deprecated - use addAssets instead
+     * @ignore
 	 */
     assignImageAssetList: function(assetListName,assetList)
     {
@@ -777,7 +779,7 @@ TGE.AssetManager.prototype =
 	 * Allows you to use a <a href="https://developer.tresensa.com/using-texturepacker-with-tge/">TexturePacker sprite sheet</a> to define a list of images to add to an asset list.
 	 * Using this method you can add new image assets to the asset manager simply by adding them to a sprite sheet and re-publishing.
 	 * @param {String} assetListName The name of the asset list to add the new assets to. If an asset list with this name does not exist already, one will be created.
-	 * @param {String|{sheetURL:String, subsheetURL:String|Array}} sheetURL The local path to the sprite sheet to load the images from.
+	 * @param {String} sheetURL The local path to the sprite sheet to load the images from.
 	 * @param {String} [layoutURL] The local path to the sprite sheet's js layout file. If the file is not specified here it must be included in the core js source for the game.
 	 * @param {Boolean} [localized=false] If true, indicates that the sheet, and by definition all sub-images, should be treated as localized assets. If localized is true, a layoutURL *must* be provided.
 	 */
@@ -976,8 +978,8 @@ TGE.AssetManager.prototype =
 	},
 
 	/**
-	 * @ignore
 	 * @deprecated - use getAsset instead
+     * @ignore
 	 */
     getImage: function(id,errorCheck)
     {

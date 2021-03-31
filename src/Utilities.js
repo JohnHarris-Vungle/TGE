@@ -112,6 +112,7 @@ TGE.DeepCopy = function (sourceObject, destObject, keyObject)
 
 /**
  * @deprecated Use TGE.GetClass
+ * @ignore
  */
 TGE.getClass = function (className)
 {
@@ -120,6 +121,7 @@ TGE.getClass = function (className)
 
 /**
  * @deprecated Use TGE.MapValue
+ * @ignore
  */
 TGE.mapValue = function (value, inputMin, inputMax, outputMin, outputMax, clamp)
 {
@@ -134,6 +136,7 @@ TGE.mapValue = function (value, inputMin, inputMax, outputMin, outputMax, clamp)
  * @param {Number} max The upper limit.
  * @returns {Number} If the value is less than min, min is returned.  If the value is greater than max, max is returned.  Otherwise, the original value is returned.
  * @deprecated Use TGE.Math.Clamp
+ * @ignore
  */
 TGE.clamp = function (value, min, max)
 {

@@ -11,6 +11,7 @@
  * @property {String} [disableColor] The disable state background color if no image is being used, represented as a hex value string (ie: "#f00").
  * @property {Number} [verticalPressOffset=0] The vertical press offset is the distance (in pixels) the button will shift downwards when pressed. Default is 0.
  * @constructor
+ * @ignore
  */
 
 TGE.Button = function()

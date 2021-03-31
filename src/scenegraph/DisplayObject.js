@@ -5,8 +5,6 @@
  * Typically you would not instantiate a TGE.DisplayObject directly - it would be more common to use {@link TGE.DisplayObjectContainer} or {@link TGE.Sprite}.
  * @property {Number} x Indicates the x coordinate of the display object relative to the local coordinates of the parent TGE.DisplayObjectContainer.
  * @property {Number} y Indicates the y coordinate of the display object relative to the local coordinates of the parent TGE.DisplayObjectContainer.
- * @property {Number} worldX The x coordinate of the display object in world space.
- * @property {Number} worldY The y coordinate of the display object in world space.
  * @property {Number} scaleX Indicates the horizontal scale percentage of the display object as applied from the registration point.
  * @property {Number} scaleY Indicates the vertical scale percentage of the display object as applied from the registration point.
  * @property {Number} scale A write-only property that indicates a uniform scale percentage to apply to the display object. This property is WRITE-ONLY - setting it will modify scaleX and scaleY accordingly, and any attempt to read the property will be undefined.
@@ -171,8 +169,6 @@ TGE.DisplayObject.prototype =
      * @param {Boolean} [params.visible] Whether or not the display object is visible.
      * @param {Number} [params.x] Indicates the x coordinate of the display object relative to the local coordinates of the parent TGE.DisplayObjectContainer.
      * @param {Number} [params.y] Indicates the y coordinate of the display object relative to the local coordinates of the parent TGE.DisplayObjectContainer.
-     * @param {Number} [params.worldX] The x coordinate of the display object in world space.
-     * @param {Number} [params.worldY] The y coordinate of the display object in world space.
      * @param {Number} [params.width] Indicates the width of the display object in pixels.
      * @param {Number} [params.height] Indicates the height of the display object in pixels.
      * @param {String} [params.colorDef] index into GameConfig.COLOR_DEFS for runtime substitution of either backgroundColor or backgroundGradient (based on whether the lookup is a string, or an object)
@@ -1151,6 +1147,7 @@ TGE.DisplayObject.prototype =
      * Returns a horizontal pixel coordinate specified by a percentage of the object's width.
      * @param {Number} p The desired horizontal pixel coordinate specified as a percentage of the object's width.
      * @return {Number} The resulting x coordinate in pixels relative to the far left side of the object.
+	 * @ignore
      */
     percentageOfWidth: function(p)
     {
@@ -1161,6 +1158,7 @@ TGE.DisplayObject.prototype =
      * Returns a vertical pixel coordinate specified by a percentage of the object's height.
      * @param {Number} p The desired vertical pixel coordinate specified as a percentage of the object's height.
      * @return {Number} The resulting y coordinate in pixels relative to the top of the object.
+	 * @ignore
      */
     percentageOfHeight: function(p)
     {
@@ -1171,6 +1169,7 @@ TGE.DisplayObject.prototype =
      * Returns a horizontal pixel coordinate defined by the specified distance from the left side of the object.
      * @param {Number} p The number of pixels from the left side of the object.
      * @return {Number} The resulting x coordinate (in pixels) as defined by the specified distance from the left side of the object.
+	 * @ignore
      */
     pixelsFromLeft: function(p)
     {
@@ -1181,6 +1180,7 @@ TGE.DisplayObject.prototype =
      * Returns a horizontal pixel coordinate defined by the specified distance from the right side of the object.
      * @param {Number} p The number of pixels from the right side of the object.
      * @return {Number} The resulting x coordinate (in pixels) as defined by the specified distance from the right side of the object.
+	 * @ignore
      */
     pixelsFromRight: function(p)
     {
@@ -1191,6 +1191,7 @@ TGE.DisplayObject.prototype =
      * Returns a vertical pixel coordinate defined by the specified distance from the top of the object.
      * @param {Number} p The number of pixels from the top of the object.
      * @return {Number} The resulting y coordinate (in pixels) as defined by the specified distance from the top of the object.
+	 * @ignore
      */
     pixelsFromTop: function(p)
     {
@@ -1201,6 +1202,7 @@ TGE.DisplayObject.prototype =
      * Returns a vertical pixel coordinate defined by the specified distance from the bottom of the object.
      * @param {Number} p The number of pixels from the bottom of the object.
      * @return {Number} The resulting y coordinate (in pixels) as defined by the specified distance from the bottom of the object.
+	 * @ignore
      */
     pixelsFromBottom: function(p)
     {
@@ -1225,6 +1227,8 @@ TGE.DisplayObject.prototype =
      * Specifies that you want the object's screen position to be updated automatically every frame to reflect the object's
      * world position (worldX, worldY) relative to the current position of the game camera.
      * @param {Boolean} b Whether to enable or disable automatic world-to-screen position updating.
+	 * @deprecated
+	 * @ignore
      */
     useWorldPosition: function(b)
     {
@@ -1468,7 +1472,7 @@ TGE.DisplayObject.prototype =
     /**
      * Transforms a point local to this object into stage coordinates.
      * @param {TGE.Vector2} p A TGE.Point (or any object with x and y properties) to be assigned the transformed values.
-     * @param {boolean=false} ignoreRegistration If true, will disregard the objects registration point when calculating the stage coordinates.
+     * @param {boolean} [ignoreRegistration=false] If true, will disregard the objects registration point when calculating the stage coordinates.
      * @returns {TGE.Vector2} Transformed point
      */
     localToStage: function(p, ignoreRegistration)
@@ -1495,7 +1499,7 @@ TGE.DisplayObject.prototype =
     /**
      * Transforms a point in global stage coordinates into one that's local to this object.
      * @param {TGE.Vector2} p A TGE.Vector2 (or any object with x and y properties) to be assigned the transformed values.
-     * @param {boolean=false} ignoreRegistration If true, will disregard the objects registration point when calculating the coordinates.
+     * @param {boolean} [ignoreRegistration=false] If true, will disregard the objects registration point when calculating the coordinates.
      * @returns {TGE.Vector2} Transformed point
      */
     stageToLocal: function(p, ignoreRegistration)
@@ -1523,7 +1527,7 @@ TGE.DisplayObject.prototype =
      * Transforms a point from the local space of one object to the local space of another.
      * @param {TGE.DisplayObject} targetObject the destination object to transform the point to
      * @param {TGE.Vector2} p A TGE.Vector2 (or any object with x and y properties) to be assigned the transformed values.
-     * @param {boolean=false} ignoreRegistration If true, will disregard the objects registration point when calculating the coordinates.
+     * @param {boolean} [ignoreRegistration=false] - If true, will disregard the objects registration point when calculating the coordinates.
      * @returns {TGE.Vector2} Transformed point
      */
     localToObject: function(targetObject, p, ignoreRegistration)
@@ -1620,7 +1624,9 @@ TGE.DisplayObject.prototype =
 		this._removeActionsListener();
 	},
 
-    /** @ignore */
+    /**
+	 * deprecated
+	 * @ignore */
     _updateScreenPosition: function(event)
     {
         var x = (this.stage.width/2)+(this.worldX-event.cx);
@@ -1629,7 +1635,9 @@ TGE.DisplayObject.prototype =
         this.y = y;
     },
 
-    /** @ignore */
+    /**
+	 * deprecated
+	 * @ignore */
     _checkViewportCulling: function(event)
     {
         if(this._mViewportCulling===null)

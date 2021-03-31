@@ -4,6 +4,7 @@
  * @class
  * @extends TGE.DisplayObjectContainer
  * @constructor
+ * @ignore
  */
 TGE.CachedContainer = function()
 {

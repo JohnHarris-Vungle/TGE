@@ -88,13 +88,16 @@ TGE.Text._sRightToLeftLangages =  ["ar", "he", "he-il", "ar-ae", "ar-bh", "ar-dz
  */
 TGE.Text.TextIDs = null;
 
-/** @ignore deprecated, but we're keeping this around just in case an old game references it */
+/**
+ * deprecated, but we're keeping this around just in case an old game references it
+ * @ignore
+ */
 TGE.Text.Language = "en";
 
 /**
  * TGE.Text.TextIDs replaced TGE.Text.LocalizedStrings
- * @ignore
  * @deprecated
+ * @ignore
  */
 TGE.Text.LocalizedStrings = null;
 

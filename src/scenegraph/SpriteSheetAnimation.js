@@ -8,6 +8,7 @@
  * @property {Number} fps The framerate to use for playback, in frames per second.
  * @property {Boolean} looping Indicates whether the animation should reset to the beginning and continue once it has reached the final frame.
  * @constructor
+ * @ignore
  */
 TGE.SpriteSheetAnimation = function()
 {
