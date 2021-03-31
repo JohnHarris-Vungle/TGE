@@ -372,7 +372,7 @@ TGE.AdFooter.prototype =
         this.expanded = true;
 
         // Freeze the game by setting the update root to the panel
-        if(!TGE.Game.GetUpdateRoot() instanceof TGE.AdFooter)
+        if(!(TGE.Game.GetUpdateRoot() instanceof TGE.AdFooter))
         {
             // If a resize happens while the panel is expanded, we don't want to set the previous update root to the footer!
             this.previousUpdateRoot = TGE.Game.GetUpdateRoot();

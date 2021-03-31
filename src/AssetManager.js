@@ -236,7 +236,7 @@ TGE.AssetManager.WaitForFont = function(family, weight, loadCallback)
     var font = new FontFaceObserver(family, weightObj);
     var softTimeout = 1000;
     font.load(null, softTimeout).then(
-        function() { loadCallback ? loadCallback() : null; },
+        function() { loadCallback && loadCallback(); },
         function() {
             // We'll treat the FontFaceObserver's aggressive timeout as a warning.
             // The AssetLoader's more linient 3s timeout will produce an error.
@@ -807,7 +807,7 @@ TGE.AssetManager.prototype =
 		// (this is deprecated) PAN-594 If the sheet is localized we need to reassign the layout file, but we have to wait until
 		// the point where the list is loaded and the final language has been set. That is also when we'll add
 		// the individual assets to the asset list (they may differ between languages due to TFX).
-		if(layoutURL===true)
+		if(typeof layoutURL === "boolean" && layoutURL) // This is from a deprecated version of the call where this argument was a boolean
 		{
 			assetList.localizedSheets = assetList.localizedSheets || [];
 			assetList.localizedSheets.push(sheetURL);

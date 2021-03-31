@@ -97,7 +97,7 @@ TGE.Game.RemoveEventListener = function(type, listener)
     // Remove it from our tracked list
     var listeners = TGE.Game._sEventListeners[type];
     var lStr = listener.toString();
-    for (var i=0; listeners && i<listeners.length; i++)
+    for (var i=0; i<listeners.length; i++)
     {
         if (listeners[i].toString() ===  lStr)
         {
