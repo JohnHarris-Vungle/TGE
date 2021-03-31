@@ -109,29 +109,58 @@ TGE.CanvasRenderer.prototype =
 		this._mCanvasContext.fillRect(x,y,width,height);
 	},
 
-	gradientFill: function(direction,color1,color2,transitionPoint,width,height)
+	gradientFill: function(direction,color1,color2,transitionPoint,width,height, colorDef)
 	{
+		var gradient;
+
 		// Define gradient direction
 		if (direction==="circular")
 		{
 			var biggestDimension = Math.max(width,height);
-			var gradient = this._mCanvasContext.createRadialGradient(width/2,height/2,0,width/2,height/2,biggestDimension*(transitionPoint*0.5+0.5));
-		}
-		else if (direction==="vertical")
-		{
-			var gradient = this._mCanvasContext.createLinearGradient(0,height*2*transitionPoint,0,0);
-		}
-		else if (direction==="horizontal")
-		{
-			var gradient = this._mCanvasContext.createLinearGradient(0,0,width*2*transitionPoint,0);
-		}
-		else if (direction==="leftDiagonal")
-		{
-			var gradient = this._mCanvasContext.createLinearGradient(0,height*2*transitionPoint,width*2*transitionPoint,0);
+			gradient = this._mCanvasContext.createRadialGradient(width/2,height/2,0,width/2,height/2,biggestDimension*(transitionPoint*0.5+0.5));
 		}
 		else
 		{
-			var gradient = this._mCanvasContext.createLinearGradient(0,0,width*2*transitionPoint,height*2*transitionPoint);
+			var x0 = 0, y0 = 0, x1 = 0, y1 = 0;
+			if (colorDef)
+			{
+				// use new gradient routines, when they originate from a CB colorDef
+                switch (direction)
+                {
+                    case "horizontal":
+                    	x0 = Math.max(0, (transitionPoint - 0.5) * width * 1.85);
+                    	x1 = Math.min(width, width - (0.5 - transitionPoint) * width * 1.85);
+                        break;
+                    case "vertical":
+						y0 = Math.max(0, (transitionPoint - 0.5) * height * 1.85);
+						y1 = Math.min(height, height - (0.5 - transitionPoint) * height * 1.85);
+                        break;
+					default:
+						var len = Math.sqrt(width * width + height * height);
+						var min = Math.max(0, (transitionPoint - 0.5) * len * 1.5);
+						var max = Math.min(len, len - (0.5 - transitionPoint) * len * 1.5);
+                        x0 = min / len * width;
+                        x1 = max / len * width;
+						y0 = (direction === "leftDiagonal" ? min : len - min) / len * height;
+						y1 = (direction === "leftDiagonal" ? max : len - max) / len * height;
+						break;
+                }
+			}
+			else
+			{
+				if (direction !== "vertical")
+				{
+					x1 = width*2*transitionPoint;
+				}
+				if (direction === "vertical" || direction === "leftDiagonal")
+				{
+					y0 = height*2*transitionPoint;
+				}
+				{
+					y1 = height*2*transitionPoint;
+				}
+			}
+			gradient = this._mCanvasContext.createLinearGradient(x0, y0, x1, y1);
 		}
 
 		// Apply colors

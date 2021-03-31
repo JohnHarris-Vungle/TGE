@@ -286,13 +286,16 @@ if (!Array.isArray) {
 	};
 }
 
-TGE.ElementLoader = function(url, type, attributes, listeners) {
+TGE.ElementLoader = function(url, type, asset) {
     var self = this,
         loader = null,
+        attributes = asset && asset.attributes,
+        listeners = asset && asset.listeners,
         preload = (attributes && attributes.preload) || "auto",
         loadEvent;
 
     this.url = url;
+    this.muted = asset && asset.muted;
 
     // Create the element, but first check if it was already created in the html. This is required in the Facebook .zip format.
     var parts = url.split("/");
@@ -328,7 +331,7 @@ TGE.ElementLoader = function(url, type, attributes, listeners) {
 	var startMuted = function(e) {
 		self.unbind("canplay", startMuted);
 		var game = TGE.Game.GetInstance();
-        this.muted = TGE.AudioManager._sMuted || (TGE.InCreativeBuilder() && game && !game.timeSinceLastInteraction());
+        this.muted = self.muted !== undefined ? self.muted : TGE.AudioManager._sMuted || (TGE.InCreativeBuilder() && game && !game.timeSinceLastInteraction());
 	};
 
 	if (type == "video")
@@ -561,7 +564,7 @@ TGE.Loader.prototype.addImage = function(url) {
 };
 
 TGE.Loader.prototype.addVideo = function(url, asset) {
-	var videoLoader = new TGE.ElementLoader(url, "video", asset.attributes, asset.listeners);
+	var videoLoader = new TGE.ElementLoader(url, "video", asset);
 	this.add(videoLoader);
 
 	// return the element to the caller

@@ -801,8 +801,23 @@ TGE.Game.prototype =
     },
 
     /**
-     * Provides information on where keyframes should be inserted when encoding video assets used by the creative.
-     * @returns {Object} An object where the keys are video asset IDs, and the values are arrays of numeric keyframe locations.
+     * Provides information about video assets, such as keyframe locations, audio, recommended sizes, etc.
+     * Games will override this function to provide that info, as needed.
+     * @returns {Object} An object where the keys are video asset IDs, and each entry is an object with corresponding video info
+     */
+    getVideoInfo: function()
+    {
+        var ret = {};
+        var keyframes = this.getVideoKeyframes();
+        for (var id in keyframes)
+        {
+            ret[id] = {keyframes: keyframes[id]}
+        }
+        return ret;
+    },
+
+    /**
+     * @deprecated - use getVideoInfo
      */
     getVideoKeyframes: function()
     {

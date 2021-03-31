@@ -229,7 +229,7 @@ TGE.Game.prototype._initRemoteSetting = function (settingName, settingObject)
     // Before attempting an override, verify that the config settings as defined in the GameConfig are valid
     this._errorHandleRemoteSettings(settingObject);
 
-    settingObject.value = settingObject.default;
+    settingObject.value = TGE.DeepClone(settingObject.default);
 
     // The existence of any variant settings from the dashboard should preclude any querystring overrides - don't mix them
     var overrideValue;
