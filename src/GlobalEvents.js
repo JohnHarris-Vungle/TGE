@@ -96,15 +96,18 @@ TGE.Game.RemoveEventListener = function(type, listener)
 
     // Remove it from our tracked list
     var listeners = TGE.Game._sEventListeners[type];
-    var lStr = listener.toString();
-    for (var i=0; i<listeners.length; i++)
+    if (listeners)
     {
-        if (listeners[i].toString() ===  lStr)
+        var lStr = listener.toString();
+        for (var i=0; i<listeners.length; i++)
         {
-            listeners.splice(i, 1);
-            return;
+            if (listeners[i].toString() ===  lStr)
+            {
+                listeners.splice(i, 1);
+                return;
+            }
         }
-    };
+    }
 }
 
 /**
