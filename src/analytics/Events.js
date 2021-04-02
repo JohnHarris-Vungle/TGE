@@ -86,8 +86,14 @@ TGE.Events =
     {
         if (!name || name.length > 50)
         {
-            TGE.Debug.Log(TGE.Debug.LOG_ERROR, "custom events require a name parameter of 50 or fewer characters");
+            TGE.Debug.Log(TGE.Debug.LOG_ERROR, "invalid custom event: " + name + "(>50 characters)");
             return;
+        }
+
+        if (!name.test(/^[a-zA-Z0-9_]+$/))
+        {
+            // We can only do a warning here currently, because there are existing projects that violate this rule
+            TGE.Debug.Log(TGE.Debug.LOG_WARNING, "invalid custom event: " + name + "(only alphanumeric and underscores permitted)");
         }
 
         if (name==="replay")
