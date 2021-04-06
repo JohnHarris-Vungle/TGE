@@ -218,7 +218,18 @@ TGE.DisplayObject.prototype =
         typeof(params.rotation)==="number" ? this.rotation = params.rotation : null;
 
         // colorDef
-        typeof(params.colorDef)==="string" ? this.colorDef = params.colorDef : null;
+		this.colorDef = null;
+		if (params.colorDef)
+		{
+			if (GameConfig.COLOR_DEFS && GameConfig.COLOR_DEFS[params.colorDef])
+			{
+				this.colorDef = params.colorDef;
+			}
+			else
+			{
+				TGE.Debug.Log(TGE.Debug.LOG_WARNING, "GameConfig.COLOR_DEFS is missing entry for: " + params.colorDef);
+			}
+		}
 
         // Color
         typeof(params.backgroundColor)==="string" ? this.backgroundColor = params.backgroundColor : null;
@@ -1721,7 +1732,7 @@ TGE.DisplayObject.prototype =
 		    {
 			    this.backgroundColor = def;
 		    }
-		    else
+		    else if (def)
 		    {
 			    this._mBackgroundGradient = TGE.DeepClone(def);
 			    this._mBackgroundGradient.colorDef = this.colorDef;
