@@ -20,6 +20,12 @@ TGE.RemoteSettings = function (settingName)
 /* Set a default value for audio based on distribution partner */
 TGE.RemoteSettings._getDefaultAudioSetting = function ()
 {
+    // The partner adapter should be dictating whether audio is permitted
+    if (TreSensa.Playable.getAudioInfo)
+    {
+        return TreSensa.Playable.getAudioInfo().allowed;
+    }
+
     var audioEnabled = false;
     switch ( getDistributionPartner () )
     {

@@ -13,6 +13,22 @@ TGE.AudioManager = function()
 	}
 	TGE.AudioManager._sInstance = this;
 
+	// Query the ad container to find out the partner channel's audio requirements. Note that this
+	// is the necessary place to do it because we want to wait until the partner adapter is ready to
+	// instantiate the game (which in turn creates the TGE.AudioManager instance here). If we query
+	// the ad container too soon, such as on TGE load, the ad container may not have finished initializing
+	// and determining its own audio requirements, as they are not always static (ie: Vungle).
+	if (TreSensa.Playable.getAudioInfo)
+	{
+		// If the partner channel does not allow audio, or it requires us to start muted,
+		// then apply the global mute by default.
+		if (!TreSensa.Playable.getAudioInfo().allowed ||
+			TreSensa.Playable.getAudioInfo().startMuted === true)
+		{
+			TGE.AudioManager._sMuted = true;
+		}
+	}
+
 	// PAN-1120
 	// Enabled based on remote setting
 	this.enabled = TGE.RemoteSettings ("audio");
