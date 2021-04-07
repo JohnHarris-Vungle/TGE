@@ -90,7 +90,7 @@ TGE.Events =
             return;
         }
 
-        if (!name.test(/^[a-zA-Z0-9_]+$/))
+        if (!(/^[a-zA-Z0-9_]+$/.test(name)))
         {
             // We can only do a warning here currently, because there are existing projects that violate this rule
             TGE.Debug.Log(TGE.Debug.LOG_WARNING, "invalid custom event: " + name + "(only alphanumeric and underscores permitted)");
