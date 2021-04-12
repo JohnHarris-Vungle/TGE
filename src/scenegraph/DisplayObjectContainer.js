@@ -354,13 +354,15 @@ TGE.DisplayObjectContainer.prototype =
 		// Draw all the children into the offscreen canvas
 		this._mCached = false;      // flag off, so it does a full object/children draw
         var renderer = this.offscreenRenderer;
-        if(this._mUseDrawEvents && !this._mInDrawEvents)
+        // PAN-1592 we want to call the drawbegin/end events while caching, but only if we're not already within the draw process
+        // Reese's Pac-Man calls cache() from "drawend", which created infinite recursion in TGE 1.1.125
+        if(this._mUseDrawEvents && !this._mDrawing)
         {
-            this._mInDrawEvents = true;
+            this._mDrawing = true;
             this.handleEvent({type:"drawbegin", renderer:renderer, canvasContext:renderer.getCanvasContext()});
             this._objectDraw(renderer);
             this.handleEvent({type:"drawend", renderer:renderer, canvasContext:renderer.getCanvasContext()});
-            this._mInDrawEvents = false;
+            this._mDrawing = false;
         }
         else
         {
