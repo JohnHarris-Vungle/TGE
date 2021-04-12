@@ -18,7 +18,7 @@ TGE.AudioManager = function()
 	// instantiate the game (which in turn creates the TGE.AudioManager instance here). If we query
 	// the ad container too soon, such as on TGE load, the ad container may not have finished initializing
 	// and determining its own audio requirements, as they are not always static (ie: Vungle).
-	if (TreSensa.Playable.getAudioInfo)
+	if (window.TreSensa && TreSensa.Playable.getAudioInfo)
 	{
 		// If the partner channel does not allow audio, or it requires us to start muted,
 		// then apply the global mute by default.

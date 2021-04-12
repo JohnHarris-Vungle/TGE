@@ -21,10 +21,14 @@ TGE.RemoteSettings = function (settingName)
 TGE.RemoteSettings._getDefaultAudioSetting = function ()
 {
     // The partner adapter should be dictating whether audio is permitted
-    if (TreSensa.Playable.getAudioInfo)
+    if (window.TreSensa && TreSensa.Playable.getAudioInfo)
     {
         return TreSensa.Playable.getAudioInfo().allowed;
     }
+
+    // NOTE! After TreSensa.Playable.getAudioInfo is guaranteed in production, we will want to eliminate
+    // all of the below getDistributionPartner based logic. Make sure to handle the case where window.TreSensa
+    // isn't available (debugging old games locally).
 
     var audioEnabled = false;
     switch ( getDistributionPartner () )
