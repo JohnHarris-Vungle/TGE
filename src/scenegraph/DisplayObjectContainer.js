@@ -354,11 +354,13 @@ TGE.DisplayObjectContainer.prototype =
 		// Draw all the children into the offscreen canvas
 		this._mCached = false;      // flag off, so it does a full object/children draw
         var renderer = this.offscreenRenderer;
-        if(this._mUseDrawEvents)
+        if(this._mUseDrawEvents && !this._mInDrawEvents)
         {
+            this._mInDrawEvents = true;
             this.handleEvent({type:"drawbegin", renderer:renderer, canvasContext:renderer.getCanvasContext()});
             this._objectDraw(renderer);
             this.handleEvent({type:"drawend", renderer:renderer, canvasContext:renderer.getCanvasContext()});
+            this._mInDrawEvents = false;
         }
         else
         {

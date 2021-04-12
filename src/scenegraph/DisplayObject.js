@@ -116,6 +116,7 @@ TGE.DisplayObject = function()
     this._mMarkedForRemoval = false;
     this._mEventListeners = {};
 	this._mUseDrawEvents = false;
+	this._mInDrawEvents = false;
 	this._mLastUpdate = -1;
 	this._mViewportCulling = null;
 	this._mWorldPositionListener = -1;
@@ -1753,10 +1754,12 @@ TGE.DisplayObject.prototype =
 	    // Do the subclass specific drawing
 	    if(this._mUseDrawEvents)
 	    {
-		    this.handleEvent({type:"drawbegin", renderer:renderer, canvasContext:renderer.getCanvasContext()});
+			this._mInDrawEvents = true;
+			this.handleEvent({type:"drawbegin", renderer:renderer, canvasContext:renderer.getCanvasContext()});
 		    this._objectDraw(renderer);
 		    this.handleEvent({type:"drawend", renderer:renderer, canvasContext:renderer.getCanvasContext()});
-	    }
+			this._mInDrawEvents = false;
+		}
 	    else
 	    {
 		    this._objectDraw(renderer);
