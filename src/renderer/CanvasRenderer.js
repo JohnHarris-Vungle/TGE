@@ -156,6 +156,7 @@ TGE.CanvasRenderer.prototype =
 				{
 					y0 = height*2*transitionPoint;
 				}
+				else
 				{
 					y1 = height*2*transitionPoint;
 				}
