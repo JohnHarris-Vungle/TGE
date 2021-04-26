@@ -172,7 +172,7 @@ module.exports = (grunt) ->
 					"dist/tgs/tgs-lite-<%= tgs.majorVersion %>.min.js": "<%= tgs.litefiles %>"
 			tge:
 				options:
-					banner: "/* TreSensa Game Engine, TGE-SDK, Version <%= tge.version %> */\n<%= legalNotice %>"
+					banner: "/* TreSensa Game Engine, TGE-SDK, Version <%= tge.version %> */\n<%= legalNotice %>/* Font Face Observer v2.1.0 - © Bram Stein. License: BSD-3-Clause */\n"
 					footer: "TGE.version = '<%= tge.version %>';"
 				files:
 					"dist/tge/tge-<%= tge.version %>.min.js": "<%= tge.files %>"
