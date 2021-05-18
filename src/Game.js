@@ -1222,7 +1222,6 @@ TGE.Game.prototype =
         }
 
         if (dst==="B0119") { return document.body.clientWidth; }
-        if (dst==="B0175") { return window.innerWidth; } // Facebook Web Popup
         // JH: window.innerWidth/Height was returning bad values on Chrome iOS 10.3.2 (a mix of portrait innerWidth and landscape innerHeight)
         if (window.innerWidth && !TGE.BrowserDetect.oniOS) { return window.innerWidth; }
         if (document.documentElement && document.documentElement.clientWidth != 0) { return document.documentElement.clientWidth; }
@@ -1262,7 +1261,6 @@ TGE.Game.prototype =
         }
         
         if (dst==="B0119") { return document.body.clientHeight; }
-        if (dst==="B0175") { return window.innerHeight; } // Facebook Web Popup
         if (window.innerWidth && !TGE.BrowserDetect.oniOS) { return window.innerHeight; }
         if (document.documentElement && document.documentElement.clientHeight != 0) { return document.documentElement.clientHeight; }
         if (document.body) { return document.body.clientHeight; }
