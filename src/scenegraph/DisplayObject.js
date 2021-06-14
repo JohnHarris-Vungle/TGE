@@ -30,6 +30,7 @@
  * @property {TGE.Vector2} pointerStage Indicates the coordinates of the user input pointer (touch, mouse, etc.), in pixels, relative to the top left corner of the stage. This value is only accurate when mouseEnabled = true.
  * @property {String} cameraShakeTag A descriptor that is used by camera shake effects.
  * @property {String} instanceName An optional name you can provide to the display object.
+ * @property {String} settingsPrefix An optional prefix that can be used with getRemoteSetting() to provide customized REMOTE_SETTINGS that apply specifically to this object.
  * @property {String|Object|Function} layout Defines how the object behaves with a responsive layout (when the the TGE.Game.resizeCanvasToFit property is true). The layout property can be one of three different types:
  * <ul>
  * <li>String - a single string to define common presets for sizing background images. Options are "match", "fill", "aspect-fill", "best-fit", "fit-width", or "fit-height".
@@ -189,6 +190,8 @@ TGE.DisplayObject.prototype =
      */
     setup: function(params)
     {
+		this.settingsPrefix = params.settingsPrefix || "";
+
         // Instance name
         typeof(params.instanceName)==="string" ? this.instanceName = params.instanceName : null;
 
@@ -265,6 +268,22 @@ TGE.DisplayObject.prototype =
 
 	    return this;
     },
+
+	/**
+	 * Returns an object-specific remote setting, formed by appending the specified id to an object-defined prefix.
+	 * The default prefix will be the settingsPrefix property of the object, but can be overridden by the assetId (or 'image') property, if that remote setting exists.
+	 * @param {String} id the suffix portion of the remote setting name
+	 * @returns {*} remote setting value
+	 */
+	getRemoteSetting: function(id)
+	{
+		var prefix = this.assetId || this.image;
+		if (prefix && !TGE.RemoteSettings.HasSetting(prefix + "_" + id))
+		{
+			prefix = this.settingsPrefix;
+		}
+		return TGE.RemoteSettings(prefix + "_" + id);
+	},
 
 	/** @ignore */
 	_setLayout: function(layout)
