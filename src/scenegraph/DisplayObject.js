@@ -190,7 +190,8 @@ TGE.DisplayObject.prototype =
      */
     setup: function(params)
     {
-		this.settingsPrefix = params.settingsPrefix || "";
+    	// NOTE: PBVideoPlayer 1.108.0 predefined the settingsPrefix before the superclass setup, so don't overwrite it
+		this.settingsPrefix = this.settingsPrefix || params.settingsPrefix || "";
 
         // Instance name
         typeof(params.instanceName)==="string" ? this.instanceName = params.instanceName : null;
