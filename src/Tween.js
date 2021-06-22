@@ -235,8 +235,10 @@ TGE.Tween.prototype =
 		{
 			if(this.loop===true || this._mRepeats>=2)
 			{
-				this._mAge = this._mAge-this.duration;
-				percent -= 1;
+				/// PAN-1610 ensure that values stay within range during short tweens at low frame rates
+				this._mAge = Math.min(this.duration, this._mAge-this.duration);
+				percent = Math.min(1, percent - 1);
+
 				if(this.rewind)
 				{
 					this._mForward = !this._mForward;
