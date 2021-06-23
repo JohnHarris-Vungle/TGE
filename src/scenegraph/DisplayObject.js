@@ -162,6 +162,9 @@ TGE.DisplayObject.DefaultRegistrationY = 0.5;
 /** @ignore */
 TGE.DisplayObject._sNextEventListenerID = 0;
 
+/** @ignore */
+TGE.DisplayObject._sOneShotListeners = {};
+
 TGE.DisplayObject.prototype =
 {
     /**
@@ -983,12 +986,15 @@ TGE.DisplayObject.prototype =
     },
 
     /**
-     * Registers a single event listener on a single target.
-     * @param {String} type A string representing the event type to listen for.
-     * @param {Function} listener The object that receives a notification when an event of the specified type occurs. This must be a JavaScript function.
-     * @return {Number} A unique id to identify the listener (used when calling removeEventListener).
-     */
-    addEventListener: function(type,listener)
+	 * Registers a single event listener on a single target.
+	 * @param {String} type A string representing the event type to listen for.
+	 * @param {Function} listener The object that receives a notification when an event of the specified type occurs. This must be a JavaScript function.
+	 * @param {Object} [options]
+	 * @param {Boolean} [options.oneShot] Auto-remove this listener after the first time it is called.
+	 * @param {TGE.DisplayObject} [options.onRemove] Remove this listener if the specified object is removed from the scene.
+	 * @return {Number} A unique id to identify the listener (used when calling removeEventListener).
+	 */
+    addEventListener: function(type,listener, options)
     {
         // Does anything exist for this event yet?
         if(!this._mEventListeners[type])
@@ -1001,6 +1007,18 @@ TGE.DisplayObject.prototype =
             listener: listener
         };
         this._mEventListeners[type].push(newListener);
+
+        if (options && typeof options === "object")
+		{
+			if (options.oneShot)
+			{
+				TGE.DisplayObject._sOneShotListeners[newListener.id] = true;
+			}
+			if (options.onRemove)
+			{
+				options.onRemove.addEventListener("remove", this.removeEventListener.bind(this, type, newListener.id));
+			}
+		}
 
         // Set some flags automatically
 	    if(type.substring(0,5)==="mouse" || type==="click")
@@ -1120,9 +1138,16 @@ TGE.DisplayObject.prototype =
 			var len = listeners.length;
 			for(var i = 0; i < len; ++i)
 			{
-				if (listeners[i].id)    // if listener is still active (not marked for removal)
+				var id = listeners[i].id;
+				if (id)    // if listener is still active (not marked for removal)
 				{
 					listeners[i].listener.call(this,event);
+
+					if (TGE.DisplayObject._sOneShotListeners[id])
+					{
+						delete TGE.DisplayObject._sOneShotListeners[id];
+						this.removeEventListener(event.type, id);
+					}
 				}
 				// Checking the validity of this._mEventListeners[event.type] feels hackish, but prevents the situation
 				// where an event might trigger the listeners of this object to be cleared mid-loop
