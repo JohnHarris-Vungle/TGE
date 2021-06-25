@@ -113,7 +113,7 @@ TGE.VideoPlayerGlobal.prototype = {
                     break;
             }
 
-            this._videoPlayer.dispatchEvent(TGE.DeepClone(e));
+            this._videoPlayer.dispatchEvent({type: e.type});
         }
     },
 
