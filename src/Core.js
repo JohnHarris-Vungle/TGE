@@ -38,7 +38,7 @@ TGE.Debug.LOG_VERBOSE = 4;
 if (typeof(GameConfig)!=="undefined" && typeof GameConfig.LOG_LEVEL === 'number')
 {
     var debugMode = getQueryString()["tgedebug"];
-    if (debugMode==="3" || debugMode==="4")
+    if (debugMode>="3")
     {
         TGE.Debug.LogLevel = 4;
     }

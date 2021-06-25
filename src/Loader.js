@@ -295,7 +295,6 @@ TGE.ElementLoader = function(url, type, asset) {
         loadEvent;
 
     this.url = url;
-    this.muted = asset && asset.muted;
 
     // Create the element, but first check if it was already created in the html. This is required in the Facebook .zip format.
     var parts = url.split("/");
@@ -328,13 +327,7 @@ TGE.ElementLoader = function(url, type, asset) {
 		}
 	};
 
-	var startMuted = function(e) {
-		self.unbind("canplay", startMuted);
-		var game = TGE.Game.GetInstance();
-        this.muted = self.muted !== undefined ? self.muted : TGE.AudioManager._sMuted || (TGE.InCreativeBuilder() && game && !game.timeSinceLastInteraction());
-	};
-
-	if (type == "video")
+	if (type === "video")
     {
 	    loadEvent = (preload === "none" || preload === "metadata") ? "loadstart" :
 		    ((preload === "auto") ? "canplaythrough" : preload);
@@ -346,8 +339,7 @@ TGE.ElementLoader = function(url, type, asset) {
 	        this.el.setAttribute("playsinline", "");         // for iOS 10+
         }
 
-        // PAN-1550 need to set muted property on "canplay" event, due to Chrome bug
-	    this.bind("canplay", startMuted);
+        var global = TGE.VideoPlayer.Globals[asset.id] = new TGE.VideoPlayerGlobal(this.el, asset && asset.muted);
 
 	    // add any additional attributes passed in
 	    if (attributes)
@@ -398,17 +390,10 @@ TGE.ElementLoader = function(url, type, asset) {
 	    TGE.Game.GetInstance()._mFullStage.removeEventListener("mouseup", _preloadVideo);
 	    var video = self.el;
 
-        if (window.VideoPlayerGlobals)
+        if (global._videoPlayer)
         {
-            for (var key in VideoPlayerGlobals)
-            {
-                var v = VideoPlayerGlobals[key];
-                if (v && typeof v === "object" && v._video === video)
-                {
-                    // we alerady have a VP instance controlling this asset, so exit without doing anything
-                    return;
-                }
-            }
+            // we alerady have a VP instance controlling this asset, so exit without doing anything
+            return;
         }
 
 	    video.muted = true;

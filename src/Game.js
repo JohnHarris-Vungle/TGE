@@ -943,7 +943,8 @@ TGE.Game.prototype =
         document.addEventListener("keyup", this._keyUp.bind(this), false);
 
 	    // Setup a debug widget if requested
-	    if(getQueryString()["tgedebug"])
+        var tgedebug = getQueryString()["tgedebug"];
+	    if(tgedebug && tgedebug !== 5)
 	    {
 		    var debugWidget = document.createElement("div");
 		    debugWidget.id = "debug_widget";
