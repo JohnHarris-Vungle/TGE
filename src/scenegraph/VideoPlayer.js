@@ -1180,6 +1180,48 @@ TGE.VideoPlayer.prototype = {
     },
 */
 
+    _checkProgress: function()
+    {
+        // progress analytics
+        if (this.video.duration && !this.paused)
+        {
+            var progress = this.video.currentTime / this.video.duration * 100;
+            if (progress > this._progressEvent || (progress < 25 && this._progressEvent === 100))
+            {
+                this._logProgress(this._progressEvent);
+            }
+        }
+
+        var currentTime = this.video.currentTime | 0;
+        if (currentTime !== this._prevEventTime)
+        {
+            this._prevEventTime = currentTime;
+            this._sendEvent("timeupdate");
+
+            if (!this._skipable && this.skipButton)
+            {
+                if (currentTime >= this.skipCountdown)
+                {
+                    this._skipable = true;
+                    this._sendEvent("skippable");
+                }
+                else
+                {
+                    this._sendEvent("skipcountdown", {countdown: this.skipCountdown - currentTime});
+                }
+            }
+        }
+    },
+
+    _logProgress: function(progress)
+    {
+        if (this.assetId === TGE.VideoPlayer.Analytics)
+        {
+            TGE.Events.logVideoProgress(progress);
+            this._progressEvent = progress + 25;
+        }
+    },
+
     _sendEvent: function (type, extraProps)
     {
         var event = {
