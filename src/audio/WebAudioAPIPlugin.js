@@ -6,6 +6,7 @@ TGE.WebAudioAPIPlugin = function()
 	TGE.Debug.Log(TGE.Debug.LOG_INFO, "creating WebAudioAPIPlugin...");
 
 	this._mSoundInstances = [];
+	this._mPausedInstances = [];
     this._mFunctioning = false;
 
 	// PAN-574
@@ -122,15 +123,20 @@ TGE.WebAudioAPIPlugin.prototype =
 	{
 		for(var i=0; i<this._mSoundInstances.length; i++)
 		{
-			this._mSoundInstances[i].pause();
+			var instance = this._mSoundInstances[i];
+			if (!instance._mPausedAt)
+			{
+				instance.pause();
+				this._mPausedInstances.push(instance);
+			}
 		}
 	},
 
 	resumeAll: function()
 	{
-		for(var i=0; i<this._mSoundInstances.length; i++)
+		while (this._mPausedInstances.length)
 		{
-			this._mSoundInstances[i].resume();
+			this._mPausedInstances.pop().resume();
 		}
 	},
 
