@@ -325,6 +325,11 @@ TGE.VideoPlayer.prototype = {
             if (this.wrapper.eventCounts[type])
             {
                 listener.call();
+                // need to remove the listener, if it's oneShot
+                if (options && options.oneShot)
+                {
+                    this.removeEventListener(type, listener);
+                }
             }
         }
     },
