@@ -47,7 +47,7 @@
 		"AssetManager.js",
 		"Tracking.js",
 		"Tween.js",
-		"VideoPlayerGlobal.js",
+		"VideoWrapper.js",
 		"BlurHelper.js",
 		"CameraShake.js",
 		"GenericLoadingWindow.js",

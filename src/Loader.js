@@ -339,7 +339,7 @@ TGE.ElementLoader = function(url, type, asset) {
 	        this.el.setAttribute("playsinline", "");         // for iOS 10+
         }
 
-        var global = TGE.VideoPlayer.Globals[asset.id] = new TGE.VideoPlayerGlobal(this.el, asset && asset.muted);
+        var global = TGE.VideoPlayer.Wrappers[asset.id] = new TGE.VideoWrapper(this.el, asset && asset.muted);
 
 	    // add any additional attributes passed in
 	    if (attributes)

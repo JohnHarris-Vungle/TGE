@@ -9,8 +9,14 @@ TGE.VideoPlayer = function()
     TGE.VideoPlayer.superclass.constructor.apply(this, arguments);
 };
 
-// VideoPlayerGlobal objects, by asset id
+/**
+ * Deprecated and renamed to Wrappers, but need to keep it around due to references in PB 1.108.0 and VP module
+ * @ignore
+ */
 TGE.VideoPlayer.Globals = {};
+
+// VideoWrapper objects, by asset id
+TGE.VideoPlayer.Wrappers = {};
 
 // Global state properties, that need to persist on a preview restart
 TGE.VideoPlayer.State = {
@@ -31,6 +37,7 @@ TGE.VideoPlayer.LoadEvents = [
 TGE.VideoPlayer.PlayEvents = [
     "seeked",
     "playing",
+    "waiting",
     "timeupdate",
     "ended",
 ];
@@ -50,8 +57,8 @@ TGE.VideoPlayer.Log = function(msg)
  */
 TGE.VideoPlayer.Get = function(assetId)
 {
-    var global = TGE.VideoPlayer.Globals[assetId];
-    return global && global._videoPlayer;
+    var wrapper = TGE.VideoPlayer.Wrappers[assetId];
+    return wrapper && wrapper._videoPlayer;
 };
 
 /**
@@ -65,7 +72,7 @@ TGE.VideoPlayer.Suspend = function(assetId)
     var video = TGE.Game.GetInstance().assetManager.getAsset(assetId, false);
     if (video)
     {
-        TGE.VideoPlayer.Globals[assetId]._clearEventCounts(TGE.VideoPlayer.LoadEvents);
+        TGE.VideoPlayer.Wrappers[assetId]._clearEventCounts(TGE.VideoPlayer.LoadEvents);
 
         video.setAttribute("preload", "none");
         video.load();
@@ -171,10 +178,10 @@ TGE.VideoPlayer.prototype = {
                     TGE.VideoPlayer.Analytics = params.assetId;
                 }
 
-                var global = this.global = TGE.VideoPlayer.Globals[this.assetId];
-                this.global._videoPlayer = this;
+                var wrapper = this.wrapper = TGE.VideoPlayer.Wrappers[this.assetId];
+                this.wrapper._videoPlayer = this;
                 
-                if (TGE.VideoPlayer._unlockFunction)
+                if (TGE.VideoPlayer.State._unlockFunction)
                 {
                     this.stage.removeEventListener("mousedown", TGE.VideoPlayer.State._unlockFunction);
                     this.stage.removeEventListener("mouseup", TGE.VideoPlayer.State._unlockFunction);
@@ -184,13 +191,12 @@ TGE.VideoPlayer.prototype = {
                 if (this.muteStyle === "none" && this.audioSupported)
                 {
                     TGE.VideoPlayer.State._unlockFunction = function(e) {
-                        this.log("_unlockFunction " + e.type + " -- current video/global states: " + this.video.muted + " " + TGE.VideoPlayer.State.muted);
+                        this.log("_unlockFunction " + e.type + " -- current video/wrapper states: " + this.video.muted + " " + TGE.VideoPlayer.State.muted);
 
                         // NOTE: checking muteStyle again, since it can change in CB
                         if ((this.video.muted || TGE.VideoPlayer.State.muted) && this.muteStyle === "none")
                         {
                             this.mute(false);
-                            this.handleEvent({type: "mute", muted: false});
                         }
                     }.bind(this);
 
@@ -210,16 +216,17 @@ TGE.VideoPlayer.prototype = {
                 }
 
                 // pause/resume on deactivation
-                this.addEventListener("deactivate", global._onDeactivate.bind(global));
-                this.addEventListener("activate", global._onActivate.bind(global));
+                this.addEventListener("deactivate", wrapper._onDeactivate.bind(wrapper));
+                this.addEventListener("activate", wrapper._onActivate.bind(wrapper));
+
+                // continue setup after our container has a valid size
+                this.addEventListener("addedToStage", this._onValidSize.bind(this, params), {oneShot: true});
             }
 
             this.videoContainer = this.addChild(new TGE.DisplayObjectContainer().setup({}));
 
             // will mirror videoContainer, but layered above it
             this.topContainer = this.addChild(new TGE.DisplayObjectContainer().setup({}));
-
-            if (this.getRemoteSetting("letterboxStyle") === "blurred") this._setupLetterboxBlur();
 
             this.videoContainer.layout = function () {
                 var vp = this.parent;
@@ -260,37 +267,38 @@ TGE.VideoPlayer.prototype = {
                 // recalculate video draw properties
                 vp._resizeVideo();
             }
-
-            // set up video listeners
-            if (this.video)
-            {
-                // NOTE: unusual binding for the drawbegin on videoContainer, but 'this' bound to the VideoPlayer
-                this.videoContainer.addEventListener("drawbegin", this._drawVideo.bind(this));
-                this.addEventListener("remove", this._onRemove);
-                this.addEventListener("update", this._onUpdate);
-                this._resizeVideo();
-
-                if (params.autoplay && !TGE.Game.IsViewable())
-                {
-                    // if video should begin playing, we will start that on "game viewable" event
-                    TGE.Game.AddEventListener("tgeGameViewable", this.play.bind(this));
-
-                    this.play(true);
-                }
-                else
-                {
-                    this.play(!params.autoplay);
-
-                    if (this.getRemoteSetting("previewVideoCropping"))
-                    {
-                        this.addEventListener("resize", this.setLocation);
-                        this.setLocation();
-                    }
-                }
-            }
         }
 
         return this;
+    },
+
+    _onValidSize: function(params)
+    {
+        if (this.getRemoteSetting("letterboxStyle") === "blurred") this._setupLetterboxBlur();
+
+        // NOTE: unusual binding for the drawbegin on videoContainer, but 'this' bound to the VideoPlayer
+        this.videoContainer.addEventListener("drawbegin", this._drawVideo.bind(this));
+        this.addEventListener("remove", this._onRemove);
+        this.addEventListener("update", this._onUpdate);
+
+        if (params.autoplay && !TGE.Game.IsViewable())
+        {
+            // if video should begin playing, we will start that on "game viewable" event
+            TGE.Game.AddEventListener("tgeGameViewable", this.play.bind(this));
+
+            this.play(true);
+        }
+        else
+        {
+            this.play(!params.autoplay);
+
+            if (this.getRemoteSetting("previewVideoCropping"))
+            {
+                this.addEventListener("resize", this.setLocation);
+                this.setLocation();
+            }
+        }
+
     },
 
     log: function(msg)
@@ -314,7 +322,7 @@ TGE.VideoPlayer.prototype = {
         if (TGE.VideoPlayer.LoadEvents.indexOf(type) >= 0)
         {
             // for one-time load events, see if the event has already happened
-            if (this.global.eventCounts[type])
+            if (this.wrapper.eventCounts[type])
             {
                 listener.call();
             }
@@ -389,7 +397,6 @@ TGE.VideoPlayer.prototype = {
         var self = this;
         var video = this.video;
         if (video && this.paused)
-        // if (video && this.width && this.height && this.paused)
         {
             this.paused = pauseState === true;
             if (!this.paused && this._progressEvent === 0)
@@ -424,7 +431,7 @@ TGE.VideoPlayer.prototype = {
         var video = this.video;
         if (!this.paused)
         {
-            TGE.VideoPlayer.Globals[this.assetId]._playTime = new Date().getTime();
+            TGE.VideoPlayer.Wrappers[this.assetId]._playTime = new Date().getTime();
         }
 
         if (this._playPromise)
@@ -646,7 +653,7 @@ TGE.VideoPlayer.prototype = {
     {
         if (this.video)
         {
-            this.log("set mute: " + state + " -- current video/global states: " + this.video.muted + " " + TGE.VideoPlayer.State.muted);
+            this.log("set mute: " + state + " -- current video/wrapper states: " + this.video.muted + " " + TGE.VideoPlayer.State.muted);
             this.video.muted = TGE.VideoPlayer.State.muted = (state !== false);
             this.handleEvent({type: "mute", muted: TGE.VideoPlayer.State.muted});
             if (this.muteSync)
@@ -771,8 +778,8 @@ TGE.VideoPlayer.prototype = {
         var blurAmount = this._getBlurAmount();
 
         this.blurHelper = new TGE.BlurHelper({
-            width: this.width,
-            height: this.height,
+            width: this.width / 2,
+            height: this.height / 2,
             blurAmount: blurAmount,
             fillToEdge: true
         });
@@ -1035,15 +1042,15 @@ TGE.VideoPlayer.prototype = {
                 {
                     // INV-15 on the mouseup of the initial tap, iOS will pause the video, but not generate a "pause" event,
                     // nor set paused:true in the video element. So we need a second check here, based on whether we've received timeUpdate
-                    var globals = TGE.VideoPlayer.Globals[this.assetId];
-                    if (globals._playTime)
+                    var wrapper = TGE.VideoPlayer.Wrappers[this.assetId];
+                    if (wrapper._playTime)
                     {
                         // if we haven't received timeUpdate after a threshold, then we assume the video is stuck
                         var now = new Date().getTime();
                         var watchdogTimer = TGE.RemoteSettings.HasSetting("VideoPlayer_watchdogTimer") ? TGE.RemoteSettings("VideoPlayer_watchdogTimer") : 500;
-                        if (now > globals._playTime + watchdogTimer)
+                        if (now > wrapper._playTime + watchdogTimer)
                         {
-                            this.log("watchdog playTime: " + globals._playTime + ", now: " + now);
+                            this.log("watchdog playTime: " + wrapper._playTime + ", now: " + now);
                             this._play("watchdog");
                         }
                     }
@@ -1290,12 +1297,12 @@ TGE.VideoPlayer.prototype = {
             this.suspend();
         }
 
-        var g = TGE.VideoPlayer.Globals[this.assetId];
-        if (g._videoPlayer === this)
+        var wrapper = TGE.VideoPlayer.Wrappers[this.assetId];
+        if (wrapper._videoPlayer === this)
         {
             // clear the VP reference, if it hasn't already been updated by a new instance
             // (which happens on replay, since transitionToWindow makes a new GameScreen before the previous one is removed)
-            g._videoPlayer = null;
+            wrapper._videoPlayer = null;
         }
 
         if (this.blurHelper) this.blurHelper.cleanupCanvases()

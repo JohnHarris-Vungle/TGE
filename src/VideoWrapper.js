@@ -4,7 +4,7 @@
  * @param muted
  * @constructor
  */
-TGE.VideoPlayerGlobal = function(video, muted)
+TGE.VideoWrapper = function(video, muted)
 {
     this._video = video;
     this._videoPlayer = null;
@@ -24,10 +24,7 @@ TGE.VideoPlayerGlobal = function(video, muted)
 
 };
 
-TGE.VideoPlayerGlobal.prototype = {
-    _firstCanPlay: true,
-    _localUpload: false,    // tracks the first load event for a local session restore
-
+TGE.VideoWrapper.prototype = {
     _initEvents: function(events)
     {
         for (var i = events.length; --i >= 0; )

@@ -11,7 +11,7 @@
  * @param {number} params.width - The width of the output image, pre-blur application
  * @param {number} params.height - The height of the output image, pre-blur application
  * @param {number} [params.blurAmount=0] - How many pixels of blur to apply.
- * @param {boolean} [params.fillToEdge=false] - If set to true, it will keep cut off excess blur and increase size to attempt to fill it's container
+ * @param {boolean} [params.fillToEdge=false] - If set to true, it will keep cut off excess blur and increase size to attempt to fill its container
  * @param {string} [params.smoothingQuality=high] - Sets the imageSmoothingQuality when using the fallback approach.
  * @param {boolean} [params.debugMode=false] - Helper visuals for debugging issues with blurred objects. Don't rely on this existing.
  */
@@ -38,8 +38,8 @@ TGE.BlurHelper = function (params)
     this._setBlur(params.blurAmount ? params.blurAmount : 0);
 
     this.applySizes(
-        params.width ? params.width : 1024,
-        params.height ? params.height : 1024
+        params.width ? params.width : 256,
+        params.height ? params.height : 256
     );
 
     Object.defineProperty(this, "blurAmount", {
@@ -66,8 +66,8 @@ TGE.BlurHelper.prototype = {
      */
     applySizes: function (width, height)
     {
-        var width = Math.ceil(width);
-        var height = Math.ceil(height);
+        width = Math.ceil(width);
+        height = Math.ceil(height);
         if (width === this.width && height === this.height) return;
 
         if (width) this.width = width;
