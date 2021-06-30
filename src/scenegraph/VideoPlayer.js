@@ -173,7 +173,7 @@ TGE.VideoPlayer.prototype = {
                 {
                     TGE.VideoPlayer.Analytics = params.analytics;
                 }
-                else if (TGE.VideoPlayer.Analytics === undefined)
+                else if (!TGE.VideoPlayer.Analytics)
                 {
                     TGE.VideoPlayer.Analytics = params.assetId;
                 }
