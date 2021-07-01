@@ -1771,7 +1771,8 @@ TGE.DisplayObject.prototype =
         // Set the alpha for the object
 	    renderer.setAlpha(this._mWorldAlpha);
 
-	    if (this.colorDef && GameConfig.COLOR_DEFS)
+	    // PAN-1613 skip the bg color fill when using colorDef for TGE.Sprite colorize
+	    if (this.colorDef && !(this instanceof TGE.Sprite && this._mColorize) && GameConfig.COLOR_DEFS)
 	    {
 	    	var def = GameConfig.COLOR_DEFS[this.colorDef];
 		    if (typeof def === "string")

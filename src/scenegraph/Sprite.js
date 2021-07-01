@@ -54,6 +54,7 @@ TGE.Sprite.prototype =
          * @param {Object} params Information used to initialize the object.
          * @param {String|HTMLImageElement} [params.image] An image id string indicating the desired image to load from the {@link TGE.AssetManager} singleton, or an HTMLImageElement to use directly.
          * @param {String} [params.colorize] An html-style color attribute to colorize monochrome images.
+         * @param {String} [params.colorDef] index into GameConfig.COLOR_DEFS for runtime substitution of colorize value
          * @return {TGE.Sprite} Returns this object.
          */
         setup: function(params)
@@ -63,9 +64,10 @@ TGE.Sprite.prototype =
             // Image
             typeof(params.image)!=="undefined" ? this.setSizedImage(params.image, params.width, params.height) : null;
 
-            if (params.colorize)
+            var colorize = params.colorize || (this.colorDef && GameConfig.COLOR_DEFS[this.colorDef]);
+            if (colorize)
             {
-                this.colorize(params.colorize);
+                this.colorize(colorize);
             }
             return this;
         },
@@ -229,7 +231,7 @@ TGE.Sprite.prototype =
         },
 
         /**
-         * Override of the cache function, that handles
+         * Override of the cache function, that handles colorizing
          * @param {TGE.DisplayObjectContainer} [obj]
          */
         cache: function(obj)
@@ -238,6 +240,11 @@ TGE.Sprite.prototype =
 
             if (this._mColorize && this.canvas)
             {
+                // PAN-1613 update from colorDef, if defined
+                if (this.colorDef)
+                {
+                    this._mColorize = GameConfig.COLOR_DEFS[this.colorDef];
+                }
                 var ctx = this.offscreenRenderer.getCanvasContext();
                 ctx.save();
                 ctx.globalCompositeOperation = 'source-atop';
