@@ -1369,7 +1369,7 @@ TGE.Game.prototype =
 
         // PAN-702
         var paddingTop = getQueryString()["padding-top"];
-        var paddingTop = isNaN(paddingTop) ? 0 : parseInt(paddingTop);
+        paddingTop = isNaN(paddingTop) ? 0 : parseInt(paddingTop);
 
         var gameWidth = this._mFullStage._mOriginalWidth;
         var gameHeight = this._mFullStage._mOriginalHeight;
@@ -1478,6 +1478,14 @@ TGE.Game.prototype =
 
 			this._mDivResized = true;
 	    }
+	    else
+        {
+            // PAN-1603 make sure _ResizeEvent has correct w/h (since we're not calling setSize above)
+            if (TGE._ResizeEvent.width !== this._mFullStage.width || TGE._ResizeEvent.height !== this._mFullStage.height)
+            {
+                this._mFullStage.dispatchResize();
+            }
+        }
 
         TGE.Debug.Log(TGE.Debug.LOG_VERBOSE, "_resizeViewport::game size: " + gameWidth + "x" + gameHeight + ", \nscreen size: " + screenWidth + "x" + screenHeight);
 
