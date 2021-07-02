@@ -3,14 +3,9 @@
 /** @ignore */
 TGE.WebAudioAPIPlugin = function()
 {
-	TGE.Debug.Log(TGE.Debug.LOG_INFO, "creating WebAudioAPIPlugin...");
-
 	this._mSoundInstances = [];
 	this._mPausedInstances = [];
     this._mFunctioning = false;
-
-	// PAN-574
-    this._mUnlockedAudio = !TGE.BrowserDetect.oniOS;
 
 	// Create the context
 	this._mContext = null;
@@ -22,11 +17,10 @@ TGE.WebAudioAPIPlugin = function()
 		// FOR TESTING simulate new autoplay policy
 		// this._mContext.suspend();
 
-		// PAN-1194 Chrome autoplay policy will create the AudioContext in a suspended state, and needs to unlock on touch event
-		if (this._mContext.state === "suspended")
-		{
-			this._mUnlockedAudio = false;
-		}
+		// PAN-1576 all platforms now base initial unlocked flag on the context state
+		this._mUnlockedAudio = (this._mContext.state === "running");
+
+		TGE.Debug.Log(TGE.Debug.LOG_INFO, "created WebAudioAPIPlugin, state: " + this._mContext.state);
 
 		// Maintain backward compatibility with older versions of web audio API
         this._backwardCompatibility();
@@ -152,30 +146,30 @@ TGE.WebAudioAPIPlugin.prototype =
 	// because AudioManager is created before the stage, this is called in TGE.Game upon stage creation
 	unlockAudioOnTouch: function()
 	{
-		this._mTouchListenerDown = TGE.Game.GetInstance()._mFullStage.addEventListener ( "mousedown", this.testUnlock.bind ( this ) );
-		this._mTouchListenerUp = TGE.Game.GetInstance()._mFullStage.addEventListener ( "mouseup", this.testUnlock.bind ( this ) );
+		this._mTouchListenerDown = TGE.Game.GetInstance()._mFullStage.addEventListener ( "mousedown", this.unlockAudio.bind ( this ) );
+		this._mTouchListenerUp = TGE.Game.GetInstance()._mFullStage.addEventListener ( "mouseup", this.unlockAudio.bind ( this ) );
 	},
 
-	testUnlock: function ()
+	testUnlock: function()
 	{
-		if ( this._mUnlockedAudio )
+		if (!this._mUnlockedAudio && this._mContext.state === "running")
 		{
-			return;
+			this._setUnlocked();
 		}
+		return this._mUnlockedAudio;
+	},
 
-		// PAN-1531 some browsers, like Firefox, unlock the audio by themselves
-		if (this._mContext.state === "running")
-		{
-			this.unlockAudio();
-			return;
-		}
+	unlockAudio: function ()
+	{
+		// PAN-1531 some browsers, like Firefox, unlock the audio by themselves, so we check it first
+		if (this.testUnlock()) return;
 
 		if (TGE.BrowserDetect.oniOS)
 		{
 			// create empty buffer and play it
 			var buffer = this._mContext.createBuffer ( 1, 1, 22050 );
 			var testSource = this._mContext.createBufferSource ();
-			testSource.onended = this.unlockAudio.bind ( this );
+			testSource.onended = this._setUnlocked.bind ( this );
 			testSource.buffer = buffer;
 			testSource.connect ( this._mContext.destination );
 			testSource.start ( 0 );
@@ -185,14 +179,14 @@ TGE.WebAudioAPIPlugin.prototype =
 			var self = this;
 			this._mContext.resume().then(function() {
 				// console.log("audio unlocked");
-				self.unlockAudio();
+				self._setUnlocked();
 			}).catch(function(e) {
 				TGE.Debug.Log(TGE.Debug.LOG_WARNING,"AudioContext.resume() failed: " + e);
 			});
 		}
 	},
 
-	unlockAudio: function ()
+	_setUnlocked: function ()
 	{
 		this._mUnlockedAudio = true;
 		if (this._mTouchListenerUp)

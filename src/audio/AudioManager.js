@@ -216,7 +216,7 @@ TGE.AudioManager.prototype =
 	{
 		if (this._mPlugin instanceof TGE.WebAudioAPIPlugin)
 		{
-			return this._mPlugin._mUnlockedAudio === true;
+			return this._mPlugin.testUnlock();
 		}
 		return false;
 	},
