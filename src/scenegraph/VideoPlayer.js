@@ -32,6 +32,7 @@ TGE.VideoPlayer.LoadEvents = [
     "loadeddata",
     "canplay",
     "canplaythrough",
+    "rendered"      // this is a non-native event synthesized by VP when the first frame data is drawn
 ];
 
 TGE.VideoPlayer.PlayEvents = [
@@ -436,7 +437,7 @@ TGE.VideoPlayer.prototype = {
         var video = this.video;
         if (!this.paused)
         {
-            TGE.VideoPlayer.Wrappers[this.assetId]._playTime = new Date().getTime();
+            this.wrapper._playTime = new Date().getTime();
         }
 
         if (this._playPromise)
@@ -1021,6 +1022,9 @@ TGE.VideoPlayer.prototype = {
             }
         }
 
+        // our synthesized event for "frame is rendered"
+        this.wrapper._onVideoEvent({type: "rendered"});
+
         // only perform pause sync checks when we're not in a pending play Promise
         if (!this._playPromise)
         {
@@ -1047,15 +1051,14 @@ TGE.VideoPlayer.prototype = {
                 {
                     // INV-15 on the mouseup of the initial tap, iOS will pause the video, but not generate a "pause" event,
                     // nor set paused:true in the video element. So we need a second check here, based on whether we've received timeUpdate
-                    var wrapper = TGE.VideoPlayer.Wrappers[this.assetId];
-                    if (wrapper._playTime)
+                    if (this.wrapper._playTime)
                     {
                         // if we haven't received timeUpdate after a threshold, then we assume the video is stuck
                         var now = new Date().getTime();
                         var watchdogTimer = TGE.RemoteSettings.HasSetting("VideoPlayer_watchdogTimer") ? TGE.RemoteSettings("VideoPlayer_watchdogTimer") : 500;
-                        if (now > wrapper._playTime + watchdogTimer)
+                        if (now > this.wrapper._playTime + watchdogTimer)
                         {
-                            this.log("watchdog playTime: " + wrapper._playTime + ", now: " + now);
+                            this.log("watchdog playTime: " + this.wrapper._playTime + ", now: " + now);
                             this._play("watchdog");
                         }
                     }
@@ -1302,12 +1305,11 @@ TGE.VideoPlayer.prototype = {
             this.suspend();
         }
 
-        var wrapper = TGE.VideoPlayer.Wrappers[this.assetId];
-        if (wrapper._videoPlayer === this)
+        if (this.wrapper._videoPlayer === this)
         {
             // clear the VP reference, if it hasn't already been updated by a new instance
             // (which happens on replay, since transitionToWindow makes a new GameScreen before the previous one is removed)
-            wrapper._videoPlayer = null;
+            this.wrapper._videoPlayer = null;
         }
 
         if (this.blurHelper) this.blurHelper.cleanupCanvases()

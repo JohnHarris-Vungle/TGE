@@ -29,7 +29,10 @@ TGE.VideoWrapper.prototype = {
     {
         for (var i = events.length; --i >= 0; )
         {
-            this._video.addEventListener(events[i], this._onVideoEvent.bind(this));
+            if (events[i] !== "rendered")   // "rendered" is generated from the VP _drawVideo
+            {
+                this._video.addEventListener(events[i], this._onVideoEvent.bind(this));
+            }
         }
         this._clearEventCounts(events);
     },
