@@ -73,7 +73,6 @@ TGE.Game = function()
     this._mFullStage = null; // The private true stage
     this.assetManager = new TGE.AssetManager();
 	if (TGE.AudioManager) this.audioManager = new TGE.AudioManager(this.assetManager);
-	this._mUnmuteOnActivate = false;
 
     this.onLoad = null;
 
@@ -383,8 +382,7 @@ TGE.Game.prototype =
         this._mPauseObject.previousUpdateRoot = TGE.Game.GetUpdateRoot();
         TGE.Game.SetUpdateRoot(this._mPauseObject);
 
-        // Pause any audio
-        this.audioManager.pause();
+        this._active(false);
     },
 
     resume: function()
@@ -400,8 +398,7 @@ TGE.Game.prototype =
         this._mPauseObject.markForRemoval();
         this._mPauseObject = null;
 
-        // Resume any audio
-        this.audioManager.resume();
+        this._active(true);
     },
 
     /**
@@ -1569,7 +1566,21 @@ TGE.Game.prototype =
 
 		this._mActive = active;
 
-		// Fire an event so the game can do custom handling like creating/closing a pause screen, pausing or resuming audio
+        // Clear the single-touch tracking (PAN-1426)
+        this._mCurrentPointer = -1;
+
+        if (active)
+        {
+            // Resume any audio
+            this.audioManager.resume();
+        }
+        else
+        {
+            // Pause any audio
+            this.audioManager.pause();
+        }
+
+        // Fire an event so the game can do custom handling like creating/closing a pause screen
 		if(this._mFullStage)
 		{
 			this._mFullStage.dispatchEvent({type: active ? "activate" : "deactivate"});
@@ -1597,18 +1608,8 @@ TGE.Game.prototype =
     {
 	    TGE.Debug.Log(TGE.Debug.LOG_INFO, "game has been put in the background, killing audio and sending deactivate event...");
 
-        // Clear the single-touch tracking (PAN-1426)
-        this._mCurrentPointer = -1;
-
         // Update the internal active state and send a corresponding event to the scene
         this._active(false);
-
-        // Force an audio mute
-        if(this.audioManager && !this.audioManager.isMuted())
-        {
-	        this.audioManager.Mute();
-	        this._mUnmuteOnActivate = true;
-        }
     },
 
 	/** @ignore */
@@ -1616,18 +1617,8 @@ TGE.Game.prototype =
 	{
 		TGE.Debug.Log(TGE.Debug.LOG_INFO, "game has been put to foreground, restoring audio and sending activate event...");
 
-		// Clear the single-touch tracking (PAN-1426)
-        this._mCurrentPointer = -1;
-
 		// Update the internal active state and send a corresponding event to the scene
 		this._active(true);
-
-		// Un-mute the audio if we forced it off
-		if(this.audioManager && this._mUnmuteOnActivate)
-		{
-			this.audioManager.Unmute();
-			this._mUnmuteOnActivate = false;
-		}
 	},
 
 
