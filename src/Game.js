@@ -102,7 +102,11 @@ TGE.Game = function()
     this._mCurrentPointer = -1; // For single-touch limiting
     this._mKeysDown = {};
 
-	this._mActive = true;
+	this._mActive = {       // tracks the different causes for TGE to be in an active/inactive state
+	    running: true,      // pause/resume
+        activated: true,    // activate/deactivate
+	    panel: true         // AdFooter panel
+    };
     this._mUpdateRoot = null;
 
     this.canvasWidth = 0;
@@ -382,7 +386,7 @@ TGE.Game.prototype =
         this._mPauseObject.previousUpdateRoot = TGE.Game.GetUpdateRoot();
         TGE.Game.SetUpdateRoot(this._mPauseObject);
 
-        this._active(false);
+        this._active("running", false);
     },
 
     resume: function()
@@ -398,7 +402,7 @@ TGE.Game.prototype =
         this._mPauseObject.markForRemoval();
         this._mPauseObject = null;
 
-        this._active(true);
+        this._active("running", true);
     },
 
     /**
@@ -1554,17 +1558,20 @@ TGE.Game.prototype =
 
 	/**
 	 * Change the game state to active or deactivated and send corresponding events
-	 * @ignore
-	 */
-	_active: function(active)
+     * @param {String} type
+     * @param {Boolean} active
+     * @ignore
+     */
+	_active: function(type, active)
 	{
-		if(active===this._mActive)
+	    var prevActive = this._isActive();
+        this._mActive[type] = active;
+
+		if(prevActive === this._isActive())
 		{
 			// No change in state
 			return;
 		}
-
-		this._mActive = active;
 
         // Clear the single-touch tracking (PAN-1426)
         this._mCurrentPointer = -1;
@@ -1586,6 +1593,18 @@ TGE.Game.prototype =
 			this._mFullStage.dispatchEvent({type: active ? "activate" : "deactivate"});
 		}
 	},
+
+    _isActive: function()
+    {
+        for (var key in this._mActive)
+        {
+            if (!this._mActive[key])
+            {
+                return false;
+            }
+        }
+        return true;
+    },
 
 	/** @ignore */
 	_onVisibilityChange: function(event)
@@ -1609,7 +1628,7 @@ TGE.Game.prototype =
 	    TGE.Debug.Log(TGE.Debug.LOG_INFO, "game has been put in the background, killing audio and sending deactivate event...");
 
         // Update the internal active state and send a corresponding event to the scene
-        this._active(false);
+        this._active("activated", false);
     },
 
 	/** @ignore */
@@ -1618,7 +1637,7 @@ TGE.Game.prototype =
 		TGE.Debug.Log(TGE.Debug.LOG_INFO, "game has been put to foreground, restoring audio and sending activate event...");
 
 		// Update the internal active state and send a corresponding event to the scene
-		this._active(true);
+		this._active("activated", true);
 	},
 
 

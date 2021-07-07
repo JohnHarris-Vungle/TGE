@@ -317,7 +317,7 @@ TGE.AdFooter.prototype =
 
         // Restore the update root
         TGE.Game.SetUpdateRoot(this.previousUpdateRoot || this._mFullStage);
-        TGE.Game.GetInstance()._active(true);
+        TGE.Game.GetInstance()._active("panel", true);
 
         // Push the panel down to its collapsed position
         this.adjustPanelPosition();
@@ -379,7 +379,7 @@ TGE.AdFooter.prototype =
             this.previousUpdateRoot = TGE.Game.GetUpdateRoot();
         }
         TGE.Game.SetUpdateRoot(this);
-        TGE.Game.GetInstance()._active(false);
+        TGE.Game.GetInstance()._active("panel", false);
 
         // Pull the panel up to its expanded position
         this.adjustPanelPosition();
