@@ -20,11 +20,12 @@ function buildDocs()
         .pipe(jsdoc(jsdocConfig));
 };
 
-function buildAll()
+function buildAll(cb)
 {
     buildVersion("core");
     buildVersion("1.1");
     buildVersion("1.2");
+    cb();
 };
 
 function buildVersion(version)
