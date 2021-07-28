@@ -416,13 +416,26 @@ TGE.Game.prototype._convertStringToType = function (string, type)
 TGE.Game.prototype._printRemoteSettings = function ()
 {
     var printedString = "\nREMOTE SETTINGS (includes replacement of invalid values)\n";
-
-    for (var settingName in this._mRemoteSettings)
+    var settings = this._mRemoteSettings;
+    if (!settings)
     {
-        var settingInfo = this._mRemoteSettings[settingName];
+        printedString = "\nREMOTE SETTINGS (raw initial values)\n";
+        settings = GameConfig.REMOTE_SETTINGS;
+    }
+
+    for (var settingName in settings)
+    {
+        var settingInfo = settings[settingName];
 
         printedString += "\nName: " + settingName;
-        printedString += "\nValue: " + settingInfo.value;
+        if (settingInfo.value !== undefined)
+        {
+            printedString += "\nValue: " + settingInfo.value;
+        }
+        else
+        {
+            printedString += "\nDefault: " + settingInfo.default;
+        }
 
         if (settingInfo.options)
         {

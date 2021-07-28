@@ -66,6 +66,12 @@ TGE.Game = function()
         };
     }
 
+    // PAN-1594 dump raw initial settings if tgedebug=6
+    if (getQueryString()["tgedebug"]==="6")
+    {
+        this._printRemoteSettings();
+    }
+
     // Initialize remote settings before AudioManager
     this._initializeRemoteSettings();
 
