@@ -428,14 +428,7 @@ TGE.Game.prototype._printRemoteSettings = function ()
         var settingInfo = settings[settingName];
 
         printedString += "\nName: " + settingName;
-        if (settingInfo.value !== undefined)
-        {
-            printedString += "\nValue: " + settingInfo.value;
-        }
-        else
-        {
-            printedString += "\nDefault: " + settingInfo.default;
-        }
+        printedString += "\nValue: " + (settingInfo.value !== undefined ? settingInfo.value : settingInfo.default);
 
         if (settingInfo.options)
         {
