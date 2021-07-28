@@ -12,3 +12,7 @@ package-lock.json
 dist_gzip/
 
 docs/
+
+.scannerwork/
+
+sonar-project.properties
