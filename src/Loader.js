@@ -339,7 +339,17 @@ TGE.ElementLoader = function(url, type, asset) {
 	        this.el.setAttribute("playsinline", "");         // for iOS 10+
         }
 
-        var global = TGE.VideoPlayer.Wrappers[asset.id] = new TGE.VideoWrapper(this.el, asset && asset.muted);
+        var wrapper;
+        if (TGE.VideoPlayer)
+        {
+            TGE.VideoPlayer.Wrappers[asset.id] = new TGE.VideoWrapper(this.el, asset && asset.muted);
+        }
+        else
+        {
+            // PAN-1550 need to set muted property on "canplay" event, due to Chrome bug
+            this._startMutedListener = this.startVideoMuted.bind(this);
+            this.bind("canplay", this._startMutedListener);
+        }
 
 	    // add any additional attributes passed in
 	    if (attributes)
@@ -390,9 +400,16 @@ TGE.ElementLoader = function(url, type, asset) {
 	    TGE.Game.GetInstance()._mFullStage.removeEventListener("mouseup", _preloadVideo);
 	    var video = self.el;
 
-        if (global._videoPlayer)
+	    if (wrapper)
         {
-            // we alerady have a VP instance controlling this asset, so exit without doing anything
+            if (wrapper._videoPlayer)
+            {
+                // we alerady have a VP instance controlling this asset, so exit without doing anything
+                return;
+            }
+        }
+	    else if (self._hasVideoPlayer(video))   // legacy check for VP instance when we don't have the VideoWrapper
+        {
             return;
         }
 
