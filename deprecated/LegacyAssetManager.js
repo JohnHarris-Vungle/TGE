@@ -399,6 +399,32 @@ TGE.AssetManager.prototype.getImage = function(id,errorCheck)
     return this.getAsset(id,errorCheck);
 };
 
+/**
+ * Converts an asset group name to an asset list name
+ * @param {String} groupName group name you want to convert to a list name
+ * @returns {String} the asset list name
+ */
+TGE.AssetManager.prototype.getAssetListFromGroup = function (groupName)
+{
+    return this._mGroupToListKey[groupName];
+};
+
+/**
+ * Converts an asset list name to an asset group name
+ * @param {String} listName list name you want to convert to a list group, Ex. "required2"
+ * @returns {String} the asset group name
+ */
+TGE.AssetManager.prototype.getAssetGroupsFromList = function (listName)
+{
+    return this._mListToGroupKey ? this._mListToGroupKey[listName] : [];
+};
+
+TGE.AssetManager.prototype.loadAssetGroup = function (assetGroupName, updateCallback, completeCallback)
+{
+    var assetListName = this.getAssetListFromGroup(assetGroupName);
+    this.loadAssetList(assetListName, updateCallback, completeCallback);
+};
+
 
 
 // From TGE.Game:
@@ -427,118 +453,83 @@ TGE.Game.prototype.requiredAssetsAvailable = function(listNumber, callback, show
 };
 
 /**
- * Waits until the specified asset list has finished loading. In the event that the asset list is not ready,
- * calling this function will by default freeze the game and display a buffering overlay window that remains on screen until the assets are finally available.
- * @param {String} listName Specifies which asset list to check for completion.
- * @param {Function} [callback=null] An optional callback function to be fired if the specified asset list has finished loading and the assets are available for use.
- * @param {Boolean} [showBuffering=true] In the case where the specified asset list has not finished loading yet, the wait parameter indicates whether to freeze gameplay and display a buffering screen until the requested list is available (defaults to true).
- * @returns {Boolean} Whether or not the specified asset list has completed loading.
- * @deprecated
- * @ignore
+ * Checks whether the specified required asset list has finished loading.
+ * @param {Number} listNumber Specifies which required asset list to check for completion. For instance, a listNumber of 3 will check whether the asset list "required3" is ready yet.
+ * @returns {Boolean} Whether or not the specified asset has completed loading.
  */
-TGE.Game.prototype.assetListAvailable = function(listName, callback, showBuffering)
+TGE.Game.prototype.isRequiredAssetsLoaded = function(listNumber)
 {
-    showBuffering = showBuffering!==false;
-    var listNumber = this.assetManager._mLoadingOrder.indexOf(listName);
-
-    // If we're test buffering, we should start loading the list now
-    // (listNumber > 0 means a list in our loading order array, other than "required", which is always in index 0)
-    if (this._mTestBuffering === 1 && callback !== undefined && listNumber > 0)
-    {
-        // Make sure all previous asset lists are tagged for loading before loading this list
-        // (The actual loading takes places in _update() method)
-        for (var i=1; i<=listNumber; i++)
-        {
-            var name = this.assetManager._mLoadingOrder[i];
-            if (!this._mAssetListLoaded[name])
-            {
-                this._mAssetListLoaded[name] = "queued";
-            }
-        }
-    }
-
-    // Has the list been loaded already?
-    var isAssetListLoaded = this._mAssetListLoaded[listName]==="loaded";
-    var isTestBufferingHappening = this._mTestBuffering==1 && listName !== "required" && (!this._mBufferingOccurrences[listName] || this._mBufferingOccurrences[listName].testTimer>0);
-    if(isAssetListLoaded && !isTestBufferingHappening)
-    {
-        if(callback)
-        {
-            callback.call();
-        }
-        return true;
-    }
-
-    // The list isn't loaded, at this point we show the buffering screen (or do an invisible buffering if requested)
-    this._mBuffering = true;
-
-    // Is this the first occurrence of buffering for this asset list?
-    if(!this._mBufferingOccurrences[listName])
-    {
-        this._mBufferingOccurrences[listName] = {
-            completeFired: false,
-            callbacks: callback ? [callback] : [],
-            testTimer: 0.5,
-            showBuffering: showBuffering
-        };
-
-        // Fire an event so we can track the frequency a user encounters a buffering screen for this list
-        if(this._mTestBuffering!=1 && showBuffering)
-        {
-            TGE.Analytics.CustomEvent("buffering_" + listName);
-        }
-    }
-    else if(callback)
-    {
-        var bo = this._mBufferingOccurrences[listName];
-        bo.callbacks.push(callback);
-        bo.showBuffering = showBuffering || bo.showBuffering;
-    }
-
-    // Show the buffering screen if requested
-    if(showBuffering)
-    {
-        TGE.Debug.Log(TGE.Debug.LOG_INFO, "buffering, waiting for assetList: " + listName);
-        this._mShowBuffering = true;
-        this._showBufferingScreen();
-    }
-
-    return false;
+    return this.requiredAssetsAvailable(listNumber, undefined, false);
 };
 
 /**
- * Waits until a specified individual asset has finished loading.
- * (Same behavior and options as assetListAvailable, but for single assets).
- * @param {String} id Specifies which AssetManager id to check.
+ * Waits until the specified required asset list has finished loading. In the event that the asset list is not ready,
+ * calling this function will by default freeze the game and display a buffering overlay window that remains on screen until the assets are finally available.
+ * @param {Number} listNumber Specifies which required asset list to check for completion. For instance, a listNumber of 3 will check whether the asset list "required3" is ready yet.
  * @param {Function} [callback=null] An optional callback function to be fired if the specified asset list has finished loading and the assets are available for use.
  * @param {Boolean} [showBuffering=true] In the case where the specified asset list has not finished loading yet, the wait parameter indicates whether to freeze gameplay and display a buffering screen until the requested list is available (defaults to true).
- * @returns {Boolean} Whether or not the specified asset list has completed loading.
- * @deprecated
- * @ignore
+ * @returns {Boolean} Whether or not the specified required asset list has completed loading.
  */
-TGE.Game.prototype.assetAvailable = function(id, callback, showBuffering)
+TGE.Game.prototype.waitForRequiredAssets = function(listNumber, callback, showBuffering)
 {
-    var listName = this.getAssetList(id);
+    return this.requiredAssetsAvailable(listNumber, callback || null, showBuffering)
+};
+
+/**
+ * Waits until the specified asset group has finished loading. In the event that the asset list is not ready,
+ * calling this function will by default freeze the game and display a buffering overlay window that remains on screen until the assets are finally available.
+ * @param {String} groupName Specifies which asset group to check for completion.
+ * @param {Function} callback A callback function to be fired when the specified asset list has finished loading and the assets are available for use.
+ * @param {Boolean} [showBuffering=true] In the case where the specified asset list has not finished loading yet, the wait parameter indicates whether to freeze gameplay and display a buffering screen until the requested list is available (defaults to true).
+ * @returns {Boolean} Whether or not the specified asset list has completed loading.
+ */
+TGE.Game.prototype.waitForAssetGroup = function(groupName, callback, showBuffering)
+{
+    var listName = this.assetManager.getAssetListFromGroup(groupName);
+
     if (listName)
     {
         return this.waitForAssetList(listName, callback, showBuffering);
     }
-    else if (callback != null)
+    else
     {
-        // PAN-1038 asset not part of a list yet, so save for future tests with new localized asset lists
-        this._mWaitingForAssets.push({id:id, callback:callback, showBuffering:showBuffering});
+        TGE.Debug.Log(TGE.Debug.LOG_ERROR, "waitForAssetGroup() could not find asset group '" + groupName + "'.  It was never queued for load OR it was never used in GameConfig.ASSETS");
+        return false;
+    }
+};
 
-        // When testbuffering=1, nothing triggers the load of a localized asset list itself.
-        // Normally, that happens inside of assetListAvailable to queue up to the one we're waiting for.
-        // In this case however, we won't know what list that is until *after* it's loaded,
-        // thus no way to request that list ahead of time.
-        // So we'll queue those up one at a time, in numbered order, until finding those assets.
-        // (The process continues in AssetManager._processSheetLayouts)
-        if (this._mTestBuffering === 1)
+/** @ignore */
+TGE.Game.prototype._logFinishedLoadingRequiredAssets = function (listName)
+{
+    var logMessage = "Finished loading " + listName;
+    var assetGroups = this.assetManager.getAssetGroupsFromList(listName);
+
+    if (assetGroups.length)
+    {
+        logMessage += " groups: ";
+        for (var i in assetGroups)
         {
-            this._loadNextAssetList();
+            logMessage += assetGroups[i];
+
+            if (i != assetGroups.length - 1)
+            {
+                logMessage += ", "
+            }
         }
     }
-    return false;
+
+    TGE.Debug.Log(TGE.Debug.LOG_INFO, logMessage);
+};
+
+/**
+ * Checks whether a specified asset group has finished loading.
+ * @param {String} groupName Specifies which asset group to check for completion.
+ * @returns {Boolean} Whether or not the asset group has completed loading.
+ */
+TGE.Game.prototype.isAssetGroupLoaded = function(groupName)
+{
+    var listName = this.assetManager.getAssetListFromGroup(groupName);
+
+    return this.assetListAvailable(listName, undefined, false);
 };
 

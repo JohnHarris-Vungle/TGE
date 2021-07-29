@@ -52,8 +52,11 @@ TGE.AssetManager = function(loadAudio)
 		TGE.AssetManager.TrackAssets = true;
 	}
 
-	// Parse new GamConfig.ASSETS object
-    this._parseAssets();
+	// Parse GamConfig.ASSETS object, if legacy support is included
+	if (this._parseAssets)
+	{
+		this._parseAssets();
+	}
 
     return this;
 }
@@ -254,26 +257,6 @@ TGE.AssetManager.prototype =
                 this._recordAsset(this._mRootLocation + asset);
             }).bind(this));
         }
-    },
-
-    /**
-     * Converts an asset group name to an asset list name
-     * @param {String} groupName group name you want to convert to a list name
-     * @returns {String} the asset list name
-     */
-    getAssetListFromGroup: function (groupName)
-    {
-        return this._mGroupToListKey[groupName];
-    },
-
-    /**
-     * Converts an asset list name to an asset group name
-     * @param {String} listName list name you want to convert to a list group, Ex. "required2"
-     * @returns {String} the asset group name
-     */
-    getAssetGroupsFromList: function (listName)
-    {
-        return this._mListToGroupKey ? this._mListToGroupKey[listName] : [];
     },
 
     /**
@@ -513,12 +496,6 @@ TGE.AssetManager.prototype =
 			    completeCallback({errors:false}); // Technically there were no errors in loading...
 		    }
 	    }
-    },
-
-    loadAssetGroup: function (assetGroupName, updateCallback, completeCallback)
-    {
-        var assetListName = this.getAssetListFromGroup(assetGroupName);
-        this.loadAssetList(assetListName, updateCallback, completeCallback);
     },
 
 	/**
