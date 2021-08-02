@@ -122,9 +122,10 @@ TGE.Game.AddEventListener = function(type, listener)
             break;
 
         case "tgeAssetListsLoaded":
-            setTimeout(function() {
-                listener.call();
-            }, 1000);
+            // JH: Not sure why yet, but firing this listener puts up the loading spinner in 3pPlayable demo
+            // setTimeout(function() {
+            //     listener.call();
+            // }, 2000);
             break;
     }
 }
