@@ -5,6 +5,8 @@
 	"files": {
 		"core": [
 			"src/Core.js",
+			"src/Utilities.js",
+			"src/NonTGEGame.js",
 			"src/RemoteSettings.js"
 		],
 
