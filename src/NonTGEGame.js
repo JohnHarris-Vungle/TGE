@@ -115,17 +115,16 @@ TGE.Game.AddEventListener = function(type, listener)
     // Check if any of them need to be fired right away
     switch (type)
     {
-        case "tgeGameReady":
         case "tgeGameViewable":
         case "tgeStageReady":
+        case "tgeGameReady":
             listener.call();
             break;
 
         case "tgeAssetListsLoaded":
-            // JH: Not sure why yet, but firing this listener puts up the loading spinner in 3pPlayable demo
-            // setTimeout(function() {
-            //     listener.call();
-            // }, 2000);
+            setTimeout(function() {
+                document.dispatchEvent(new Event("tgeAssetListsLoaded"));
+            }, 1000);
             break;
     }
 }
