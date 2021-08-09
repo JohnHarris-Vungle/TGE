@@ -426,32 +426,6 @@ TGE.AssetManager.prototype.loadAssetGroup = function (assetGroupName, updateCall
 };
 
 
-// From TGE.ElementLoader:
-
-TGE.ElementLoader.prototype.startVideoMuted = function(video)
-{
-    this.unbind("canplay", this._startMutedListener);
-    var game = TGE.Game.GetInstance();
-    this.el.muted = this.muted !== undefined ? this.muted : TGE.AudioManager._sMuted || (TGE.InCreativeBuilder() && game && !game.timeSinceLastInteraction());
-};
-
-TGE.ElementLoader.prototype._hasVideoPlayer = function(video)
-{
-    if (window.VideoPlayerGlobals)
-    {
-        for (var key in VideoPlayerGlobals)
-        {
-            var v = VideoPlayerGlobals[key];
-            if (v && typeof v === "object" && v._video === video)
-            {
-                // we alerady have a VP instance controlling this asset, so exit without doing anything
-                return true;
-            }
-        }
-    }
-    return false;
-};
-
 
 // From TGE.Game:
 
