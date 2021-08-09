@@ -339,7 +339,7 @@ TGE.ElementLoader = function(url, type, asset) {
 	        this.el.setAttribute("playsinline", "");         // for iOS 10+
         }
 
-        var global = TGE.VideoPlayer.Wrappers[asset.id] = new TGE.VideoWrapper(this.el, asset && asset.muted);
+        var wrapper = TGE.VideoPlayer.Wrappers[asset.id] = new TGE.VideoWrapper(this.el, asset && asset.muted);
 
 	    // add any additional attributes passed in
 	    if (attributes)
@@ -390,7 +390,7 @@ TGE.ElementLoader = function(url, type, asset) {
 	    TGE.Game.GetInstance()._mFullStage.removeEventListener("mouseup", _preloadVideo);
 	    var video = self.el;
 
-        if (global._videoPlayer)
+        if (wrapper._videoPlayer)
         {
             // we alerady have a VP instance controlling this asset, so exit without doing anything
             return;
